@@ -66,6 +66,15 @@ a{
 
     /* Animation */
      --animation-duration: 300ms;
+
+     --line:#e7ebf0;
+    --text:#1b2533;
+    --muted:#6b7482;
+    --step-bg:#f6f7fa;
+    --step-border:#e3e6ec;
+    --active:#0f2a44;      /* 완료(선택) 색 */
+    --radius:10px;
+    --shadow:0 6px 20px rgba(0,0,0,.06);
   }  
 
     /* Universal tags */
@@ -187,11 +196,41 @@ a{
   background-size: 110%; /* 살짝 확대 */
 }
 
+  .wrap{max-width:980px; margin:15% auto; padding:0 18px; display:grid; gap:18px;}
 
+  /* 텍스트 네비: 균등폭 */
+  .text-nav{ display:flex; width:100%; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  .tlink{ flex:1 1 0; min-width:0; text-align:center; padding:10px 6px; cursor:pointer; user-select:none; border-right:1px solid var(--line); background:#fff; }
+  .tlink:last-child{ border-right:none; }
+  .tlink:hover{ background:#f5f7fa; }
+  .tlink.current{ color:#fff; background:var(--active); }
 
+  /* 진행바 */
+  .header-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .bar{
+    position:relative; width:340px; height:8px; border-radius:999px;
+    background:#eee; border:1px solid var(--line); overflow:hidden;
+  }
+  .bar .fill{
+    position:absolute; left:0; top:0; bottom:0; width:0%;
+    background:linear-gradient(90deg,#22c55e,#16a34a);
+    transition:width .25s ease;
+  }
+  .percent{ min-width:60px; text-align:right; font-weight:700; }
+  @media (max-width: 720px){ .bar{ width:100%; } }
 
-
-
+  /* 스텝 카드 */
+  .steps{ display:grid; grid-template-columns:repeat(7,1fr); gap:12px; margin-top:10px; }
+  @media (max-width: 960px){ .steps{ grid-template-columns:repeat(3,1fr); } }
+  .step{
+    background:var(--step-bg); border:1px solid var(--step-border); border-radius:var(--radius);
+    padding:10px 12px; height:76px; display:flex; flex-direction:column; gap:6px;
+    cursor:pointer; box-shadow:var(--shadow); color:#354255;
+  }
+  .step .head{ font-size:11px; font-weight:800; color:#7a8492; letter-spacing:.5px; }
+  .step .name{ font-size:14px; font-weight:700; color:inherit; }
+  .step.done{ background:var(--active); border-color:var(--active); color:#fff; }
+  .step.done .head{ color:inherit; }
 
 /* Section common */
 .section {
@@ -204,6 +243,12 @@ a{
   max-width: 1200px;
   margin: auto;
 }
+
+
+
+
+
+
 
 /* About */
 
