@@ -74,11 +74,15 @@
     </section> 
 
     <section id="about" class="section">
-         
+        <a href="studio.html" ><h3>1</h3></a>
+        <a href="studio2.html" ><h3>2</h3></a>
+        <a href="" ><h3>3</h3></a>
+        <a href="" ><h3>4</h3></a>
+        <a href="" ><h3>5</h3></a>
     </section>
 
     <section id="skills" class="section">
- 
+
     </section>
 
 
@@ -116,7 +120,13 @@ function renderGauge(){
       + (blockStates[i]==='partial' ? ' partial' : '')
       + (blockStates[i]==='done' ? ' done' : '');
     div.dataset.index = i;
+
+    // 화면 표시용 라벨
+    div.setAttribute('data-label', `${i+1}단계 · ${s.name}`);
+
+    // 툴팁도 유지
     div.title = `${i+1}단계 · ${s.name}`;
+
     gaugeEl.appendChild(div);
   });
 }
