@@ -37,43 +37,40 @@
     </nav>
 
     <section id="home">
-         <div class="wrap">
-            <!-- 스텝바 -->
-            <div class="card" id="stepperCard" aria-label="프로세스 스텝바">
-            <div class="stepper" id="stepper">
-                <!-- JS에서 채움 -->
-            </div>
-            </div>
+<div class="wrap">
 
-            <!-- 본문 : 도넛 + 범례 -->
-            <div class="card">
-            <div class="main">
-                <div class="box">
-                <h2 id="stepTitle">1단계</h2>
-                <svg id="donut" viewBox="0 0 240 240" role="group" aria-label="도넛차트">
-                    <!-- 배경 링 -->
-                    <circle cx="120" cy="120" r="84" fill="none" stroke="#eef1f5" stroke-width="24"/>
-                    <!-- 구간 그룹 -->
-                    <g id="segments" transform="rotate(-90 120 120)"></g>
-                    <!-- 중앙 텍스트 -->
-                    <g>
-                    <text x="120" y="110" class="centerText muted" font-size="12">완료</text>
-                    <text id="centerMain" x="120" y="130" class="centerText">0 / 5</text>
-                    </g>
-                </svg>
-                <div class="hint">• 구간을 클릭(또는 Tab▶Enter/Space)해 선택/해제하세요.</div>
-                </div>
-                <div class="box">
-                <h2>범례 & 컨트롤</h2>
-                <div id="legend" class="legend"></div>
-                <div class="controls">
-                    <button id="selectAll">전체 선택</button>
-                    <button id="clearAll">전체 해제</button>
-                </div>
-                </div>
-            </div>
-            </div>
+  <!-- 상단: 블록 게이지 -->
+  <div class="card">
+    <div class="block-gauge" id="gauge" aria-label="단계 게이지(클릭 가능)"></div>
+  </div>
+
+  <!-- 하단: 도넛 + 범례 -->
+  <div class="card">
+    <div class="main">
+      <div class="box">
+        <h2 id="stepTitle">1단계</h2>
+        <svg id="donut" viewBox="0 0 240 240" aria-label="도넛차트">
+          <circle cx="120" cy="120" r="84" fill="none" stroke="#eef1f5" stroke-width="24"/>
+          <g id="segments" transform="rotate(-90 120 120)"></g>
+          <g>
+            <text x="120" y="110" class="centerText muted" font-size="12">완료</text>
+            <text id="centerMain" x="120" y="130" class="centerText">0 / 5</text>
+          </g>
+        </svg>
+        <div class="hint">• 블록을 누르면 해당 단계로 전환되며 도넛은 초기화됩니다. 일부 선택=회색, 전부 선택=파란색.</div>
+      </div>
+      <div class="box">
+        <h2>범례 & 컨트롤</h2>
+        <div id="legend" class="legend"></div>
+        <div class="controls">
+          <button id="selectAll">전체 선택</button>
+          <button id="clearAll">전체 해제</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+</div>
     </section> 
 
     <section id="about" class="section">
@@ -89,117 +86,86 @@
 </html>
 
 <script>
-/* ===================== 데이터/상태 ===================== */
+/* ===== 단계/노드 ===== */
 const steps = [
-  { name: "데이터 선택",   nodes: ["데이터","특성","타깃","기간","검증"] },
-  { name: "전처리 설정",   nodes: ["결측치","스케일","인코딩","파생","샘플링"] },
-  { name: "모델 구성",     nodes: ["n_estimators","max_depth","max_features","criterion","seed"] },
-  { name: "학습/검증 분할", nodes: ["train","valid","test","k-fold","shuffle"] },
-  { name: "평가/리포트",   nodes: ["정확도","AUC","F1","리포트","리프트"] },
+  { name:"데이터 선택",    nodes:["데이터","특성","타깃","기간","검증"] },
+  { name:"전처리 설정",    nodes:["결측치","스케일","인코딩","파생","샘플링"] },
+  { name:"모델 구성",      nodes:["n_estimators","max_depth","max_features","criterion","seed"] },
+  { name:"학습/검증 분할", nodes:["train","valid","test","k-fold","shuffle"] },
+  { name:"평가/리포트",    nodes:["정확도","AUC","F1","리포트","리프트"] },
 ];
 
 let currentStep = 0;
+let data = [];
+const blockStates = Array(steps.length).fill("empty"); // "empty" | "partial" | "done"
 
-// 도넛 데이터는 “현재 스텝 기준 5개 구간, 모두 미선택(false)로 초기화”
-let data = []; // [{label, value, selected}]
-function initDonutData(stepIdx){
-  const nodes = steps[stepIdx].nodes;
-  data = nodes.map(n => ({ label:n, value:1, selected:false }));
-  drawDonut();
-}
-
-/* ===================== 스텝바 렌더 ===================== */
-const stepperEl = document.getElementById('stepper');
+/* ===== 엘리먼트 ===== */
+const gaugeEl   = document.getElementById('gauge');
 const stepTitle = document.getElementById('stepTitle');
+const segGroup  = document.getElementById('segments');
+const centerMain= document.getElementById('centerMain');
+const legend    = document.getElementById('legend');
 
-function renderStepper(){
-  stepperEl.innerHTML = '';
-  steps.forEach((s, i) => {
-    const step = document.createElement('div');
-    step.className = 'step' + (i === currentStep ? ' active' : (i < currentStep ? ' done' : ''));
-    step.setAttribute('role','button');
-    step.setAttribute('tabindex','0');
-    step.setAttribute('aria-label', `${i+1}단계 ${s.name}로 이동`);
-    step.addEventListener('click', ()=> changeStep(i));
-    step.addEventListener('keydown', (e)=>{
-      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); changeStep(i); }
-    });
-
-    const btn = document.createElement('div');
-    btn.className = 'step-btn';
-    btn.textContent = i+1;
-
-    const label = document.createElement('div');
-    label.className = 'step-label';
-    label.textContent = s.name;
-
-    step.appendChild(btn);
-    step.appendChild(label);
-    stepperEl.appendChild(step);
-
-    // 레일(선) 추가: 마지막 이전까지만
-    if(i < steps.length - 1){
-      const rail = document.createElement('div');
-      rail.className = 'step-rail';
-      stepperEl.appendChild(rail);
-    }
+/* ===== 게이지 렌더 (이벤트 위임) ===== */
+function renderGauge(){
+  gaugeEl.innerHTML = '';
+  steps.forEach((s,i)=>{
+    const div = document.createElement('div');
+    div.className = 'gblock'
+      + (i===currentStep ? ' active' : '')
+      + (blockStates[i]==='partial' ? ' partial' : '')
+      + (blockStates[i]==='done' ? ' done' : '');
+    div.dataset.index = i;
+    div.title = `${i+1}단계 · ${s.name}`;
+    gaugeEl.appendChild(div);
   });
-
-  // 진행 rail 채우기
-  const rails = [...document.querySelectorAll('.step-rail')];
-  rails.forEach((r, idx)=>{
-    const fillPct = Math.max(0, Math.min(100, (currentStep > idx ? 100 : 0)));
-    r.style.setProperty('--fill', fillPct + '%');
-    r.style.position = 'relative';
-    r.querySelector?.(':scope > .fill');
-  });
-  // 채움 효과
-  const railEls = document.querySelectorAll('.step-rail');
-  railEls.forEach((el, i)=>{
-    const filled = (i < currentStep) ? '100%' : '0%';
-    el.style.setProperty('--filled', filled);
-    el.style.setProperty('--color', 'var(--accent)');
-    el.style.position = 'relative';
-    el.innerHTML = '';
-    const fill = document.createElement('div');
-    fill.style.position = 'absolute';
-    fill.style.left = 0; fill.style.top = 0; fill.style.height = '100%';
-    fill.style.width = filled; fill.style.background = 'var(--accent)';
-    fill.style.transition = 'width .25s ease';
-    el.appendChild(fill);
-  });
-
-  stepTitle.textContent = `${currentStep+1}단계 · ${steps[currentStep].name}`;
 }
 
-/* ===================== 도넛 그리기(SVG) ===================== */
+/* 컨테이너 한 곳에만 클릭 바인딩(재렌더링에도 유지) */
+gaugeEl.addEventListener('click', (e)=>{
+  const blk = e.target.closest('.gblock');
+  if(!blk) return;
+  const i = +blk.dataset.index;
+  selectBlock(i);
+});
+
+function selectBlock(i){
+  currentStep = i;
+  blockStates[i] = 'empty';        // 규칙: 블록 진입 = 항상 초기화 상태
+  initDonutForStep(i, true);       // 도넛 완전 초기화
+  renderGauge();                   // Active 테두리 반영
+}
+
+/* ===== 도넛 ===== */
 const cfg = { cx:120, cy:120, r:84, width:24, gapDeg:4,
-  colorOn: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),
+  colorOn:getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),
   colorOff:getComputedStyle(document.documentElement).getPropertyValue('--base').trim()
 };
-const segGroup   = document.getElementById('segments');
-const centerMain = document.getElementById('centerMain');
-const legend     = document.getElementById('legend');
-
-const toRad = (deg)=> (Math.PI/180)*deg;
-const polar = (cx,cy,r,ang)=>({ x: cx + r*Math.cos(toRad(ang)), y: cy + r*Math.sin(toRad(ang)) });
-function arcPath(cx,cy,r,startDeg,endDeg){
-  const s = polar(cx,cy,r,startDeg), e = polar(cx,cy,r,endDeg);
-  const large = ((endDeg - startDeg) % 360) > 180 ? 1 : 0;
+const toRad = d => (Math.PI/180)*d;
+const polar = (cx,cy,r,a)=>({ x: cx + r*Math.cos(toRad(a)), y: cy + r*Math.sin(toRad(a)) });
+function arcPath(cx,cy,r,start,end){
+  const s=polar(cx,cy,r,start), e=polar(cx,cy,r,end);
+  const large = ((end-start)%360) > 180 ? 1 : 0;
   return `M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 1 ${e.x} ${e.y}`;
+}
+
+function initDonutForStep(stepIdx, forceReset=false){
+  const nodes = steps[stepIdx].nodes;
+  data = nodes.map(n => ({ label:n, value:1, selected:false })); // 항상 비워서 시작
+  drawDonut();
 }
 
 function drawDonut(){
   segGroup.innerHTML = '';
-  const total = data.reduce((a,b)=>a+b.value,0);
-  const gaps  = cfg.gapDeg * data.length;
-  let current = 0;
+  stepTitle.textContent = `${currentStep+1}단계 · ${steps[currentStep].name}`;
 
-  data.forEach((d, i)=>{
+  const total = data.length;
+  const gaps  = cfg.gapDeg * data.length;
+  let cur = 0;
+
+  data.forEach((d,i)=>{
     const sweep = (d.value/total) * (360 - gaps);
-    const start = current;
-    const end   = current + Math.max(0, sweep);
-    current     = end + cfg.gapDeg;
+    const start = cur, end = cur + sweep; cur = end + cfg.gapDeg;
 
     const path = document.createElementNS('http://www.w3.org/2000/svg','path');
     path.setAttribute('d', arcPath(cfg.cx,cfg.cy,cfg.r,start,end));
@@ -207,45 +173,42 @@ function drawDonut(){
     path.setAttribute('stroke', d.selected ? cfg.colorOn : cfg.colorOff);
     path.setAttribute('stroke-width', cfg.width);
     path.setAttribute('stroke-linecap','round');
-    path.setAttribute('class','seg');
-    path.setAttribute('tabindex','0');
-    path.setAttribute('role','button');
-    path.setAttribute('aria-pressed', String(d.selected));
-    path.setAttribute('aria-label', `${d.label} 선택 토글`);
-    path.dataset.index = i;
-
-    path.addEventListener('click', ()=> toggle(i));
-    path.addEventListener('keydown', (e)=>{
-      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle(i); }
-    });
-
+    path.classList.add('seg');
+    path.addEventListener('click', ()=> toggleSeg(i));
     segGroup.appendChild(path);
   });
 
-  const done = data.filter(d=>d.selected).length;
-  centerMain.textContent = `${done} / ${data.length}`;
-  syncLegend();
+  applyStateToCurrentBlock();
+  renderLegend();
 }
 
-function toggle(i){
+function toggleSeg(i){
   data[i].selected = !data[i].selected;
+  // 도넛 다시 그리면서 상태 재평가
   drawDonut();
 }
 
-/* ===================== 범례/컨트롤 ===================== */
-function syncLegend(){
+function applyStateToCurrentBlock(){
+  const done = data.filter(d=>d.selected).length;
+  const total = data.length;
+  centerMain.textContent = `${done} / ${total}`;
+
+  const state = (done === 0) ? 'empty' : (done < total ? 'partial' : 'done');
+  blockStates[currentStep] = state;
+  renderGauge(); // 상태 클래스 반영(이벤트 위임이라 클릭 문제 없음)
+}
+
+/* ===== 범례/컨트롤 ===== */
+function renderLegend(){
   legend.innerHTML = '';
   data.forEach((d,i)=>{
     const chip = document.createElement('div');
-    chip.className = `chip ${d.selected ? 'active':''}`;
+    chip.className = `chip ${d.selected ? 'active' : ''}`;
     chip.textContent = d.label;
-    chip.setAttribute('role','button');
-    chip.setAttribute('aria-pressed', String(d.selected));
-    chip.addEventListener('click', ()=> toggle(i));
+    chip.addEventListener('click', ()=> toggleSeg(i));
     legend.appendChild(chip);
   });
 }
-
 document.getElementById('selectAll').addEventListener('click', ()=>{
   data.forEach(d=>d.selected=true); drawDonut();
 });
@@ -253,14 +216,7 @@ document.getElementById('clearAll').addEventListener('click', ()=>{
   data.forEach(d=>d.selected=false); drawDonut();
 });
 
-/* ===================== 스텝 변경(← 도넛 초기화) ===================== */
-function changeStep(i){
-  currentStep = i;
-  renderStepper();          // 스텝바 UI 업데이트
-  initDonutData(i);         // ★ 도넛 데이터 초기화(모든 구간 미선택)
-}
-
-/* 초기 렌더 */
-renderStepper();
-initDonutData(currentStep);
+/* ===== 초기 실행 ===== */
+renderGauge();
+initDonutForStep(currentStep, true);
 </script>

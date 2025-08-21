@@ -232,96 +232,18 @@ a{
 
 
 .wrap {
-  max-width: 860px;
+  max-width: 920px;
   margin: 10% 10% 10% 25%;
+  display: grid;
+  gap: 18px;
 }
 
 .card {
+  position: relative;
   background: #fff;
   border: 1px solid #e6e9ee;
   border-radius: 16px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, .05);
-}
-
-/* ===== 스텝바 ===== */
-.stepper {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 20px;
-}
-
-.step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  min-width: 60px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.step-btn {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border: 2px solid var(--base);
-  border-radius: 50%;
-  background: #fff;
-  color: #4b5563;
-  font-weight: 700;
-  transition: .15s;
-}
-
-.step.active .step-btn {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: #fff;
-}
-
-.step.done .step-btn {
-  border-color: var(--accent);
-  background: #fff;
-  color: var(--accent);
-}
-
-.step-label {
-  font-size: 12px;
-  color: #6b7380;
-}
-
-.step-rail {
-  flex: 1;
-  height: 2px;
-  position: relative;
-  top: -10px;
-  background: #e6e9ee;
-}
-
-.step-rail::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0%;
-  height: 100%;
-  background: var(--accent);
-  transition: width .25s ease;
-}
-
-/* ===== 본문 ===== */
-.main {
-  display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: 22px;
-  padding: 22px;
-}
-
-@media (max-width: 880px) {
-  .main {
-    grid-template-columns: 1fr;
-  }
+  box-shadow: 0 6px 24px rgba(0,0,0,.05);
 }
 
 .box {
@@ -333,13 +255,58 @@ h2 {
   font-size: 18px;
 }
 
-.hint {
-  margin-top: 2px;
-  font-size: 12px;
-  color: #6b7380;
+/* ===== 블록 게이지 ===== */
+.block-gauge {
+  display: flex;
+  gap: 18px;
+  padding: 14px 18px 8px;
+  position: relative;
+  z-index: 5;   /* 겹침 방지 */
 }
 
-/* ===== 도넛 ===== */
+.gblock {
+  flex: 1 1 0;
+  height: 16px;
+  cursor: pointer;
+  position: relative;
+  border: 2px solid var(--border);
+  border-radius: 3px;
+  background: #fff;
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,.25);
+  transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
+  user-select: none;
+}
+
+.gblock.active {
+  border-color: var(--active);
+  box-shadow: inset 0 -2px 0 rgba(122,59,0,.45);
+}
+
+.gblock.partial {
+  background: var(--base);
+  border-color: #586271;
+}
+
+.gblock.done {
+  background: var(--accent);
+  border-color: #0b3d56;
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,.35);
+}
+
+/* ===== 본문 (도넛 + 범례) ===== */
+.main {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 22px;
+  padding: 0 22px 22px;
+}
+
+@media (max-width: 900px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+}
+
 svg {
   display: block;
   width: 100%;
@@ -361,20 +328,16 @@ svg {
   cursor: pointer;
   transition: opacity .15s ease, stroke .15s ease;
 }
-
 .seg:hover {
   opacity: .9;
 }
-
 .seg:focus {
   outline: none;
 }
-
 .seg:focus-visible {
-  filter: drop-shadow(0 0 .6rem rgba(10, 111, 176, .5));
+  filter: drop-shadow(0 0 .6rem rgba(10,111,176,.5));
 }
 
-/* ===== 범례/컨트롤 ===== */
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -391,7 +354,6 @@ svg {
   cursor: pointer;
   user-select: none;
 }
-
 .chip.active {
   background: var(--accent);
   border-color: var(--accent);
@@ -411,7 +373,6 @@ button {
   background: #fff;
   cursor: pointer;
 }
-
 button:hover {
   background: #f2f5f9;
 }
