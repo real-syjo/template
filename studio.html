@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ocean AI</title>
+    <meta name="description" content="Portfolio for world-renowned software engineer soyeon">
+    <meta name="author" content="soyeon">
+
+    <script src="https://kit.fontawesome.com/7ebfe642cb.js" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="studioStyle.css"/>
+    <script src="home.js" defer></script>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@2.4.1/dist/email.min.js"> </script>
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+</head>
+
+<body>
+     <nav id="navbar">
+        <div class="navbar__logo"> 
+            <a href="index.html">Ocean Ai</a>
+        </div>
+            <ul class="navbar__menu">
+                  <a href="studio.html"><li class="navbar__menu__item" data-link="#about">디자인스튜디오</li></a>
+                <a href="mart.html"><li class="navbar__menu__item" data-link="#skills">금융데이터마트</li></a>
+                <a href="gallery.html"><li class="navbar__menu__item" data-link="#work">포트폴리오갤러리</li></a>
+                <a href="admin.html"><li class="navbar__menu__item" data-link="#contact">작업관리자</li></a>
+            </ul>
+        </div>
+        <!-- Toggle button -->
+        <button class="navbar__toggle-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <section id="home">
+         <div class="wrap">
+            <!-- 스텝바 -->
+            <div class="card" id="stepperCard" aria-label="프로세스 스텝바">
+            <div class="stepper" id="stepper">
+                <!-- JS에서 채움 -->
+            </div>
+            </div>
+
+            <!-- 본문 : 도넛 + 범례 -->
+            <div class="card">
+            <div class="main">
+                <div class="box">
+                <h2 id="stepTitle">1단계</h2>
+                <svg id="donut" viewBox="0 0 240 240" role="group" aria-label="도넛차트">
+                    <!-- 배경 링 -->
+                    <circle cx="120" cy="120" r="84" fill="none" stroke="#eef1f5" stroke-width="24"/>
+                    <!-- 구간 그룹 -->
+                    <g id="segments" transform="rotate(-90 120 120)"></g>
+                    <!-- 중앙 텍스트 -->
+                    <g>
+                    <text x="120" y="110" class="centerText muted" font-size="12">완료</text>
+                    <text id="centerMain" x="120" y="130" class="centerText">0 / 5</text>
+                    </g>
+                </svg>
+                <div class="hint">• 구간을 클릭(또는 Tab▶Enter/Space)해 선택/해제하세요.</div>
+                </div>
+                <div class="box">
+                <h2>범례 & 컨트롤</h2>
+                <div id="legend" class="legend"></div>
+                <div class="controls">
+                    <button id="selectAll">전체 선택</button>
+                    <button id="clearAll">전체 해제</button>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </section> 
+
+    <section id="about" class="section">
+         
+    </section>
+
+    <section id="skills" class="section">
+ 
+    </section>
+
+
+</body>
+</html>
+
+<script>
+/* ===================== 데이터/상태 ===================== */
+const steps = [
+  { name: "데이터 선택",   nodes: ["데이터","특성","타깃","기간","검증"] },
+  { name: "전처리 설정",   nodes: ["결측치","스케일","인코딩","파생","샘플링"] },
+  { name: "모델 구성",     nodes: ["n_estimators","max_depth","max_features","criterion","seed"] },
+  { name: "학습/검증 분할", nodes: ["train","valid","test","k-fold","shuffle"] },
+  { name: "평가/리포트",   nodes: ["정확도","AUC","F1","리포트","리프트"] },
+];
+
+let currentStep = 0;
+
+// 도넛 데이터는 “현재 스텝 기준 5개 구간, 모두 미선택(false)로 초기화”
+let data = []; // [{label, value, selected}]
+function initDonutData(stepIdx){
+  const nodes = steps[stepIdx].nodes;
+  data = nodes.map(n => ({ label:n, value:1, selected:false }));
+  drawDonut();
+}
+
+/* ===================== 스텝바 렌더 ===================== */
+const stepperEl = document.getElementById('stepper');
+const stepTitle = document.getElementById('stepTitle');
+
+function renderStepper(){
+  stepperEl.innerHTML = '';
+  steps.forEach((s, i) => {
+    const step = document.createElement('div');
+    step.className = 'step' + (i === currentStep ? ' active' : (i < currentStep ? ' done' : ''));
+    step.setAttribute('role','button');
+    step.setAttribute('tabindex','0');
+    step.setAttribute('aria-label', `${i+1}단계 ${s.name}로 이동`);
+    step.addEventListener('click', ()=> changeStep(i));
+    step.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); changeStep(i); }
+    });
+
+    const btn = document.createElement('div');
+    btn.className = 'step-btn';
+    btn.textContent = i+1;
+
+    const label = document.createElement('div');
+    label.className = 'step-label';
+    label.textContent = s.name;
+
+    step.appendChild(btn);
+    step.appendChild(label);
+    stepperEl.appendChild(step);
+
+    // 레일(선) 추가: 마지막 이전까지만
+    if(i < steps.length - 1){
+      const rail = document.createElement('div');
+      rail.className = 'step-rail';
+      stepperEl.appendChild(rail);
+    }
+  });
+
+  // 진행 rail 채우기
+  const rails = [...document.querySelectorAll('.step-rail')];
+  rails.forEach((r, idx)=>{
+    const fillPct = Math.max(0, Math.min(100, (currentStep > idx ? 100 : 0)));
+    r.style.setProperty('--fill', fillPct + '%');
+    r.style.position = 'relative';
+    r.querySelector?.(':scope > .fill');
+  });
+  // 채움 효과
+  const railEls = document.querySelectorAll('.step-rail');
+  railEls.forEach((el, i)=>{
+    const filled = (i < currentStep) ? '100%' : '0%';
+    el.style.setProperty('--filled', filled);
+    el.style.setProperty('--color', 'var(--accent)');
+    el.style.position = 'relative';
+    el.innerHTML = '';
+    const fill = document.createElement('div');
+    fill.style.position = 'absolute';
+    fill.style.left = 0; fill.style.top = 0; fill.style.height = '100%';
+    fill.style.width = filled; fill.style.background = 'var(--accent)';
+    fill.style.transition = 'width .25s ease';
+    el.appendChild(fill);
+  });
+
+  stepTitle.textContent = `${currentStep+1}단계 · ${steps[currentStep].name}`;
+}
+
+/* ===================== 도넛 그리기(SVG) ===================== */
+const cfg = { cx:120, cy:120, r:84, width:24, gapDeg:4,
+  colorOn: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),
+  colorOff:getComputedStyle(document.documentElement).getPropertyValue('--base').trim()
+};
+const segGroup   = document.getElementById('segments');
+const centerMain = document.getElementById('centerMain');
+const legend     = document.getElementById('legend');
+
+const toRad = (deg)=> (Math.PI/180)*deg;
+const polar = (cx,cy,r,ang)=>({ x: cx + r*Math.cos(toRad(ang)), y: cy + r*Math.sin(toRad(ang)) });
+function arcPath(cx,cy,r,startDeg,endDeg){
+  const s = polar(cx,cy,r,startDeg), e = polar(cx,cy,r,endDeg);
+  const large = ((endDeg - startDeg) % 360) > 180 ? 1 : 0;
+  return `M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 1 ${e.x} ${e.y}`;
+}
+
+function drawDonut(){
+  segGroup.innerHTML = '';
+  const total = data.reduce((a,b)=>a+b.value,0);
+  const gaps  = cfg.gapDeg * data.length;
+  let current = 0;
+
+  data.forEach((d, i)=>{
+    const sweep = (d.value/total) * (360 - gaps);
+    const start = current;
+    const end   = current + Math.max(0, sweep);
+    current     = end + cfg.gapDeg;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', arcPath(cfg.cx,cfg.cy,cfg.r,start,end));
+    path.setAttribute('fill','none');
+    path.setAttribute('stroke', d.selected ? cfg.colorOn : cfg.colorOff);
+    path.setAttribute('stroke-width', cfg.width);
+    path.setAttribute('stroke-linecap','round');
+    path.setAttribute('class','seg');
+    path.setAttribute('tabindex','0');
+    path.setAttribute('role','button');
+    path.setAttribute('aria-pressed', String(d.selected));
+    path.setAttribute('aria-label', `${d.label} 선택 토글`);
+    path.dataset.index = i;
+
+    path.addEventListener('click', ()=> toggle(i));
+    path.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle(i); }
+    });
+
+    segGroup.appendChild(path);
+  });
+
+  const done = data.filter(d=>d.selected).length;
+  centerMain.textContent = `${done} / ${data.length}`;
+  syncLegend();
+}
+
+function toggle(i){
+  data[i].selected = !data[i].selected;
+  drawDonut();
+}
+
+/* ===================== 범례/컨트롤 ===================== */
+function syncLegend(){
+  legend.innerHTML = '';
+  data.forEach((d,i)=>{
+    const chip = document.createElement('div');
+    chip.className = `chip ${d.selected ? 'active':''}`;
+    chip.textContent = d.label;
+    chip.setAttribute('role','button');
+    chip.setAttribute('aria-pressed', String(d.selected));
+    chip.addEventListener('click', ()=> toggle(i));
+    legend.appendChild(chip);
+  });
+}
+
+document.getElementById('selectAll').addEventListener('click', ()=>{
+  data.forEach(d=>d.selected=true); drawDonut();
+});
+document.getElementById('clearAll').addEventListener('click', ()=>{
+  data.forEach(d=>d.selected=false); drawDonut();
+});
+
+/* ===================== 스텝 변경(← 도넛 초기화) ===================== */
+function changeStep(i){
+  currentStep = i;
+  renderStepper();          // 스텝바 UI 업데이트
+  initDonutData(i);         // ★ 도넛 데이터 초기화(모든 구간 미선택)
+}
+
+/* 초기 렌더 */
+renderStepper();
+initDonutData(currentStep);
+</script>
