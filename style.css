@@ -211,6 +211,8 @@ a{
 
 /* 반투명 유리 카드 공통 */
 .card{
+  position: relative;
+  overflow: hidden;
   background: rgba(20,24,31,0.35);          /* 어두운 반투명 */
   backdrop-filter: blur(10px) saturate(120%);/* 유리 느낌 */
   -webkit-backdrop-filter: blur(10px) saturate(120%);
@@ -232,6 +234,103 @@ a{
   background: linear-gradient(135deg,#3791ff 0%, #2356e6 100%);
   border: none;
 }
+
+/* ========== Card Hover Swap ========== */
+/* 카드 본문을 레이어 기준점으로 */
+.card__body {
+  position: relative;
+  min-height: 84px;         /* 카드 높이가 없다면 적당히 확보 */
+  margin-top: 8px;
+}
+
+/* 두 레이어(기본/호버)를 겹쳐놓기 */
+.card__front,
+.card__back {
+    flex-direction: column;   /* 세로 쌓기 */
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px; padding: 12px;
+  text-align: center;
+  transition: opacity .25s ease, transform .25s ease;
+}
+
+/* 초기: front 보임 / back 숨김 */
+.card__front { opacity: 1; transform: translateY(0); }
+.card__back  { opacity: 0; transform: translateY(8px); pointer-events: none; }
+
+/* 호버 or 키보드 포커스가 카드 안으로 들어오면 전환 */
+.card:hover .card__front,
+.card:focus-within .card__front {
+  opacity: 0; transform: translateY(-8px);
+}
+.card:hover .card__back,
+.card:focus-within .card__back {
+  opacity: 1; transform: translateY(0); pointer-events: auto;
+}
+
+/* 버튼/칩 링크 모양 (필요 시 네 기존 스타일에 맞게 조절) */
+.card .btn {
+  display: inline-block;
+  padding: 8px 14px;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  background: #fff;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+}
+.card .btn:hover { background: #f5f7fa; }
+
+/* a.chip도 버튼처럼 보이도록 */
+.card a.chip {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  background: #fff;
+  text-decoration: none;
+  color: #333;
+  font-size: 13px;
+}
+.card a.chip:hover { background: #f5f7fa; }
+
+/* 모션 최소화 선호 시 즉시 전환 */
+@media (prefers-reduced-motion: reduce) {
+  .card__front, .card__back { transition: none; }
+}
+/* 2열 컨테이너: 좌우 배치 + 위쪽 정렬 */
+.card__back.links-2col{
+  flex-direction: row;          /* 두 컬럼 가로로 배치 */
+  justify-content: space-between;
+  align-items: flex-start;      /* 세로(위쪽) 정렬 */
+  gap: 32px;
+  padding: 12px 28px;
+}
+
+/* 각 컬럼: 세로로 쌓기 */
+.links-2col .col{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 왼쪽 컬럼: 왼쪽 정렬 */
+.links-2col .col--left{
+  align-items: flex-start;
+  text-align: left;
+}
+
+/* 오른쪽 컬럼: 오른쪽 정렬 */
+.links-2col .col--right{
+  align-items: flex-end;
+  text-align: right;
+}
+
+/* 링크 한 줄 전체 클릭되게 */
+.links-2col a{
+  display: block;
+}
+
 
 /* 작은 UI 요소 */
 .chip{

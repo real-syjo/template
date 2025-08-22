@@ -66,6 +66,35 @@ a{
 
     /* Animation */
      --animation-duration: 300ms;
+ 
+    --accent:#0a6fb0;     /* 선택(완료) 색 */
+    --base:#cfd3d8;       /* 기본(미완료) 색 */
+    --bg:#f7f8fa;
+    --text:#1c1f24;
+
+     --card:#ffffff;
+      --line:#e6e8ef;
+      --radius:14px;
+      --shadow:0 8px 24px rgba(31,45,61,.08);
+      --text:#2b2f36;
+      --muted:#98a1b3;
+      --primary:#2b7cff;
+      --primary-weak:#e7f0ff;
+      --ok:#00b894;
+      
+  --slide-dur: 0.95s; /* 0.45s → 0.85s 로 느리게 */
+  --slide-ease: cubic-bezier(.25,.9,.25,1)
+
+  --bs-primary: #0d6efd;
+  --bs-secondary: #6c757d;
+  --bs-danger: #dc3545;
+  --bs-light: #f8f9fa;
+  --bs-dark: #212529;
+  --bs-border: rgba(0,0,0,.125);
+  --bs-border-strong:#dee2e6;
+  --bs-radius: .5rem;
+  --bs-shadow: 0 .5rem 1rem rgba(0,0,0,.05);
+  --bs-shadow-lg: 0 1rem 2rem rgba(0,0,0,.08);
   }  
 
     /* Universal tags */
@@ -215,27 +244,104 @@ a{
   background-size: 100%;
 }
 
+
+
+/* 컨테이너는 뷰 밖으로 밀린 부분을 가려줌 */
+.your-panel{ position: relative; overflow: hidden; }
+
+/* 슬라이드(위로) 전환만 사용 */
+/* 패널은 레이어를 겹치기 위해 */
+.your-panel{ position: relative; overflow: hidden; }
+
+/* 위로 슬라이드 (이미 적용해둔 버전 사용) */
 :root{
-    --accent:#0a6fb0;     /* 선택(완료) 색 */
-    --base:#cfd3d8;       /* 기본(미완료) 색 */
-    --bg:#f7f8fa;
-    --text:#1c1f24;
-  }
-  /*donutChart*/
-:root {
-  --accent: #0a6fb0;   /* 활성/선택 색 */
-  --base:   #cfd3d8;   /* 비활성/기본 색 */
-  --bg:     #f7f8fa;
-  --text:   #1c1f24;
+  --slide-dur:.85s;
+  --slide-ease:cubic-bezier(.25,.9,.25,1);
+}
+.your-panel .wrap{
+  transition: transform var(--slide-dur) var(--slide-ease);
+  will-change: transform;
+}
+.your-panel .wrap.is-out{
+  transform: translateY(-100%);   /* 위로 슥- */
+  pointer-events: none;
+}
+
+/* 빈 화면에 띄울 이미지 레이어 (처음엔 숨김) */
+/* 풀스크린 오버레이 */
+.alt-image{
+  position: fixed;      /* 화면 전체 덮기 */
+  inset: 0;             /* top/right/bottom/left: 0 */
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;        /* 가장자리 여백 */
+  background: rgba(255,255,255,.98); /* 살짝 하얀 배경 */
+  opacity: 0;
+  pointer-events: none; /* 숨겨진 상태에서 클릭 차단 */
+  transition: opacity .35s ease;
+}
+
+/* show일 때만 보이기 */
+.alt-image.show{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 안쪽 카드가 컨테이너 전체를 쓰게 */
+.alt-image .image-card{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  box-shadow: none;
+  background: transparent;
+  border: 0;
+}
+
+/* 이미지가 화면에 맞게 꽉 차되 비율 유지 */
+.alt-image img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;  /* 잘리지 않고 맞춤 */
+}
+
+/* 오버레이가 열렸을 때 페이지 스크롤 잠금 */
+body.overlay-open{ overflow: hidden; }
+
+
+/* 이미지 사이즈/룩 */
+.image-card{ 
+  margin:0; 
+  
+}
+#altImg{
+  max-width:max(150vw, 20%);
+  max-height:150vh;
+  width:auto; height:auto;
+  object-fit:contain;
+  display:block;
+  border-radius:12px;
+  box-shadow:0 10px 28px rgba(31,45,61,.18);
+}
+
+/* 모션 최소화 선호 */
+@media (prefers-reduced-motion: reduce){
+  .your-panel .wrap{ transition:none }
+  .alt-image{ transition:none; opacity:1; transform:none }
 }
 
 
 
 .wrap {
-  max-width: 920px;
-  margin: 10% 10% 10% 25%;
+  max-width: 100%;
+  margin: 3% 0% 0% 5%;
   display: grid;
   gap: 18px;
+  width: 93%;
 }
 
 .card {
@@ -246,8 +352,13 @@ a{
   box-shadow: 0 6px 24px rgba(0,0,0,.05);
 }
 
-.box {
+#box {
   padding: 18px;
+}
+
+#donutBox{
+  width: 67%;
+  margin: 17% 0% 16% 8%;
 }
 
 h2 {
@@ -419,6 +530,433 @@ article:hover{
   border-color: rgba(255,255,255,0.5);
 }
 .card--primary::before { content: none !important; }
+
+/* 슬라이드 */
+
+    .slideshow-container {
+      width: 100%;
+      height: 100px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+
+    .slide {
+      font-size: large;
+      display: none;
+      width: 100%;
+      height: 100%;
+      margin: 3% 0%;
+      position: absolute;
+    }
+
+    .slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* 버튼 */
+    .prev, .next {
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      padding: 12px;
+      margin-top: -22px;
+      color: var(--color-dark-grey);;
+      font-weight: bold;
+      font-size: 18px;
+      transition: 0.3s;
+      border-radius: 50%;
+      user-select: none;
+    }
+
+    .next { right: 10px; }
+    .prev { left: 10px; }
+
+    /* 점 네비게이션 */
+    .dots {
+      text-align: center;
+      position: absolute;
+      bottom: 15px;
+      width: 100%;
+    }
+
+    /* .dot {
+      cursor: pointer;
+      height: 5px;
+      width: 5px;
+      margin: 0 3px;
+      background-color: #bbb;
+      border-radius: 20%;
+      display: inline-block;
+      transition: 0.3s;
+    } */
+
+    .active, .dot:hover {
+      color: var(--color-blue);
+    }
+/* collapse */
+
+ /* 카드 */
+  .collapse {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background:#fff;
+  }
+
+  /* 헤더 버튼 */
+  .collapse__btn{
+    width:100%;
+    text-align:left;
+    background:var(--bg);
+    border:0;
+    padding:14px 16px;
+    font-size:16px;
+    color:var(--title);
+    cursor:pointer;
+  }
+  .collapse__btn:hover{background:#f1f3f5}
+
+  /* 본문 (부드러운 높이 전환) */
+  .collapse__content{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .28s ease;
+    padding:0 16px;
+  }
+  .collapse__content.open{
+    /* 충분히 큰 값으로 전환용 최대높이 지정 */
+    max-height: 400px;
+    padding:16px;
+  }
+
+
+/* 화면 가로 100% 사용 + 내부 빈공간 노출을 위해 높이 고정 */
+.shrink-wrap{
+  margin-top: 50px;
+  position: relative;
+  max-width: 100vw;
+  margin: 0 auto;
+  overflow: hidden;    
+  height: 90%;              /* 이미지가 박스 밖으로 새지 않도록 */
+  /* 높이는 JS가 원본으로 '고정'해줌 (축소 상태에서도 동일 높이 유지) */
+}
+
+/* 시각적 축소 담당 레이어 */
+.shrink-scale{
+  position: relative;
+  z-index: 2;                        /* 이미지 위에 얹히도록 */
+  transform-origin: top left;        /* 왼쪽 위를 기준으로 축소 (원하면 center로) */
+  transition: transform 1s ease;
+  width: 100%;
+}
+
+/* 축소 상태 */
+.shrink-wrap.is-shrunk .shrink-scale{
+  transform: scale(var(--scale));
+}
+
+/* ✨ 축소 시 나타날 이미지 레이어 */
+.reveal-media{
+  margin-top: 90px;
+  position: absolute;
+  inset: 0;                          /* 래퍼 전체를 덮음 */
+  z-index: 1;
+  pointer-events: none;              /* 클릭 막지 않음 */
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;                        /* 처음엔 숨김 */
+  transform: scale(1.02);            /* 살짝 확대된 상태에서 */
+  transition: opacity 1s ease, transform 1s ease;
+  background-position: center;       /* (배경이미지 선택 시) */
+  background-size: cover;
+}
+
+/* 이미지가 나타나는 타이밍: 축소 토글 시 페이드인 */
+.shrink-wrap.is-shrunk .reveal-media{
+  opacity: 1;
+  transform: scale(1);               /* 살짝 줌-인 느낌 */
+}
+
+/* <img> 사용 시 맞춤 */
+.reveal-media img{
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: brightness(0.98) contrast(1.03); /* 선택 */
+}
+
+@media (prefers-reduced-motion: reduce){
+  .shrink-scale, .reveal-media { transition: none; }
+}
+
+/* 엑셀 */
+/* 헤더 */
+  .appbar{
+    display:flex; align-items:center; gap:10px;
+    padding:18px 22px;
+  }
+  .appbar h1{ font-size:22px; margin:0; font-weight:700; }
+  .yt{ width:16px; height:16px; background:#ff0000; border-radius:4px; position:relative }
+  .yt::after{content:""; position:absolute; left:5px; top:3px; border-left:7px solid #fff; border-top:5px solid transparent; border-bottom:5px solid transparent;}
+
+  .container{ max-width:1200px; margin:0 auto; padding:10px 20px 60px; }
+
+  /* 상단 컨트롤 바 */
+  .toolbar{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:16px;
+  }
+  .toolbar-grid{
+    display:grid; grid-template-columns: 1.6fr 1.2fr 1.2fr; gap:12px;
+  }
+  .toolbar .group{
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .group .title{ font-weight:700; white-space:nowrap; }
+  .range-fields{ display:flex; align-items:center; gap:8px; flex-wrap:wrap }
+  input[type="date"]{
+    height:34px; padding:0 10px; border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--text);
+  }
+  .btn{
+    height:34px; padding:0 16px; border:1px solid var(--primary);
+    border-radius:9px; background:var(--primary); color:#fff; cursor:pointer; font-weight:600;
+  }
+  .btn:disabled{opacity:.5; cursor:not-allowed}
+
+  /* 탭 */
+  .tabs{ display:flex; gap:10px; width:100% }
+  .tab{
+    flex:1 1 0; height:34px; border-radius:999px; border:1px solid var(--line);
+    background:#fff; color:#222; cursor:pointer; font-weight:600;
+  }
+  .tab.active{ background:var(--primary-weak); color:var(--primary); border-color:#bcd3ff; }
+
+  .note{ grid-column:1/-1; font-size:13px; color:var(--muted); padding-top:6px; }
+
+  /* 데이터 카드 */
+  .card{
+    margin-top:18px; background:var(--card); border:1px solid var(--line);
+    border-radius:var(--radius); box-shadow:var(--shadow); padding:18px;
+  }
+  .card-head{
+    display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px;
+  }
+  .chip{ background:#f4f6fb; border:1px solid var(--line); padding:4px 10px; border-radius:999px; font-weight:600; }
+  .hint{ color:var(--muted); font-size:13px; }
+  .apply{ color:var(--primary); text-decoration:none; font-weight:700; margin-left:8px; }
+
+  /* 컬럼 선택 바 */
+  .col-chooser{
+    display:flex; gap:18px; align-items:center; border:1px solid var(--line); background:#fbfcff;
+    border-radius:10px; padding:10px 12px; margin-bottom:10px;
+    overflow:auto;
+  }
+  .col-chooser label{ display:flex; align-items:center; gap:8px; white-space:nowrap; }
+  .col-chooser input{ width:16px; height:16px; }
+
+  /* 테이블 */
+  .table-wrap{ overflow:auto; border:1px solid var(--line); border-radius:12px }
+  table{ width:max(800px, 100%); border-collapse:separate; border-spacing:0; }
+  thead th{
+    position:sticky; top:0; z-index:2;
+    background:#f5f7fb; border-bottom:1px solid var(--line); color:#596178; font-weight:700;
+  }
+  th, td{ padding:10px 12px; border-bottom:1px solid var(--line); text-align:right; }
+  th:first-child, td:first-child{
+    position:sticky; left:0; background:#fff; text-align:center; z-index:1; font-weight:600;
+    border-right:1px solid var(--line);
+  }
+  tr:nth-child(even) td{ background:#fcfdff; }
+  .ok{ color:var(--ok); font-weight:700 }
+
+/* 아래에서 위로 살짝 슬라이드 + 페이드인 */
+#rc-panel{
+  opacity: 0;
+  transform: translateY(12px) scale(0.995);
+  animation: rcSlideUp .38s cubic-bezier(.22,.9,.28,1) forwards;
+  will-change: transform, opacity;
+}
+
+/* 자식들도 가볍게 따라 올라오게 하고 싶으면 (선택) */
+#rc-panel > *{
+  opacity: 0;
+  transform: translateY(6px);
+  animation: rcChildUp .36s ease-out forwards;
+  animation-delay: .08s;
+}
+#rc-panel > * + *{ animation-delay: .12s; } /* 살짝 지연 */
+
+@keyframes rcSlideUp{
+  0%   { opacity:0; transform: translateY(12px) scale(0.995); }
+  70%  { opacity:1; transform: translateY(-2px) scale(1); }
+  100% { opacity:1; transform: translateY(0) }
+}
+@keyframes rcChildUp{
+  to { opacity:1; transform: translateY(0) }
+}
+
+/* 사용자 모션 감소 선호 시 애니메이션 비활성화 */
+@media (prefers-reduced-motion: reduce){
+  #rc-panel, #rc-panel > *{ animation: none; opacity: 1; transform: none; }
+}
+/* 큰 컨테이너(박스 A/B) - 이미지처럼 보이게 두꺼운 라인 */
+.sel-box{
+  background:#fff;
+  border:3px solid #111;
+  border-radius:12px;
+  padding:12px 12px 16px;
+  min-height:180px;
+}
+.sel-box .box-title{
+  font-weight:700;
+  margin:0 0 8px 4px;
+}
+
+/* 내부 작은 카드들 */
+.mini-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+  align-items:flex-start;
+}
+
+.mini-card{
+  position:relative;
+  width:140px;             /* 필요 시 조절 */
+  height:84px;
+  border:4px solid #111;   /* 스케치처럼 굵은 테두리 */
+  border-radius:6px;
+  background:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:700;
+  transition: opacity .25s ease, transform .25s ease;
+}
+
+/* 삭제(X) 버튼 - 검은 원에 흰색 × */
+.mini-close{
+  position:absolute;
+  top:-10px; right:-10px;
+  width:28px; height:28px;
+  border-radius:50%;
+  background:#111;
+  color:#fff;
+  font-size:16px; line-height:28px; text-align:center;
+  border:2px solid #111;
+  cursor:pointer;
+}
+
+/* 제거 애니메이션 */
+.mini-card.removing{
+  opacity:0;
+  transform: translateY(-6px) scale(0.95);
+}
+
+/* 선택 영역 컨테이너(이미 가지고 있던 트랜지션 유지) */
+.selectDataGroup{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(260px,1fr));
+  gap:16px;
+  margin-top:12px;
+  opacity:0; transform:translateY(10px);
+  transition:opacity .35s ease, transform .35s ease;
+  pointer-events:none;
+}
+.selectDataGroup.show{ opacity:1; transform:translateY(0); pointer-events:auto; }
+
+/* 박스AB */
+.selectDataGroup{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+  font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+}
+
+/* 큰 박스 (카드) */
+.sel-box{
+  background:#fff;
+  border:1px solid var(--bs-border);
+  border-radius: var(--bs-radius);
+  box-shadow: var(--bs-shadow);
+  padding: 1rem;
+}
+.sel-box:hover{ box-shadow: var(--bs-shadow-lg); }
+
+.sel-box .box-head{
+  display:flex; align-items:center; gap:.5rem;
+  margin-bottom:.75rem;
+  border-bottom:1px solid var(--bs-border-strong);
+  padding-bottom:.5rem;
+}
+.sel-box .box-head h4{
+  margin:0; font-size:1rem; font-weight:600; color:var(--bs-dark);
+}
+
+/* 내부 그리드 */
+.mini-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: .75rem;
+}
+
+/* 미니 카드 */
+.mini-card{
+  position:relative;
+  background: var(--bs-light);
+  border:1px solid var(--bs-border-strong);
+  border-radius: .5rem;
+  height:64px;                           /* 깔끔한 컴팩트 사이즈 */
+  padding: .5rem .75rem;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:600; color:var(--bs-dark);
+  box-shadow: 0 .25rem .5rem rgba(0,0,0,.04);
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, background-color .15s ease;
+}
+.mini-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 .75rem 1.5rem rgba(0,0,0,.08);
+  border-color: var(--bs-primary);
+  background:#fff;
+}
+
+/* 태그/뱃지(있다면) */
+.mini-badge{
+  position:absolute; left:8px; top:8px;
+  background: var(--bs-primary); color:#fff;
+  font-size:.625rem; padding:.15rem .38rem; border-radius:.25rem;
+}
+
+/* 심플한 닫기 아이콘 (텍스트 X) */
+.mini-close{
+  position:absolute; right:8px; top:6px;
+  border:0; background:transparent; cursor:pointer;
+  color: var(--bs-secondary); font-size:16px; line-height:1; font-weight:700;
+  opacity:.7; transition: opacity .12s ease, color .12s ease, transform .12s ease;
+}
+.mini-card:hover .mini-close{ opacity:1; color:var(--bs-danger); }
+.mini-close:hover{ transform: scale(1.05); }
+
+/* 제거 애니메이션 */
+@keyframes bs-fadeUpOut {
+  from { opacity:1; transform: translateY(0); }
+  to   { opacity:0; transform: translateY(-4px); }
+}
+.mini-card.removing{ animation: bs-fadeUpOut .18s ease forwards; }
+
+/* 작은 도움 텍스트/아이콘 */
+.mini-icon{
+  font-size:12px; color:var(--bs-secondary);
+}
+
+
 
 #about {
   height: 924px;
