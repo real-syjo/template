@@ -184,167 +184,9 @@
 </html>
 
 <script>
-
-  (function(){
-    /* ===== 단계/노드 ===== */
-const steps = [
-  { name:"데이터 선택",    nodes:["XLP", "XLE", "XLI","XLF"] },
-  { name:"전처리 설정",    nodes:["결측치","스케일","인코딩","파생","샘플링"] },
-  { name:"모델 구성",      nodes:["n_estimators","max_depth","max_features","criterion","seed"] },
-  { name:"학습/검증 분할", nodes:["train","valid","test","k-fold","shuffle"] },
-  { name:"평가/리포트",    nodes:["정확도","AUC","F1","리포트","리프트"] },
-];
-
-
-    const wrap  = document.getElementById('stage');
-    const scale = 0.25; // 축소 배율 (0.25 = 25%)
-
-    function lockSize(){
-      const was = wrap.classList.contains('is-shrunk');
-      if (was) wrap.classList.remove('is-shrunk');
-
-      const inner = wrap.querySelector('.shrink-scale');
-      const rect  = inner.getBoundingClientRect();
-
-      // 래퍼 높이를 '원본 높이'로 고정 (축소 시에도 유지 => 내부에 빈공간 생김)
-      wrap.style.setProperty('--scale', scale);
-
-
-      if (was) wrap.classList.add('is-shrunk');
-    }
-
-    // 초기 측정
-    lockSize();
-
-    // 창 크기 변경 등으로 원본 크기 달라지면 '원본 상태'에서 다시 측정
-    window.addEventListener('resize', () => {
-      if (!wrap.classList.contains('is-shrunk')) lockSize();
-    });
-
-    // 축소/복원 버튼
-    document.getElementById('shrinkBtn').addEventListener('click', () => {
-      wrap.classList.toggle('is-shrunk'); // 1초 전환
-    });
-
-
-  const btn      = document.getElementById('directBtn');
-  const wrapEl   = document.querySelector('.your-panel .wrap');
-  const imgPane  = document.getElementById('resultImage');
-  const altImg   = document.getElementById('altImg'); // 필요 시 동적 src 교체용
-  const overlayImgEl = document.getElementById('dataTicker');
-  const selectGroup  = document.getElementById('selectDataGroup');
-// 오버레이 보여줄 때
-imgPane.classList.add('show');
-document.body.classList.add('overlay-open');   // ⬅ 스크롤 잠금
-imgPane.setAttribute('aria-hidden','false');   // (선택) 접근성
-
-// 오버레이 숨길 때
-imgPane.classList.remove('show');
-document.body.classList.remove('overlay-open'); // ⬅ 스크롤 해제
-imgPane.setAttribute('aria-hidden','true');     // (선택)
-
-// ▼ 박스 A/B 내용을 생성
-function buildSelectBoxes(){
-  const selectGroup  = document.getElementById('selectDataGroup');
-  if (!selectGroup) return;
-
-  // 예시 데이터(갯수는 원하는대로)
-  const itemsA = ["SPY", "QQQ", "BND", "VTI"];
-  const itemsB = ["KODEX 200", "KODEX 코스닥150"];
-
-  const cardTemplate = (label) => `
-    <div class="mini-card">
-      <button class="mini-close" aria-label="삭제">×</button>
-      <span>${label}</span>
-    </div>`;
-
-  selectGroup.innerHTML = `
-    <div class="sel-box" data-box="A">
-      <div class="box-title">미국ETF</div>
-      <div class="mini-grid" >
-        ${itemsA.map(cardTemplate).join("")}
-      </div>
-    </div>
-
-    <div class="sel-box" data-box="B">
-      <div class="box-title">한국ETF</div>
-      <div class="mini-grid">
-        ${itemsB.map(cardTemplate).join("")}
-      </div>
-    </div>
-  `;
-
-  // 트랜지션 보이게 살짝 늦게 show
-  requestAnimationFrame(()=> selectGroup.classList.add('show'));
-}
-
-// ▼ 작은 카드의 X를 누르면 제거 (이벤트 위임)
-document.getElementById('selectDataGroup')?.addEventListener('click', (e)=>{
-  const btn = e.target.closest('.mini-close');
-  if (!btn) return;
-  const card = btn.closest('.mini-card');
-  if (!card) return;
-
-  // 애니메이션 후 실제 DOM 제거
-  card.classList.add('removing');
-  card.addEventListener('transitionend', ()=> card.remove(), { once:true });
-});
-
-if (overlayImgEl){
-  overlayImgEl.addEventListener('click', ()=>{
-    // 1) 오버레이 이미지 감춤
-    imgPane.classList.remove('show');
-
-    // 2) 패널 내려오기(아래로 슬라이드 인)
-    const onBack = (e)=>{
-      if (e.propertyName !== 'transform') return;
-      wrapEl.removeEventListener('transitionend', onBack);
-      // 3) 내려온 뒤 박스 생성
-      buildSelectBoxes();
-    };
-
-    if (wrapEl.classList.contains('is-out')){
-      wrapEl.addEventListener('transitionend', onBack, { once:true });
-      wrapEl.classList.remove('is-out');   // ← 내려오게
-    } else {
-      // 이미 내려와 있으면 바로 박스 생성
-      buildSelectBoxes();
-    }
-  });
-}
-  if(!btn || !wrapEl || !imgPane) return;
-
-  btn.addEventListener('click', ()=>{
-    const goingOut = !wrapEl.classList.contains('is-out');
-
-    if (goingOut) {
-      // (선택) 상황에 따라 이미지 소스 교체 가능
-      // altImg.src = 'assets/your-image.jpg';
-
-      // 이미지 먼저 숨기고 -> 랩을 위로 슬라이드
-      imgPane.classList.remove('show');
-      wrapEl.classList.add('is-out');
-
-      // transform 전환이 끝난 '후' 이미지 나타내기
-      const onEnd = (e)=>{
-        if (e.propertyName !== 'transform') return;
-        imgPane.classList.add('show');
-        wrapEl.removeEventListener('transitionend', onEnd);
-      };
-      wrapEl.addEventListener('transitionend', onEnd, { once:true });
-
-    } else {
-      // 복귀: 이미지를 먼저 감추고 -> 랩을 내려오게
-      imgPane.classList.remove('show');
-      requestAnimationFrame(()=> wrapEl.classList.remove('is-out'));
-    }
-  });
-  })();
-
-
 /* ===== 단계/노드 ===== */
 const steps = [
-  { name:"데이터 선택",    nodes:["XLP", "XLE", "XLI","XLF"] },
+  { name:"데이터 선택",    nodes:["XLP","XLE","XLI","XLF"] },
   { name:"전처리 설정",    nodes:["결측치","스케일","인코딩","파생","샘플링"] },
   { name:"모델 구성",      nodes:["n_estimators","max_depth","max_features","criterion","seed"] },
   { name:"학습/검증 분할", nodes:["train","valid","test","k-fold","shuffle"] },
@@ -352,16 +194,36 @@ const steps = [
 ];
 
 let currentStep = 0;
-let data = [];
-const blockStates = Array(steps.length).fill("empty"); // "empty" | "partial" | "done"
+let donutData   = [];                  // 도넛 세그먼트(칩 진행도만 반영)
+let legendData  = [];                  // 추천DATA 칩 상태
+const blockStates = Array(steps.length).fill("empty");
 
 /* ===== 엘리먼트 ===== */
-const gaugeEl   = document.getElementById('gauge');
-const stepTitle = document.getElementById('stepTitle');
-const segGroup  = document.getElementById('segments');
-const centerMain= document.getElementById('centerMain');
+const wrap     = document.getElementById('stage');
+const gaugeEl  = document.getElementById('gauge');
+const stepTitle= document.getElementById('stepTitle');
+const segGroup = document.getElementById('segments');
+const centerMain = document.getElementById('centerMain');
+const imgPane  = document.getElementById('resultImage');
+const wrapEl   = document.querySelector('.your-panel .wrap');
+const btn      = document.getElementById('directBtn');
 
-/* ===== 게이지 렌더 (이벤트 위임) ===== */
+/* ===== 오버레이 토글(직접 선택) ===== */
+if (btn && wrapEl && imgPane) {
+  btn.addEventListener('click', ()=>{
+    const goingOut = !wrapEl.classList.contains('is-out');
+    if (goingOut) {
+      imgPane.classList.remove('show');
+      wrapEl.classList.add('is-out');
+      wrapEl.addEventListener('transitionend', ()=> imgPane.classList.add('show'), { once:true });
+    } else {
+      imgPane.classList.remove('show');
+      requestAnimationFrame(()=> wrapEl.classList.remove('is-out'));
+    }
+  });
+}
+
+/* ===== 게이지 ===== */
 function renderGauge(){
   gaugeEl.innerHTML = '';
   steps.forEach((s,i)=>{
@@ -371,34 +233,26 @@ function renderGauge(){
       + (blockStates[i]==='partial' ? ' partial' : '')
       + (blockStates[i]==='done' ? ' done' : '');
     div.dataset.index = i;
-
-    // 화면 표시용 라벨
     div.setAttribute('data-label', `${i+1}단계 · ${s.name}`);
-
-    // 툴팁도 유지
     div.title = `${i+1}단계 · ${s.name}`;
-
     gaugeEl.appendChild(div);
   });
 }
-
-/* 컨테이너 한 곳에만 클릭 바인딩(재렌더링에도 유지) */
 gaugeEl.addEventListener('click', (e)=>{
   const blk = e.target.closest('.gblock');
   if(!blk) return;
-  const i = +blk.dataset.index;
-  selectBlock(i);
+  selectBlock(+blk.dataset.index);
 });
-
 function selectBlock(i){
   currentStep = i;
-  blockStates[i] = 'empty';        // 규칙: 블록 진입 = 항상 초기화 상태
-  initDonutForStep(i, true);       // 도넛 완전 초기화
-  renderGauge();                   // Active 테두리 반영
+  blockStates[i] = 'empty';
+  initDonutForStep(i);
+  renderGauge();
 }
 
 /* ===== 도넛 ===== */
-const cfg = { cx:120, cy:120, r:84, width:24, gapDeg:4,
+const cfg = {
+  cx:120, cy:120, r:84, width:24, gapDeg:4,
   colorOn:getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),
   colorOff:getComputedStyle(document.documentElement).getPropertyValue('--base').trim()
 };
@@ -410,9 +264,19 @@ function arcPath(cx,cy,r,start,end){
   return `M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 1 ${e.x} ${e.y}`;
 }
 
-function initDonutForStep(stepIdx, forceReset=false){
-  const nodes = steps[stepIdx].nodes;
-  data = nodes.map(n => ({ label:n, value:1, selected:false })); // 항상 비워서 시작
+function initDonutForStep(stepIdx){
+  // 칩 텍스트 초기화(고정)
+  legendData = steps[stepIdx].nodes.map(n => ({ label:n, value:1, selected:false }));
+  renderLegend();
+  updateDonutProgressFromChips(); // 도넛 = 칩 진행도만 반영
+}
+
+function updateDonutProgressFromChips(){
+  const chipTotal = Math.max(legendData.length, 1);
+  const chipDone  = legendData.filter(d => d.selected).length;
+  donutData = Array.from({length: chipTotal}, (_, i) => ({
+    label:'', value:1, selected: i < chipDone
+  }));
   drawDonut();
 }
 
@@ -420,11 +284,11 @@ function drawDonut(){
   segGroup.innerHTML = '';
   stepTitle.textContent = `${currentStep+1}단계 · ${steps[currentStep].name}`;
 
-  const total = data.length;
-  const gaps  = cfg.gapDeg * data.length;
+  const total = donutData.length;
+  const gaps  = cfg.gapDeg * total;
   let cur = 0;
 
-  data.forEach((d,i)=>{
+  donutData.forEach((d)=>{
     const sweep = (d.value/total) * (360 - gaps);
     const start = cur, end = cur + sweep; cur = end + cfg.gapDeg;
 
@@ -435,170 +299,338 @@ function drawDonut(){
     path.setAttribute('stroke-width', cfg.width);
     path.setAttribute('stroke-linecap','round');
     path.classList.add('seg');
-    path.addEventListener('click', ()=> toggleSeg(i));
+    // 도넛 클릭 반응 제거(칩만 반영)
+    // path.addEventListener('click', ()=>{});
     segGroup.appendChild(path);
   });
 
   applyStateToCurrentBlock();
-  renderLegend();
 }
 
-function toggleSeg(i){
-  data[i].selected = !data[i].selected;
-  // 도넛 다시 그리면서 상태 재평가
-  drawDonut();
-}
-
+// 중앙 표시는 '칩'만, 상단 게이지 색상은 도넛 진행도 기준
 function applyStateToCurrentBlock(){
-  const done = data.filter(d=>d.selected).length;
-  const total = data.length;
-  centerMain.textContent = `${done} / ${total}`;
+  const chipDone  = legendData.filter(d => d.selected).length;
+  const chipTotal = legendData.length;
+  centerMain.textContent = `${chipDone} / ${chipTotal}`;
 
-  const state = (done === 0) ? 'empty' : (done < total ? 'partial' : 'done');
-  blockStates[currentStep] = state;
-  renderGauge(); // 상태 클래스 반영(이벤트 위임이라 클릭 문제 없음)
+  const done  = donutData.filter(d => d.selected).length;
+  const total = donutData.length;
+  blockStates[currentStep] = (done===0)?'empty':(done<total?'partial':'done');
+  renderGauge();
 }
 
-/* ===== 범례/컨트롤 ===== */
+/* ===== 추천DATA 칩 ===== */
 function renderLegend(){
-  const targets = ['rc-legend', 'legend']
-    .map(id => document.getElementById(id))
-    .filter(Boolean);
-  if (targets.length === 0) return;
+  const legendEl = document.getElementById("legend");
+  if (!legendEl) return;
+  legendEl.innerHTML = '';
 
-  targets.forEach(legendEl => {
-    legendEl.innerHTML = '';
-    data.forEach((d,i)=>{
-      const chip = document.createElement('div');
-      chip.className = `chip ${d.selected ? 'active' : ''}`;
-      chip.textContent = d.label;
-      chip.addEventListener('click', ()=> toggleSeg(i));
-      legendEl.appendChild(chip);
+  legendData.forEach((d)=>{
+    const chip = document.createElement('div');
+    chip.className = `chip ${d.selected ? 'active' : ''}`;
+    chip.textContent = d.label;
+    chip.addEventListener('click', ()=>{
+      d.selected = !d.selected;
+      chip.classList.toggle('active', d.selected);
+      updateDonutProgressFromChips();
     });
+    legendEl.appendChild(chip);
   });
 }
 
-
-// 슬라이드
+/* ===== 슬라이드/추천 패널 ===== */
 let slideIndex = 1;
-let autoTimer = null;          // ⬅ 자동재생 타이머 보관
-let recommandInserted = false; // ⬅ #recommand 패널 한번만 삽입
-
-showSlides(slideIndex);
-autoTimer = setInterval(() => plusSlides(1), 3000);  // ⬅ 최초 1회만 진행(마지막에서 clear)
-
-// ✅ 마지막 슬라이드 한 번만 삽입
-    showSlides(slideIndex);
-
-    function plusSlides(n) {
-      showSlides(slideIndex += n);
-    }
-
-    function currentSlide(n) {
-      showSlides(slideIndex = n);
-    }
-
-function showSlides(n) {
+let autoTimer = setInterval(() => plusSlides(1), 3000);
+let recommandInserted = false;
+function plusSlides(n){ showSlides(slideIndex += n); }
+function currentSlide(n){ showSlides(slideIndex = n); }
+function showSlides(n){
   const slides = document.getElementsByClassName("slide");
   const dots   = document.getElementsByClassName("dot");
   const total  = slides.length;
-
-  // ⬅ 범위를 '클램프' (더 이상 루프 X)
   if (n < 1) n = 1;
   if (n > total) n = total;
   slideIndex = n;
+  for (let s of slides) s.style.display="none";
+  for (let d of dots) d.classList.remove("active");
+  slides[slideIndex-1].style.display="block";
+  if (dots.length>=slideIndex) dots[slideIndex-1].classList.add("active");
+  document.querySelector(".prev").style.visibility = (slideIndex===1?"hidden":"visible");
+  document.querySelector(".next").style.visibility = (slideIndex===total?"hidden":"visible");
+  if (slideIndex===total && autoTimer){ clearInterval(autoTimer); autoTimer=null; }
 
-  // 표시 업데이트
-  for (let i = 0; i < slides.length; i++) slides[i].style.display = "none";
-  for (let i = 0; i < dots.length; i++)   dots[i].classList.remove("active");
-
-  slides[slideIndex - 1].style.display = "block";
-  if (dots.length >= slideIndex) dots[slideIndex - 1].classList.add("active");
-
-  // ⬅ 내비 상태(선택): 처음/마지막에서 화살표 숨기기
-  const prev = document.querySelector(".prev");
-  const next = document.querySelector(".next");
-  if (prev) prev.style.visibility = (slideIndex === 1     ? "hidden" : "visible");
-  if (next) next.style.visibility = (slideIndex === total ? "hidden" : "visible");
-
-  // ⬅ 마지막 슬라이드에서 자동재생 멈추기(한 번만)
-  if (slideIndex === total && autoTimer) {
-    clearInterval(autoTimer);
-    autoTimer = null;
-  }
-
-  // ⬅ 마지막 슬라이드가 처음 보이는 순간 #recommand에 패널 고정 삽입
   if (!recommandInserted && slideIndex === total) {
     const rc = document.getElementById("recommand");
-    if (rc && !document.getElementById("rc-panel")) {
-      rc.innerHTML = ` 
-          <div class="collapse">
-            <button class="collapse__btn"
-                    id="c1-button"
-                    aria-expanded="false"
-                    aria-controls="c1-panel">
-              *추천DATA
-            </button>
-                <div class="collapse__content" id="c1-panel" role="region" aria-labelledby="c1-button">
-                  <div id="legend" class="legend">
-                      <div class="chip">XLP</div>
-                      <div class="chip">XLE</div>
-                      <div class="chip">XLI</div>
-                      <div class="chip">XLF</div>
-                    </div>
-                      <div class="controls">
-                        <button id="selectAll">전체 선택</button>
-                        <button id="clearAll">전체 해제</button>
-                      </div>
-                </div>
+    if (rc) {
+      rc.innerHTML = `
+        <div class="collapse">
+          <button class="collapse__btn" id="c1-button" aria-expanded="false" aria-controls="c1-panel">
+            *추천DATA
+          </button>
+          <div class="collapse__content" id="c1-panel" role="region" aria-labelledby="c1-button">
+            <div class="legend" id="legend"></div>
+            <div class="controls">
+              <button id="selectAll">전체 선택</button>
+              <button id="clearAll">전체 해제</button>
+            </div>
           </div>
-      `;
-
-      // (선택) 원래 범례와 동일 기능 연결
-        const rcLegend = document.getElementById('rc-legend');
-        rcLegend.innerHTML = '';
-        data.forEach((d,i)=>{
-          const chip = document.createElement('div');
-          chip.className = `chip ${d.selected ? 'active' : ''}`;
-          chip.textContent = d.label;
-          chip.addEventListener('click', ()=> toggleSeg(i));
-          rcLegend.appendChild(chip);
-        });
-
-        document.getElementById('rc-selectAll').addEventListener('click', ()=>{
-          data.forEach(d=> d.selected = true);
-          drawDonut();
-          Array.from(rcLegend.children).forEach(el => el.classList.add('active'));
-        });
-        document.getElementById('rc-clearAll').addEventListener('click', ()=>{
-          data.forEach(d=> d.selected = false);
-          drawDonut();
-          Array.from(rcLegend.children).forEach(el => el.classList.remove('active'));
-        });
-
-        recommandInserted = true;
+        </div>`;
+      renderLegend();
+      // 버튼: 칩만 반영
+      document.getElementById('selectAll').addEventListener('click', ()=>{
+        legendData.forEach(d => d.selected = true);
+        renderLegend();
+        updateDonutProgressFromChips();
+      });
+      document.getElementById('clearAll').addEventListener('click', ()=>{
+        legendData.forEach(d => d.selected = false);
+        renderLegend();
+        updateDonutProgressFromChips();
+      });
+      recommandInserted = true;
     }
   }
 }
-    // ✅ collapse 전역 위임: 동적 추가된 버튼도 동작
-    document.addEventListener('click', (e) => {
-      const t = e.target.closest('.collapse__btn');
-      if (!t) return;
+showSlides(slideIndex);
 
-      const panelId = t.getAttribute('aria-controls');
-      const panel = panelId ? document.getElementById(panelId) : t.nextElementSibling;
-      const isOpen = t.getAttribute('aria-expanded') === 'true';
+/* ===== dataTicker 클릭 → 선택 박스 표시 ===== */
+const dataTickerEl = document.getElementById('dataTicker');
+if (dataTickerEl) {
+  dataTickerEl.addEventListener('click', (e) => {
+    e.stopPropagation();
+    imgPane.classList.remove('show');
+    document.body.classList.remove('overlay-open');
 
-      t.setAttribute('aria-expanded', String(!isOpen));
-      if (panel && panel.classList.contains('collapse__content')) {
-        panel.classList.toggle('open', !isOpen);
-      }
+    if (wrapEl && wrapEl.classList.contains('is-out')) {
+      wrapEl.addEventListener('transitionend', () => { buildSelectBoxes(); }, { once: true });
+      wrapEl.classList.remove('is-out');
+    } else {
+      buildSelectBoxes();
+    }
+  });
+}
+
+/* ===== selectDataGroup(kw-sheet/sel-box) ===== */
+document.getElementById('selectDataGroup')?.addEventListener('click', (e)=>{
+  const root = e.currentTarget;
+
+  // 0) kw-chip 토글(가장 먼저 처리)
+  const chip = e.target.closest('.kw-chip');
+  if (chip && root.contains(chip)) {
+    const sheet  = chip.closest('.kw-sheet');
+    const boxKey = sheet?.dataset.box;
+    const key    = chip.dataset.key;
+    if (!boxKey || !key) return;
+
+    const set = selectedKeywords[boxKey];
+    const willActivate = !chip.classList.contains('active');
+    chip.classList.toggle('active', willActivate);
+    if (willActivate) set.add(key); else set.delete(key);
+
+    renderSelectedRow(boxKey);
+    updateExcelButton();
+    return;
+  }
+
+  // 1) sel-box 클릭: 그룹 확장/축소
+  const group = e.target.closest('.sel-group');
+  const box   = e.target.closest('.sel-box');
+  if (group && box && root.contains(group)
+      && !e.target.closest('.mini-close')
+      && !e.target.closest('.tag-remove')) {
+    const willExpand = !group.classList.contains('expanded');
+    root.querySelectorAll('.sel-group.expanded').forEach(x => { if (x!==group) x.classList.remove('expanded'); });
+    group.classList.toggle('expanded', willExpand);
+    return;
+  }
+
+  // 2) 태그 X 삭제
+  const rm = e.target.closest('.tag-remove');
+  if (rm) {
+    e.preventDefault();
+    e.stopPropagation();
+    const selGroup = rm.closest('.sel-group');
+    const boxKey   = rm.dataset.box || selGroup?.getAttribute('data-box');
+    const key      = rm.dataset.key;
+    if (!boxKey || !key || !selGroup) return;
+
+    selectedKeywords[boxKey]?.delete(key);
+
+    // 시트 칩 active 해제
+    const sheet = selGroup.querySelector('.kw-sheet');
+    if (sheet) {
+      const chipEl = Array.from(sheet.querySelectorAll('.kw-chip'))
+        .find(el => (el.dataset.key || '') === key);
+      chipEl?.classList.remove('active');
+    }
+
+    renderSelectedRow(boxKey);
+    updateExcelButton();
+    return;
+  }
+
+  // 3) 미니카드 X 삭제
+  const x = e.target.closest('.mini-close');
+  if (x) {
+    const card = x.closest('.mini-card');
+    if (card){
+      card.classList.add('removing');
+      card.addEventListener('animationend', ()=> card.remove(), { once:true });
+    }
+  }
+});
+
+(function attachMiniCloseHandler(){
+  const root = document.getElementById('selectDataGroup');
+  if (!root) return;
+
+  root.addEventListener('click', function(e){
+    const btn = e.target.closest('.mini-close');
+    if (!btn || !root.contains(btn)) return;
+
+    // 다른 분기로 전파 차단(확장 토글 등)
+    e.preventDefault();
+    e.stopPropagation();
+
+    const card = btn.closest('.mini-card');
+    if (!card) return;
+
+    // 제거 애니메이션 클래스(있으면 사용, 없어도 fallback로 제거)
+    card.classList.add('removing');
+
+    const removeCard = () => {
+      card.remove();
+      // 카드 제거 후 버튼 활성화 상태 등 갱신 필요시
+      if (typeof updateExcelButton === 'function') updateExcelButton();
+    };
+
+    // 애니메이션/트랜지션이 있다면 이벤트로, 없으면 즉시 제거
+    const cs = getComputedStyle(card);
+    const animDur = parseFloat(cs.animationDuration) || 0;
+    const transDur = parseFloat(cs.transitionDuration) || 0;
+
+    if (animDur > 0 || transDur > 0) {
+      let done = false;
+      const onEnd = () => { if (done) return; done = true; removeCard(); };
+      card.addEventListener('animationend', onEnd, { once:true });
+      card.addEventListener('transitionend', onEnd, { once:true });
+      setTimeout(onEnd, 500); // 안전 타임아웃
+    } else {
+      removeCard();
+    }
+  }, true); // ← 캡처 단계에서 가장 먼저 잡음
+})();
+
+/* ===== Excel 확인 바 ===== */
+function ensureExcelBar(){
+  if (document.querySelector('.excel-bar')) return;
+  const bar = document.createElement('div');
+  bar.className = 'excel-bar';
+  bar.innerHTML = `<button id="excelConfirm" class="btn" disabled>Excel 확인</button>`;
+  document.body.appendChild(bar);
+
+  document.getElementById('excelConfirm').addEventListener('click', ()=>{
+    document.getElementById('grid')?.scrollIntoView({behavior:'smooth'});
+  });
+}
+
+function updateExcelButton(){
+  ensureExcelBar();
+  const bar = document.querySelector('.excel-bar');
+  const btn = document.getElementById('excelConfirm');
+  if (!bar || !btn) return;
+
+  const groups = document.querySelectorAll('#selectDataGroup .sel-group[data-box]');
+  if (groups.length === 0){
+    bar.classList.remove('show');
+    btn.disabled = true;
+    return;
+  }
+  const allOk = Array.from(groups).every(g=>{
+    const boxKey = g.getAttribute('data-box');
+    const sheet  = g.querySelector(`.kw-sheet[data-box="${boxKey}"]`);
+    return !!sheet && !!sheet.querySelector('.kw-chip.active');
+  });
+
+  bar.classList.toggle('show', allOk);
+  btn.disabled = !allOk;
+}
+
+/* ===== 선택 박스 빌드 ===== */
+function buildSelectBoxes() {
+  const selectGroup = document.getElementById('selectDataGroup');
+  if (!selectGroup) return;
+
+  const itemsA = ["SPY","QQQ","BND","VTI"];
+  const itemsB = ["KODEX 200","KODEX 코스닥150"];
+  const keywordMap = {
+    A: ["배당","성장주","모멘텀","가치","대형주","중형주","소형주"],
+    B: ["반도체","2차전지","바이오","지수추종","레버리지","인버스"]
+  };
+
+  const cardTpl = (boxKey, title, items) => `
+    <div class="sel-group" data-box="${boxKey}">
+      <div class="sel-box" data-box="${boxKey}">
+        <div class="box-head"><h4>${title}</h4></div>
+        <div class="mini-grid">
+          ${items.map(v=>`
+            <div class="mini-card">
+              <button class="mini-close" aria-label="삭제">×</button>
+              <span>${v}</span>
+            </div>`).join("")}
+        </div>
+        <div class="selected-row" aria-live="polite"></div>
+      </div>
+      <div class="kw-sheet" data-box="${boxKey}">
+        ${keywordMap[boxKey].map(k=>`<button class="kw-chip" data-key="${k}">${k}</button>`).join("")}
+      </div>
+    </div>`;
+
+  selectGroup.innerHTML = `${cardTpl("A","미국ETF", itemsA)}${cardTpl("B","한국ETF", itemsB)}`;
+  requestAnimationFrame(()=> selectGroup.classList.add('show'));
+  syncSheetChips();
+  updateExcelButton();
+}
+
+/* ===== KW 상태 ===== */
+const selectedKeywords = { A:new Set(), B:new Set() };
+
+function renderSelectedRow(boxKey){
+  const group = document.getElementById('selectDataGroup');
+  const selGroup = group?.querySelector(`.sel-group[data-box="${boxKey}"]`);
+  if (!selGroup) return;
+  const row = selGroup.querySelector('.selected-row');
+  const tags = Array.from(selectedKeywords[boxKey]).map(k => `
+    <span class="tag" data-key="${k}">
+      ${k}
+      <button class="tag-remove" aria-label="${k} 제거" data-key="${k}" data-box="${boxKey}">×</button>
+    </span>
+  `);
+  row.innerHTML = tags.join('');
+}
+
+function syncSheetChips(){
+  const group = document.getElementById('selectDataGroup');
+  ['A','B'].forEach(k=>{
+    const set = selectedKeywords[k];
+    group?.querySelectorAll(`.kw-sheet[data-box="${k}"] .kw-chip`).forEach(ch=>{
+      ch.classList.toggle('active', set.has(ch.dataset.key));
     });
+    renderSelectedRow(k);
+  });
+}
 
+/* ===== Collapse ===== */
+document.addEventListener('click',(e)=>{
+  const t = e.target.closest('.collapse__btn');
+  if (!t) return;
+  const panel = document.getElementById(t.getAttribute('aria-controls'));
+  const isOpen = t.getAttribute('aria-expanded')==='true';
+  t.setAttribute('aria-expanded', String(!isOpen));
+  panel?.classList.toggle('open', !isOpen);
+});
 
-
-
-/* ====== 데모 데이터 (최근 7영업일 정도 예시) ====== */
+/* ===== 테이블 데모 ===== */
 const columns = ["VOO_ri","IVV_ri","SPY_ri","VTI_ri","QQQ_ri"];
 const rows = [
   {ymd:"2025-08-21", VOO_ri:760.27, IVV_ri:715.83, SPY_ri:2606.59, VTI_ri:837.17, QQQ_ri:1295.98},
@@ -609,30 +641,23 @@ const rows = [
   {ymd:"2025-08-14", VOO_ri:771.44, IVV_ri:723.98, SPY_ri:2647.51, VTI_ri:848.22, QQQ_ri:1332.8 },
   {ymd:"2025-08-13", VOO_ri:770.12, IVV_ri:722.81, SPY_ri:2635.92, VTI_ri:846.01, QQQ_ri:1324.55},
 ];
+let visibleCols = new Set(columns);
+let currentRows = [...rows];
+const $  = (sel, root=document)=> root.querySelector(sel);
+const $$ = (sel, root=document)=> Array.from(root.querySelectorAll(sel));
+const fmt = n => (n==null||Number.isNaN(n)) ? "" : n.toLocaleString();
 
-/* ====== 상태 ====== */
-let visibleCols = new Set(columns); // 체크된 컬럼
-let currentRows = [...rows];        // 필터 결과
-
-/* ====== 유틸 ====== */
-const $ = (sel, root=document) => root.querySelector(sel);
-const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
-const fmt = n => (n==null || Number.isNaN(n)) ? "" : n.toLocaleString();
-
-/* ====== 초기 세팅 ====== */
 function initDates(){
-  const min = rows.at(-1).ymd;
-  const max = rows[0].ymd;
-  $("#start").value = min;
-  $("#end").value   = max;
-  $("#minmax").textContent = `${min} ~ ${max}`;
+  const min=rows.at(-1).ymd, max=rows[0].ymd;
+  $("#start").value=min; $("#end").value=max;
+  $("#minmax").textContent=`${min} ~ ${max}`;
 }
 function buildChooser(){
-  const box = $("#chooser"); box.innerHTML = "";
+  const box=$("#chooser"); box.innerHTML="";
   columns.forEach(c=>{
-    const id = `col-${c}`;
-    const label = document.createElement("label");
-    label.innerHTML = `<input type="checkbox" id="${id}" checked> ${c}`;
+    const id=`col-${c}`;
+    const label=document.createElement("label");
+    label.innerHTML=`<input type="checkbox" id="${id}" checked> ${c}`;
     box.appendChild(label);
     $("#"+id).addEventListener("change", e=>{
       if(e.target.checked) visibleCols.add(c); else visibleCols.delete(c);
@@ -641,75 +666,54 @@ function buildChooser(){
   });
   updateColCount();
 }
-function updateColCount(){
-  $("#colCount").textContent = `${visibleCols.size} / ${columns.length} 열`;
-}
-
+function updateColCount(){ $("#colCount").textContent=`${visibleCols.size} / ${columns.length} 열`; }
 function renderTable(){
-  // thead
-  const theadRow = $("#thead"); theadRow.innerHTML = "";
-  const thDate = document.createElement("th"); thDate.textContent = "ymd";
+  const theadRow=$("#thead"); theadRow.innerHTML="";
+  const thDate=document.createElement("th"); thDate.textContent="ymd";
   theadRow.appendChild(thDate);
   columns.forEach(c=>{
     if(!visibleCols.has(c)) return;
-    const th = document.createElement("th"); th.textContent = c;
+    const th=document.createElement("th"); th.textContent=c;
     theadRow.appendChild(th);
   });
-
-  // tbody
-  const tb = $("#tbody"); tb.innerHTML = "";
+  const tb=$("#tbody"); tb.innerHTML="";
   currentRows.forEach(r=>{
-    const tr = document.createElement("tr");
-    const tdDate = document.createElement("td"); tdDate.textContent = r.ymd; tdDate.style.textAlign="center";
+    const tr=document.createElement("tr");
+    const tdDate=document.createElement("td"); tdDate.textContent=r.ymd; tdDate.style.textAlign="center";
     tr.appendChild(tdDate);
     columns.forEach(c=>{
       if(!visibleCols.has(c)) return;
-      const td = document.createElement("td");
-      td.textContent = fmt(r[c]);
+      const td=document.createElement("td"); td.textContent=fmt(r[c]);
       tr.appendChild(td);
     });
     tb.appendChild(tr);
   });
 }
-
-/* ====== 인터랙션 ====== */
 function applyQuery(){
-  const s = $("#start").value, e = $("#end").value;
-  const sN = +s.replaceAll("-",""), eN = +e.replaceAll("-","");
-  currentRows = rows.filter(r=>{
-    const d = +r.ymd.replaceAll("-","");
+  const s=$("#start").value, e=$("#end").value;
+  const sN=+s.replaceAll("-",""), eN=+e.replaceAll("-","");
+  currentRows=rows.filter(r=>{
+    const d=+r.ymd.replaceAll("-","");
     return d>=sN && d<=eN;
   });
   renderTable();
 }
 $("#queryBtn").addEventListener("click", applyQuery);
-
-$("#applyRange").addEventListener("click", (e)=>{
+$("#applyRange").addEventListener("click", e=>{
   e.preventDefault();
-  // 데이터의 전체 기간으로 입력값 세팅 후 조회
-  $("#start").value = rows.at(-1).ymd;
-  $("#end").value   = rows[0].ymd;
+  $("#start").value=rows.at(-1).ymd;
+  $("#end").value=rows[0].ymd;
   applyQuery();
 });
-
 $$(".tab").forEach(btn=>{
   btn.addEventListener("click", ()=>{
     $$(".tab").forEach(b=>{ b.classList.remove("active"); b.setAttribute("aria-selected","false"); });
     btn.classList.add("active"); btn.setAttribute("aria-selected","true");
-    // 실제 데이터 변환은 생략(데모). 필요하면 여기서 모드별 가공.
   });
 });
 
-/* ====== 실행 ====== */
-initDates();
-buildChooser();
-renderTable();
-
-
 /* ===== 초기 실행 ===== */
+initDates(); buildChooser(); renderTable();
 renderGauge();
-initDonutForStep(currentStep, true);
-
-
-
+initDonutForStep(currentStep);
 </script>
