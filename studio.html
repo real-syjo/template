@@ -73,26 +73,26 @@
 
                 <!-- 데이터 테이블 카드 -->
                 <section class="card">
-                  <div class="card-head">
-                    <div><span class="chip" id="colCount">0 / 0 열</span></div>
+                  <!-- <div class="card-head"> -->
+                    <!-- <div><span class="chip" id="colCount">0 / 0 열</span></div>
                     <div class="hint">
                       현 데이터의 이성적인 조회 기간은 <span id="minmax">-</span> 입니다.
                       <a href="#" id="applyRange" class="apply">적용하기</a>
-                    </div>
-                  </div>
+                    </div> -->
+                  <!-- </div> -->
 
                   <!-- 컬럼 체크박스 -->
-                  <div id="chooser" class="col-chooser" aria-label="표시할 컬럼 선택"></div>
+                  <!-- <div id="chooser" class="col-chooser" aria-label="표시할 컬럼 선택"></div> -->
 
                   <!-- 표 -->
-                  <div class="table-wrap">
+                  <!-- <div class="table-wrap">
                     <table id="grid" aria-label="원본 데이터 표">
                       <thead>
                         <tr id="thead"></tr>
                       </thead>
                       <tbody id="tbody"></tbody>
                     </table>
-                  </div>
+                  </div> -->
                 </section>
               </main>
           <!-- 방법 B: 배경이미지 쓰려면 위 <img> 대신 비워두고 CSS의 background-image 사용 -->
@@ -108,7 +108,7 @@
                 </div>
 
                 <!-- 하단: 도넛 + 범례 -->
-                <div class="card">
+                <div class="card"  data-step="0">
                   <div class="main">
                     <div class="box" id="donutBox">
                       <h2 id="stepTitle">1단계</h2>
@@ -123,7 +123,6 @@
                       <div class="hint">• 블록을 누르면 해당 단계로 전환되며 도넛은 초기화됩니다. 일부 선택=회색, 전부 선택=파란색.</div>
                     </div>
                     <div class="box" id="box">
-                      <h2>범례 & 컨트롤</h2>
                         <div class="slideshow-container">
                           <div class="slide">
                             랜덤 포레스트 알고리즘으로 투자전략을 테스트하고 싶으시군요.
@@ -153,37 +152,106 @@
                       </div> 
                     </div> 
                   </div>
+                  <!-- 단계 2 화면 -->
+                  <div class="card" data-step="1">
+                    <div class="main">
+                      <div class="box" id="donutBox">
+                        <h2 id="stepTitle">2단계</h2>
+                        <svg id="donut" viewBox="0 0 240 240" aria-label="도넛차트">
+                          <circle cx="120" cy="120" r="84" fill="none" stroke="#eef1f5" stroke-width="24"/>
+                          <g id="segments" transform="rotate(-90 120 120)"></g>
+                          <g>
+                            <text x="120" y="110" class="centerText muted" font-size="12">완료</text>
+                            <text id="centerMain" x="120" y="130" class="centerText">0 / 5</text>
+                          </g>
+                        </svg>
+                        <div class="hint">• 블록을 누르면 해당 단계로 전환되며 도넛은 초기화됩니다. 일부 선택=회색, 전부 선택=파란색.</div>
+                      </div>
+                      <div class="box" id="box">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 단계 3 화면 -->
+                  <div class="card" data-step="2">
+                        <div class="main">
+                      <div class="box" id="donutBox">
+                        <h2 id="stepTitle">2단계</h2>
+                        <svg id="donut" viewBox="0 0 240 240" aria-label="도넛차트">
+                          <circle cx="120" cy="120" r="84" fill="none" stroke="#eef1f5" stroke-width="24"/>
+                          <g id="segments" transform="rotate(-90 120 120)"></g>
+                          <g>
+                            <text x="120" y="110" class="centerText muted" font-size="12">완료</text>
+                            <text id="centerMain" x="120" y="130" class="centerText">0 / 5</text>
+                          </g>
+                        </svg>
+                        <div class="hint">• 블록을 누르면 해당 단계로 전환되며 도넛은 초기화됩니다. 일부 선택=회색, 전부 선택=파란색.</div>
+                      </div>
+                      <div class="box" id="box">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 단계 4 화면 -->
+                  <div class="card" data-step="3">
+                       <div class="main">
+                      <div class="box" id="donutBox">
+                        <h2 id="stepTitle">2단계</h2>
+                        <svg id="donut" viewBox="0 0 240 240" aria-label="도넛차트">
+                          <circle cx="120" cy="120" r="84" fill="none" stroke="#eef1f5" stroke-width="24"/>
+                          <g id="segments" transform="rotate(-90 120 120)"></g>
+                          <g>
+                            <text x="120" y="110" class="centerText muted" font-size="12">완료</text>
+                            <text id="centerMain" x="120" y="130" class="centerText">0 / 5</text>
+                          </g>
+                        </svg>
+                        <div class="hint">• 블록을 누르면 해당 단계로 전환되며 도넛은 초기화됩니다. 일부 선택=회색, 전부 선택=파란색.</div>
+                      </div>
+                      <div class="box" id="box">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 단계 5 화면 -->
+                  <div class="card" data-step="4">
+                    <div class="main">
+                      <div class="box" id="donutBox">
+                        <h2 id="stepTitle">2단계</h2>
+                        <svg id="donut" viewBox="0 0 240 240" aria-label="도넛차트">
+                          <circle cx="120" cy="120" r="84" fill="none" stroke="#eef1f5" stroke-width="24"/>
+                          <g id="segments" transform="rotate(-90 120 120)"></g>
+                          <g>
+                            <text x="120" y="110" class="centerText muted" font-size="12">완료</text>
+                            <text id="centerMain" x="120" y="130" class="centerText">0 / 5</text>
+                          </g>
+                        </svg>
+                        <div class="hint">• 블록을 누르면 해당 단계로 전환되며 도넛은 초기화됩니다. 일부 선택=회색, 전부 선택=파란색.</div>
+                      </div>
+                      <div class="box" id="box">
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
                 <div class="alt-image" id="resultImage" aria-hidden="true">
                   <figure class="image-card">
                     <img id="dataTicker" src="imgs/dataTicker.png" alt="추천 이미지">
                   </figure>
                 </div>
+                
             </div>
           </div>
         </div>
       <button id="directBtn">데이터 직접 선택하기</button> 
-      <button id="shrinkBtn">Excel DATA</button> 
     </div>
     </section>
-
-    <section id="about" class="section">
-        <a href="studio.html" ><h3>1</h3></a>
-        <a href="studio2.html" ><h3>2</h3></a>
-        <a href="" ><h3>3</h3></a>
-        <a href="" ><h3>4</h3></a>
-        <a href="" ><h3>5</h3></a>
-    </section>
-
-    <section id="skills" class="section">
-
-    </section>
-
 
 </body>
 </html>
 
 <script>
+
+  
 /* ===== 단계/노드 ===== */
 const steps = [
   { name:"데이터 선택",    nodes:["XLP","XLE","XLI","XLF"] },
@@ -564,8 +632,8 @@ function buildSelectBoxes() {
   const itemsA = ["SPY","QQQ","BND","VTI"];
   const itemsB = ["KODEX 200","KODEX 코스닥150"];
   const keywordMap = {
-    A: ["배당","성장주","모멘텀","가치","대형주","중형주","소형주"],
-    B: ["반도체","2차전지","바이오","지수추종","레버리지","인버스"]
+    A: ["ymd","po","ph","pl","p","ri","vo"],
+    B: ["ymd","po","ph","pl","p","ri","vo"]
   };
 
   const cardTpl = (boxKey, title, items) => `
@@ -647,48 +715,48 @@ const $  = (sel, root=document)=> root.querySelector(sel);
 const $$ = (sel, root=document)=> Array.from(root.querySelectorAll(sel));
 const fmt = n => (n==null||Number.isNaN(n)) ? "" : n.toLocaleString();
 
-function initDates(){
-  const min=rows.at(-1).ymd, max=rows[0].ymd;
-  $("#start").value=min; $("#end").value=max;
-  $("#minmax").textContent=`${min} ~ ${max}`;
-}
-function buildChooser(){
-  const box=$("#chooser"); box.innerHTML="";
-  columns.forEach(c=>{
-    const id=`col-${c}`;
-    const label=document.createElement("label");
-    label.innerHTML=`<input type="checkbox" id="${id}" checked> ${c}`;
-    box.appendChild(label);
-    $("#"+id).addEventListener("change", e=>{
-      if(e.target.checked) visibleCols.add(c); else visibleCols.delete(c);
-      updateColCount(); renderTable();
-    });
-  });
-  updateColCount();
-}
+// function initDates(){
+//   const min=rows.at(-1).ymd, max=rows[0].ymd;
+//   $("#start").value=min; $("#end").value=max;
+//   $("#minmax").textContent=`${min} ~ ${max}`;
+// }
+// function buildChooser(){
+//   const box=$("#chooser"); box.innerHTML="";
+//   columns.forEach(c=>{
+//     const id=`col-${c}`;
+//     const label=document.createElement("label");
+//     label.innerHTML=`<input type="checkbox" id="${id}" checked> ${c}`;
+//     box.appendChild(label);
+//     $("#"+id).addEventListener("change", e=>{
+//       if(e.target.checked) visibleCols.add(c); else visibleCols.delete(c);
+//       updateColCount(); renderTable();
+//     });
+//   });
+//   updateColCount();
+// }
 function updateColCount(){ $("#colCount").textContent=`${visibleCols.size} / ${columns.length} 열`; }
-function renderTable(){
-  const theadRow=$("#thead"); theadRow.innerHTML="";
-  const thDate=document.createElement("th"); thDate.textContent="ymd";
-  theadRow.appendChild(thDate);
-  columns.forEach(c=>{
-    if(!visibleCols.has(c)) return;
-    const th=document.createElement("th"); th.textContent=c;
-    theadRow.appendChild(th);
-  });
-  const tb=$("#tbody"); tb.innerHTML="";
-  currentRows.forEach(r=>{
-    const tr=document.createElement("tr");
-    const tdDate=document.createElement("td"); tdDate.textContent=r.ymd; tdDate.style.textAlign="center";
-    tr.appendChild(tdDate);
-    columns.forEach(c=>{
-      if(!visibleCols.has(c)) return;
-      const td=document.createElement("td"); td.textContent=fmt(r[c]);
-      tr.appendChild(td);
-    });
-    tb.appendChild(tr);
-  });
-}
+// function renderTable(){
+//   //const theadRow=$("#thead"); theadRow.innerHTML="";
+//   const thDate=document.createElement("th"); thDate.textContent="ymd";
+//   theadRow.appendChild(thDate);
+//   columns.forEach(c=>{
+//     if(!visibleCols.has(c)) return;
+//     const th=document.createElement("th"); th.textContent=c;
+//     theadRow.appendChild(th);
+//   });
+//   const tb=$("#tbody"); tb.innerHTML="";
+//   currentRows.forEach(r=>{
+//     const tr=document.createElement("tr");
+//     const tdDate=document.createElement("td"); tdDate.textContent=r.ymd; tdDate.style.textAlign="center";
+//     tr.appendChild(tdDate);
+//     columns.forEach(c=>{
+//       if(!visibleCols.has(c)) return;
+//       const td=document.createElement("td"); td.textContent=fmt(r[c]);
+//       tr.appendChild(td);
+//     });
+//     tb.appendChild(tr);
+//   });
+// }
 function applyQuery(){
   const s=$("#start").value, e=$("#end").value;
   const sN=+s.replaceAll("-",""), eN=+e.replaceAll("-","");
@@ -699,21 +767,43 @@ function applyQuery(){
   renderTable();
 }
 $("#queryBtn").addEventListener("click", applyQuery);
-$("#applyRange").addEventListener("click", e=>{
-  e.preventDefault();
-  $("#start").value=rows.at(-1).ymd;
-  $("#end").value=rows[0].ymd;
-  applyQuery();
-});
-$$(".tab").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    $$(".tab").forEach(b=>{ b.classList.remove("active"); b.setAttribute("aria-selected","false"); });
-    btn.classList.add("active"); btn.setAttribute("aria-selected","true");
-  });
-});
+// $("#applyRange").addEventListener("click", e=>{
+//   e.preventDefault();
+//   $("#start").value=rows.at(-1).ymd;
+//   $("#end").value=rows[0].ymd;
+//   applyQuery();
+// });
+// $$(".tab").forEach(btn=>{
+//   btn.addEventListener("click", ()=>{
+//     $$(".tab").forEach(b=>{ b.classList.remove("active"); b.setAttribute("aria-selected","false"); });
+//     btn.classList.add("active"); btn.setAttribute("aria-selected","true");
+//   });
+// });
 
 /* ===== 초기 실행 ===== */
-initDates(); buildChooser(); renderTable();
+//initDates(); buildChooser(); 
+//renderTable();
 renderGauge();
 initDonutForStep(currentStep);
+
+
+/* ===== 단계별 카드 페이지 전환 ===== */
+const pages = Array.from(document.querySelectorAll('.card[data-step]'));
+
+function showPage(stepIdx) {
+  pages.forEach(p => p.classList.toggle('active', Number(p.dataset.step) === stepIdx));
+}
+
+/* 기존 selectBlock에 한 줄만 추가 */
+function selectBlock(i){
+  currentStep = i;
+  blockStates[i] = 'empty';
+  initDonutForStep(i);
+  renderGauge();
+  showPage(i);            // ← 이 줄 추가!
+}
+
+/* 초기 로딩 시 현재 단계 페이지 보이기 */
+showPage(currentStep);
+
 </script>

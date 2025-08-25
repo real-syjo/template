@@ -254,7 +254,7 @@ body.overlay-open{ overflow:hidden; }
   box-shadow:0 6px 24px rgba(0,0,0,.05);
 }
 .card-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px; }
-.chip{ background:#f4f6fb; border:1px solid var(--line); padding:4px 10px; border-radius:999px; font-weight:400; }
+.chip{ color: darkslategray;background:#f4f6fb; border:1px solid var(--line); padding:4px 10px; border-radius:999px; font-weight:400; }
 .hint{ color:var(--muted); font-size:13px; }
 .apply{ color:var(--primary); text-decoration:none; font-weight:400; margin-left:8px; }
 
@@ -308,8 +308,8 @@ article:hover{ border-color:rgba(255,255,255,0.5); }
   width:100%; height:100px; position:relative; overflow:hidden; border-radius:10px;
 }
 .slide{
-  font-size:large; display:none; width:100%; height:100%;
-  margin:3% 0; position:absolute;
+  font-size:x-large; display:none; width:100%; height:100%;
+  margin:3% 0; position:absolute; color: var(--color-grey);
 }
 .slide img{ width:100%; height:100%; object-fit:cover; }
 .prev,.next{
@@ -579,3 +579,7 @@ tr:nth-child(even) td{ background:#fcfdff; }
 /* === viewport 꽉 채우기 === */
 
 
+.card[data-step] { display: none; }
+.card[data-step].active { display: block;
+
+  
