@@ -342,7 +342,7 @@ article:hover{ border-color:rgba(255,255,255,0.5); }
   position:relative; max-width:100vw; margin:0 auto; overflow:hidden; height:90%;
 }
 .shrink-scale{
-  margin-top:20px; position:relative; z-index:2; transform-origin:top left; transition:transform 1s ease; width:100%;
+  position:relative; z-index:2; transform-origin:top left; transition:transform 1s ease; width:100%;
 }
 .shrink-wrap.is-shrunk .shrink-scale{ transform:scale(var(--scale)); }
 .reveal-media{
