@@ -65,13 +65,9 @@
   --bs-radius:.5rem;
   --bs-shadow:0 .5rem 1rem rgba(0,0,0,.05);
   --bs-shadow-lg:0 1rem 2rem rgba(0,0,0,.08);
-
-  
 }
 
-html, body { margin:0; 
-}
-
+html, body { margin:0; }
 body {
   font-family:'Poppins','Do Hyeon',sans-serif;
   cursor:default;
@@ -175,12 +171,11 @@ p {
 /* Home */
 #home{
   height:924px;
-  padding:40px 40px 0;
   text-align:center;
   transition:background-size 1s ease;
   background-size:100%;
   min-height: var(--vh);
-  height: auto; 
+  height: 100vh; 
 }
 #home:hover{ background-size:110%; }
 
@@ -219,9 +214,10 @@ p {
 /* ========== Panel / Slide Up ========== */
 .your-panel{ position:relative; overflow:hidden; }
 .your-panel .wrap{
-  height: 600px;
+  
   transition:transform var(--slide-dur) var(--slide-ease);
   will-change:transform;
+  width:100%;
 }
 .your-panel .wrap.is-out{
   transform:translateY(-100%);
@@ -250,8 +246,9 @@ body.overlay-open{ overflow:hidden; }
 }
 
 /* ========== Grid / Cards ========== */
-.wrap{ max-width:100%; width:93%; margin:3% 0 0 5%; display:grid; }
+.wrap{ width:100%;max-width:100%; width:93%; display:grid; }
 .card{
+  min-height: calc(var(--vh) - var(--nav-h));
   position:relative;
   background:#fff;
   border:1px solid #e6e9ee;
@@ -347,7 +344,7 @@ article:hover{ border-color:rgba(255,255,255,0.5); }
   position:relative; max-width:100vw; margin:0 auto; overflow:hidden; height:90%;
 }
 .shrink-scale{
-  margin-top:20px; position:relative; z-index:2; transform-origin:top left; transition:transform 1s ease; width:100%;
+  position:relative; z-index:2; transform-origin:top left; transition:transform 1s ease; width:100%;
 }
 .shrink-wrap.is-shrunk .shrink-scale{ transform:scale(var(--scale)); }
 .reveal-media{
@@ -586,7 +583,7 @@ tr:nth-child(even) td{ background:#fcfdff; }
 
 
 .card[data-step] { display: none; }
-.card[data-step].active { display: block;    height: 100vh;
+.card[data-step].active { display: block;  }
 
   /* kw-chip tooltip */
 .kw-chip[data-tip] { position: relative; outline: none; }
@@ -753,13 +750,12 @@ tr:nth-child(even) td{ background:#fcfdff; }
   /* step 1, 2 화면은 '전체 화면 카드'처럼 보이게 */
 .card[data-step="1"] .main,
 .card[data-step="2"] .main {
-  /* 기본 grid 레이아웃 덮어쓰기 */
   display: block;
   position: relative;
   padding: 0;
-
-  min-height: calc(100vh - var(--nav-h));
+  min-height: calc(var(--vh) - var(--nav-h));
 }
+
 
 /* iframe이 .main을 100% 채우도록 */
 .card[data-step="1"] .main > iframe,
@@ -771,16 +767,9 @@ tr:nth-child(even) td{ background:#fcfdff; }
   border: 0;
 }
 
+
 /* 혹시 인라인 height가 남아있다면 강제로 무시 */
 .card[data-step="1"] .main > iframe,
 .card[data-step="2"] .main > iframe {
   height: 100% !important;
 }
-iframe {
-  position: absolute;
-  inset: 0;        /* top:0; right:0; bottom:0; left:0 */
-  width: 100%;
-  height: 100%;    /* 부모 높이 꽉 채우기 */
-  border: 0;
-}
-

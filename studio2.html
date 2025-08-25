@@ -11,8 +11,8 @@
     <script src="https://kit.fontawesome.com/7ebfe642cb.js" crossorigin="anonymous"></script>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="studioStyle1.css"/>
-    <script src="studio1.js" defer></script>
+    <link rel="stylesheet" href="studioStyle2.css"/>
+    <script src="studio2.js" defer></script>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@2.4.1/dist/email.min.js"> </script>
     <script src="https://code.jquery.com/jquery-latest.min.js"></script>
@@ -31,7 +31,7 @@
                 <div class="card"  data-step="0">
                   <div class="main">
                     <div class="box" id="donutBox">
-                      <h2 id="stepTitle">2단계</h2>
+                      <h2 id="stepTitle">3단계</h2>
                       <svg id="donut" viewBox="0 0 240 240" aria-label="도넛차트">
                         <circle cx="120" cy="120" r="84" fill="none" stroke="#eef1f5" stroke-width="24"/>
                         <g id="segments" transform="rotate(-90 120 120)"></g>
@@ -45,7 +45,7 @@
                    <div class="box" id="box">
                         <div class="slideshow-container">
                           <div class="slide">
-                            랜덤 포레스트 알asdas
+                            랜덤 포레스트 ㅋㅋㅋㅋ
                           </div>
                           <div class="slide">
                             우선 데이터를 선택해야해요.​
@@ -55,7 +55,7 @@
                           </div>
 
                           <!-- 버튼 -->
-                          <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+                           <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
                           <a class="next" onclick="plusSlides(1)">&#10095;</a>
 
                           <!-- 점 -->
@@ -64,20 +64,21 @@
                             <span class="dot" onclick="currentSlide(2)"></span>
                             <span class="dot" onclick="currentSlide(3)"></span>
                           </div>
-                          
                         </div>
                         <div class="recommand" id="recommand">
-                         
-                        </div>
-                        </div>     
+                        </div> 
+                        <div class="selectDataGroup" id="selectDataGroup">
+                        </div> 
                       </div> 
                     </div> 
                   </div>
                   </div> 
                 </div>
+                
             </div>
           </div>
-  
+   
+      <button id="directBtn">데이터 직접 선택하기</button> 
     </div>
     </section>
 
@@ -167,7 +168,7 @@
     if (stepTitleEl) {
       const stepIdx = Number(container.dataset.step || 0);
       const stepName = (window.steps && window.steps[stepIdx]?.name) || '';
-      stepTitleEl.textContent = `${stepIdx + 1}단계 · ${stepName}`;
+      stepTitleEl.textContent = `3단계 · ${stepName}`;
     }
   }
 
@@ -183,53 +184,6 @@
   // 초기 1회 갱신
   update();
 })();
-(function setupRecommandInput() {
-  const rc = document.getElementById("recommand");
-  const input = document.getElementById("recommandInput");
-  if (!rc || !input) return;
-
-  input.addEventListener("change", () => {   // 입력 끝나고 focus out
-    addCollapseBelow(rc, input.value.trim());
-  });
-
-  input.addEventListener("keydown", (e) => { // 엔터 누르면 collapse 추가
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addCollapseBelow(rc, input.value.trim());
-    }
-  });
-
-  function addCollapseBelow(container, text) {
-    if (!text) return;
-
-    // 기존 collapse 있으면 제거
-    const oldCollapse = container.querySelector(".dynamic-collapse");
-    if (oldCollapse) oldCollapse.remove();
-
-    // collapse 새로 추가
-    const collapseEl = document.createElement("div");
-    collapseEl.className = "collapse dynamic-collapse";
-    collapseEl.innerHTML = `
-      <button class="collapse__btn" id="rc-btn" aria-expanded="false" aria-controls="rc-panel">
-        입력 결과 보기
-      </button>
-      <div class="collapse__content" id="rc-panel" role="region" aria-labelledby="rc-btn">
-        <p>입력한 내용: <strong>${text}</strong></p>
-        <p>여기에 추천 데이터를 기반으로 한 설명이나 옵션을 넣을 수 있습니다.</p>
-      </div>
-    `;
-    container.appendChild(collapseEl);
-
-    // collapse 토글 이벤트
-    const btn = collapseEl.querySelector(".collapse__btn");
-    const panel = collapseEl.querySelector(".collapse__content");
-    btn.addEventListener("click", () => {
-      const willOpen = panel.classList.toggle("open");
-      btn.setAttribute("aria-expanded", willOpen);
-    });
-  }
-})();
-
 
 
 </script>

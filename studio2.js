@@ -2,7 +2,6 @@
   
 /* ===== 단계/노드 ===== */
 const steps = [
-  { name:"전처리 설정",    nodes:["결측치","스케일","인코딩","파생","샘플링"] },
   { name:"모델 구성",      nodes:["n_estimators","max_depth","max_features","criterion","seed"] },
   { name:"학습/검증 분할", nodes:["train","valid","test","k-fold","shuffle"] },
   { name:"평가/리포트",    nodes:["정확도","AUC","F1","리포트","리프트"] },
@@ -114,7 +113,7 @@ function updateDonutProgressFromChips(){
 
 function drawDonut(){
   segGroup.innerHTML = '';
-  stepTitle.textContent = `2단계 · ${steps[currentStep].name}`;
+  stepTitle.textContent = `3단계 · ${steps[currentStep].name}`;
 
   const total = donutData.length;
   const gaps  = cfg.gapDeg * total;
@@ -192,28 +191,28 @@ function showSlides(n){
   if (slideIndex===total && autoTimer){ clearInterval(autoTimer); autoTimer=null; }
 
   if (!recommandInserted && slideIndex === total) {
-  const rc = document.getElementById("recommand");
-  if (rc) {
-    rc.innerHTML = `
-      <div class="ask-wrap ask-first">
-        <span class="ask-title">*추천DATA 분류</span>
-        <div class="ask-opts">
-          <label><input type="checkbox" class="ask-opt"> 옵션 A</label>
-          <label><input type="checkbox" class="ask-opt"> 옵션 B</label>
-          <label><input type="checkbox" class="ask-opt"> 옵션 C</label>
-        </div>
-      </div>
-    `;
-    //ensureAskStyles();            // ← 이제 함수가 아래 2번에서 정의됨
-    syncLegendToRecommandInputs();// 도넛 초기 동기화
-    recommandInserted = true;
+    const rc = document.getElementById("recommand");
+    if (rc) {
+      rc.innerHTML = `
+        <div class="collapse">
+          <button class="collapse__btn" id="c1-button" aria-expanded="false" aria-controls="c1-panel">
+            *추천DATA
+          </button>
+          <div class="collapse__content" id="c1-panel" role="region" aria-labelledby="c1-button">
+            <div class="legend" id="legend"></div>
+            <div class="controls">
+              <button id="nextStep2">결정하기</button>
+            </div>
+          </div>
+        </div>`;
+      renderLegend();
+      // 버튼: 칩만 반영
+
+      recommandInserted = true;
+    }
   }
 }
-
-}
 showSlides(slideIndex);
-
-
 
 /* ===== dataTicker 클릭 → 선택 박스 표시 ===== */
 const dataTickerEl = document.getElementById('dataTicker');
@@ -485,76 +484,51 @@ document.addEventListener('click', (e) => {
 
   const panelId = btn.getAttribute('aria-controls');
   const panel   = document.getElementById(panelId);
-  const willOpen = btn.getAttribute('aria-expanded') !== 'true';
+  const wasOpen = btn.getAttribute('aria-expanded') === 'true';
+  const willOpen = !wasOpen;
 
   btn.setAttribute('aria-expanded', String(willOpen));
   panel?.classList.toggle('open', willOpen);
 
-  // ❗여기서는 legendData/도넛을 건드리지 않습니다.
-});
+  if (willOpen) {
+    // ① selectDataGroup 안의 show 전부 제거
+    document.querySelectorAll('#selectDataGroup.show, #selectDataGroup .show')
+      .forEach(el => el.classList.remove('show'));
 
-// 추천 입력창 상태 → legendData로 재구성 → 도넛 갱신
-function syncLegendToRecommandInputs(){
-  const rc = document.getElementById('recommand');
-  if (!rc) return;
-
-  const groups = Array.from(rc.querySelectorAll('.ask-wrap')).slice(0,5);
-  legendData = groups.map(g=>{
-    const opts = g.querySelectorAll('.ask-opt');
-    if (opts.length){
-      const anyChecked = Array.from(opts).some(o=>o.checked);
-      return { label:'custom', value:1, selected:anyChecked };
+    // ② Excel 바 즉시 숨김 (선택: 버튼 비활성)
+    freezeExcelBar = true;
+    const barOpen = document.querySelector('.excel-bar');
+    if (barOpen) {
+      barOpen.classList.remove('show');
+      barOpen.querySelector('#excelConfirm')?.setAttribute('disabled', '');
     }
-    const inp = g.querySelector('.recommend-input');
-    return { label:'custom', value:1, selected: !!(inp && inp.value.trim()!=='') };
-  });
 
-  updateDonutProgressFromChips();
-}
+    // 칩 전체 활성화
+    legendData.forEach(d => d.selected = true);
+    renderLegend();
+    updateDonutProgressFromChips();
 
-// 체크박스 중 하나라도 체크되면, 아직 입력세트가 없다면 1개 생성
-document.addEventListener('change', (e)=>{
-  if (!e.target.matches('#recommand .ask-opt')) return;
-  const rc = document.getElementById('recommand');
-  if (!rc) return;
+  } else {
+    // 강제 숨김 해제 & 재계산
+    freezeExcelBar = false;
+    updateExcelButton();
 
-  // 우선순위: .ask-first → 없으면 첫 번째 .ask-wrap
-  const firstWrap = rc.querySelector('.ask-first') || rc.querySelector('.ask-wrap');
-  const anyChecked = firstWrap
-    ? Array.from(firstWrap.querySelectorAll('.ask-opt')).some(o=>o.checked)
-    : false;
+    // 재계산이 다시 보이게 만들 수 있으므로 한 번 더 강제 숨김
+    const barAfter = document.querySelector('.excel-bar');
+    if (barAfter) {
+      barAfter.classList.remove('show');
+      barAfter.querySelector('#excelConfirm')?.setAttribute('disabled', '');
+    }
 
-  if (anyChecked && !rc.querySelector('.ask-wrap.ask-input')){
-    addInputAskWrap();
-  }
-  syncLegendToRecommandInputs();
-});
-
-
-// 입력창 내용 변하면 도넛 반영
-document.addEventListener('input', (e)=>{
-  if (e.target.matches('#recommand .recommend-input') ||
-      e.target.matches('#recommand .ask-opt')){
-    syncLegendToRecommandInputs();
+    // 기존 초기화 로직 유지
+    legendData.forEach(d => d.selected = false);
+    renderLegend();
+    updateDonutProgressFromChips();
+    blockStates[currentStep] = 'empty';
+    document.querySelectorAll('.gblock.active').forEach(el => el.classList.remove('active'));
   }
 });
 
-// 입력창에서 엔터 → 아래에 새 입력세트 추가(최대 5개)
-document.addEventListener('keydown', (e)=>{
-  if (e.key !== 'Enter') return;
-  if (!e.target.matches('#recommand .recommend-input')) return;
-  e.preventDefault();
-  addInputAskWrap();
-  syncLegendToRecommandInputs();
-});
-
-
-// 모든 추천 input에서 타이핑될 때마다 동기화
-document.addEventListener('input', (e) => {
-  if (e.target.matches('#recommand .recommend-input, #recommand #c1-input')) {
-    syncLegendToRecommandInputs();
-  }
-});
 
 
 /* ===== 초기 실행 ===== */
@@ -733,130 +707,3 @@ document.addEventListener('click', (e) => {
   if (panel) panel.classList.remove('open');
   if (btn)   btn.setAttribute('aria-expanded', 'false');
 });
-
-// collapse 템플릿 생성 함수
-function createCollapseHTML() {
-  const id = "c-panel-" + Date.now();
-  return `
-    <div class="collapse">
-      <button class="collapse__btn" aria-expanded="true" aria-controls="${id}">
-        *추천DATA
-      </button>
-      <div class="collapse__content open" id="${id}" role="region">
-        <input type="text" class="recommend-input"/>
-      </div>
-    </div>`;
-}
-
-
-
-// 일반 입력 ask-wrap 추가 (최대 5개 제한)
-function addInputAskWrap(){
-  const rc = document.getElementById("recommand");
-  if (!rc) return;
-
-  const groups = rc.querySelectorAll('.ask-wrap');
-  if (groups.length >= 5) {
-    return;
-  }
-
-  const title = getNextAskTitle();
-
-  rc.insertAdjacentHTML('beforeend', `
-    <div class="ask-wrap ask-input">
-      <span class="ask-title">${title}</span>
-      <input type="text" class="recommend-input" placeholder="값을 입력하세요 (엔터로 추가)"/>
-    </div>
-  `);
-
-  const inp = rc.querySelector('.ask-wrap.ask-input:last-child .recommend-input');
-  if (inp){
-    inp.focus();
-  }
-  syncLegendToRecommandInputs();
-}
-// ==== ask-title 자동 생성 ====
-const ASK_TITLE_POOL = [
-  '*추천DATA 항목',
-  '*추천DATA 조건',
-  '*추천DATA 범위',
-  '*추천DATA 기준',
-  '*추천DATA 참고'
-];
-
-function getNextAskTitle() {
-  const rc = document.getElementById('recommand');
-  const existing = rc ? rc.querySelectorAll('.ask-wrap').length : 0; // 추가 전 개수
-  const idx = existing + 1; // 사람이 보는 순번(1부터)
-  // 1번째는 ask-first(체크박스)에서 이미 고정 타이틀 사용
-  const poolIdx = idx - 2; // 2번째부터 풀을 사용
-  if (poolIdx >= 0 && poolIdx < ASK_TITLE_POOL.length) {
-    return ASK_TITLE_POOL[poolIdx];
-  }
-  // 풀을 벗어나면 번호 붙여서 유니크 보장
-  return `*추천DATA 항목 ${idx}`;
-}
-
-function addAskWrap(){
-  const rc = document.getElementById("recommand");
-  if (!rc) return;
-
-  const groups = rc.querySelectorAll('.ask-wrap');
-  if (groups.length >= 5) {
-    return;
-  }
-
-  const title = getNextAskTitle();
-
-  rc.insertAdjacentHTML("beforeend", `
-    <div class="ask-wrap ask-input">
-      <span class="ask-title">${title}</span>
-      <input type="text" class="recommend-input" placeholder="예: 지표/변수 이름" />
-    </div>
-  `);
-
-  ensureAskStyles();
-
-  const newInput = rc.querySelector(".ask-wrap:last-child .recommend-input");
-  if (newInput) {
-    newInput.focus();
-    syncLegendToRecommandInputs();
-  }
-}
-
-function fitMainToViewport(){
-  const main = document.querySelector('.main');
-  if (!main) return;
-  // .main의 상단부터 창 하단까지 남은 공간을 계산
-  const top = main.getBoundingClientRect().top;
-  const avail = Math.max(200, window.innerHeight - top); // 최소 200px
-  main.style.height = avail + 'px';
-  main.style.overflowY = 'auto';
-}
-
-// 초기/리사이즈 시 반영
-window.addEventListener('load', fitMainToViewport);
-window.addEventListener('resize', fitMainToViewport);
-
-// 레이아웃이 변하는 액션 뒤에도 호출
-const _openAltPane = openAltPane;
-openAltPane = function(paneEl){
-  _openAltPane && _openAltPane(paneEl);
-  requestAnimationFrame(fitMainToViewport);
-};
-
-const _closeAltPane = closeAltPane;
-closeAltPane = function(paneEl){
-  _closeAltPane && _closeAltPane(paneEl);
-  requestAnimationFrame(fitMainToViewport);
-};
-
-// collapse를 추가할 때도 호출
-// const _addCollapse = addCollapse;
-// addCollapse = function(){
-//   _addCollapse && _addCollapse();
-//   requestAnimationFrame(fitMainToViewport);
-// };
-
-// 추천 패널이 처음 만들어질 때도 한 번 보정
-document.addEventListener('DOMContentLoaded', fitMainToViewport);

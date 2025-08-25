@@ -24,11 +24,7 @@ const imgPane  = document.getElementById('resultImage');
 const wrapEl   = document.querySelector('.your-panel .wrap');
 const btn      = document.getElementById('directBtn');
 
-//================= IFRAME===================
-// function studio1(url) {
-//   document.getElementById('studio1').src = "studio1.html"; // 예: '/pages/step2.html'
-// }
-// studio1('studio1.html');
+
 
 /* ===== 오버레이 토글(직접 선택) ===== */
 if (btn && wrapEl && imgPane) {
@@ -76,12 +72,16 @@ gaugeEl.addEventListener('click', (e)=>{
   if(!blk) return;
   selectBlock(+blk.dataset.index);
 });
+
 function selectBlock(i){
   currentStep = i;
   blockStates[i] = 'empty';
   initDonutForStep(i);
-  renderGauge();
+  renderGauge();   // ← 여기서 active 클래스 다시 붙음
+  showPage(i);     // ← 해당 step 화면 보여주기
 }
+window.selectBlock = selectBlock;  // 전역 노출 (외부에서도 호출 가능하게)
+
 
 /* ===== 도넛 ===== */
 const cfg = {
@@ -530,6 +530,7 @@ document.addEventListener('click', (e) => {
     document.querySelectorAll('.gblock.active').forEach(el => el.classList.remove('active'));
   }
 });
+
 
 
 

@@ -135,31 +135,19 @@
                   </div>
                   <!-- 단계 2 화면 -->
                   <div class="card" data-step="1">
-                      <iframe id="frame" src="about:blank" style="width:100%;border:0;"></iframe>
+                      <iframe id="frame1" style="width:100%;border:0;" scrolling="no"></iframe>
                   </div>
 
                   <!-- 단계 3 화면 -->
                   <div class="card" data-step="2">
                     <div class="main">
-                    
+                        <iframe id="frame2" style="width:100%;border:0;" scrolling="no"></iframe>
                     </div>
                   </div>
 
                   <!-- 단계 4 화면 -->
                   <div class="card" data-step="3">
                        <div class="main">
-                      <div class="box" id="donutBox">
-                        <h2 id="stepTitle">2단계</h2>
-                        <svg id="donut" viewBox="0 0 240 240" aria-label="도넛차트">
-                          <circle cx="120" cy="120" r="84" fill="none" stroke="#eef1f5" stroke-width="24"/>
-                          <g id="segments" transform="rotate(-90 120 120)"></g>
-                          <g>
-                            <text x="120" y="110" class="centerText muted" font-size="12">완료</text>
-                            <text id="centerMain" x="120" y="130" class="centerText">0 / 5</text>
-                          </g>
-                        </svg>
-                        <div class="hint">• 블록을 누르면 해당 단계로 전환되며 도넛은 초기화됩니다. 일부 선택=회색, 전부 선택=파란색.</div>
-                      </div>
                       <div class="box" id="box">
                           
                       </div>
@@ -169,18 +157,6 @@
                   <!-- 단계 5 화면 -->
                   <div class="card" data-step="4">
                     <div class="main">
-                      <div class="box" id="donutBox">
-                        <h2 id="stepTitle">2단계</h2>
-                        <svg id="donut" viewBox="0 0 240 240" aria-label="도넛차트">
-                          <circle cx="120" cy="120" r="84" fill="none" stroke="#eef1f5" stroke-width="24"/>
-                          <g id="segments" transform="rotate(-90 120 120)"></g>
-                          <g>
-                            <text x="120" y="110" class="centerText muted" font-size="12">완료</text>
-                            <text id="centerMain" x="120" y="130" class="centerText">0 / 5</text>
-                          </g>
-                        </svg>
-                        <div class="hint">• 블록을 누르면 해당 단계로 전환되며 도넛은 초기화됩니다. 일부 선택=회색, 전부 선택=파란색.</div>
-                      </div>
                       <div class="box" id="box">
                       </div>
                     </div>
@@ -209,20 +185,74 @@
 
 <script>
 
-  function showPage(url) {
-    document.getElementById('frame').src = url; // 예: '/pages/step2.html'
-  }
-
-  // 초기
-  showPage('/studio1.html');
-
-function setFrameSrc(url, step = 1) {
-  const frame = document.querySelector(`.card[data-step="${step}"] .main iframe`);
-  if (frame) frame.src = url;
+// iframe 로드 함수
+function loadIframeOnce1(url) {
+  const f = document.getElementById('frame1');
+  if (!f) return console.error('iframe #frame1 not found');
+  if (f.dataset.loaded === '1') return;  // 이미 로드했으면 무시
+  f.src = url;
+  f.dataset.loaded = '1';
+  console.log("iframe loaded:", url);
 }
 
-// 예: step=1 카드에 페이지 주입
-setFrameSrc('/studio1.html', 1);
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'nextStep2') {
+    console.log("11");
+    loadIframeOnce1('studio1.html');
+  }
+});
+// nextStep2 버튼 클릭 시
+// gblock 클릭 시 iframe 로드
+document.addEventListener('click', (e) => {
+  const blk = e.target.closest('.gblock[data-index="1"]');
+  if (blk) {
+    console.log("2");
+    loadIframeOnce1('studio1.html');
+  }
+});
+
+
+function loadIframeOnce2(url) {
+  const f = document.getElementById('frame2');
+  if (!f) return console.error('iframe #frame2 not found');
+  if (f.dataset.loaded === '1') return;  // 이미 로드했으면 무시
+  f.src = url;
+  f.dataset.loaded = '1';
+  console.log("iframe loaded:", url);
+}
+
+// nextStep2 버튼 클릭 시
+// gblock[data-index="2"] 클릭 → studio2.html 로드
+document.addEventListener('click', (e) => {
+  const blk = e.target.closest('.gblock[data-index="2"]');
+  if (blk) {
+    console.log("3");
+    loadIframeOnce2('studio2.html');
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  // 현재 URL의 step 파라미터 확인
+  const url = new URL(window.location.href);
+  const stepParam = url.searchParams.get("step");
+
+  if (stepParam) {
+    const stepIdx = parseInt(stepParam, 10);
+
+    if (!isNaN(stepIdx) && typeof selectBlock === "function") {
+      // 1) gblock 클릭처럼 동작
+      selectBlock(stepIdx);
+
+      // 2) iframe 자동 로드 (원하시는 경우)
+      if (stepIdx === 1) {
+        loadIframeOnce1("studio1.html");
+      }
+      if (stepIdx === 2) {
+        loadIframeOnce2("studio2.html");
+      }
+    }
+  }
+});
 
 
 
