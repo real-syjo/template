@@ -12,82 +12,21 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="studioStyle.css"/>
-    <script src="studio.js" defer></script>
+    <script src="studio1.js" defer></script>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@2.4.1/dist/email.min.js"> </script>
     <script src="https://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 
 <body>
-     <nav id="navbar">
-        <div class="navbar__logo"> 
-            <a href="index.html">Ocean Ai</a>
-        </div>
-            <ul class="navbar__menu">
-                  <a href="studio.html"><li class="navbar__menu__item" data-link="#about">디자인스튜디오</li></a>
-                <a href="mart.html"><li class="navbar__menu__item" data-link="#skills">금융데이터마트</li></a>
-                <a href="gallery.html"><li class="navbar__menu__item" data-link="#work">포트폴리오갤러리</li></a>
-                <a href="admin.html"><li class="navbar__menu__item" data-link="#contact">작업관리자</li></a>
-            </ul>
-        </div>
-        <!-- Toggle button -->
-        <button class="navbar__toggle-btn">
-            <i class="fas fa-bars"></i>
-        </button>
-    </nav>
-
     <section id="home">
       <div id="stage" class="shrink-wrap">
-        <!-- ✨ 축소 시 드러날 이미지 -->
-        <div class="reveal-media" aria-hidden="true">
-          <main class="container xl">
-                <!-- 상단 컨트롤 -->
-                <section class="toolbar">
-                  <div class="toolbar-grid">
-                    <div class="group">
-                      <div class="title">조회 기간 설정</div>
-                      <div class="range-fields">
-                        <input id="start" type="date">
-                        <span>~</span>
-                        <input id="end" type="date">
-                        <button class="btn" id="queryBtn">조회</button>
-                      </div>
-                    </div>
 
-                    <div class="group">
-                      <div class="title">조회 포맷 설정</div>
-                      <div class="tabs" role="tablist">
-                        <button class="tab active" data-tab="raw" role="tab" aria-selected="true">원본 데이터</button>
-                        <button class="tab" data-tab="biz" role="tab" aria-selected="false">국내영업일</button>
-                        <button class="tab" data-tab="cal" role="tab" aria-selected="false">캘린더 데이</button>
-                      </div>
-                    </div>
-
-                    <div class="group" style="justify-content:center;">
-                      <span class="hint">*캘린더 데이는 해당 월의 1일부터 말일까지 조회 기간을 표시합니다.<br/>데이터가 없는 일자는 NULL로 채워집니다.</span>
-                    </div>
-
-                    <div class="note"></div>
-                  </div>
-                </section>
-
-                <!-- 데이터 테이블 카드 -->
-                <section class="card">
-               
-                </section>
-              </main>
-          <!-- 방법 B: 배경이미지 쓰려면 위 <img> 대신 비워두고 CSS의 background-image 사용 -->
-        </div>
+        
           <!-- 기존 콘텐츠 -->
         <div class="shrink-scale">
           <div class="your-panel">
             <div class="wrap">
-
-                <!-- 상단: 블록 게이지 -->
-                <div class="card">
-                  <div class="block-gauge" id="gauge" aria-label="단계 게이지(클릭 가능)"></div>
-                </div>
-
                 <!-- 하단: 도넛 + 범례 -->
                 <div class="card"  data-step="0">
                   <div class="main">
@@ -103,8 +42,25 @@
                       </svg>
                       <div class="hint">• 블록을 누르면 해당 단계로 전환되며 도넛은 초기화됩니다. 일부 선택=회색, 전부 선택=파란색.</div>
                     </div>
-                    <div class="box" id="box">
-                        <div class="slideshow-container">
+                  
+                  </div> 
+                </div>
+                  <!-- 단계 2 화면 -->
+                  <div class="card" data-step="1">
+                    <div class="main">
+                      <div class="box" id="donutBox">
+                        <h2 id="stepTitle">2단계</h2>
+                        <svg id="donut" viewBox="0 0 240 240" aria-label="도넛차트">
+                          <circle cx="120" cy="120" r="84" fill="none" stroke="#eef1f5" stroke-width="24"/>
+                          <g id="segments" transform="rotate(-90 120 120)"></g>
+                          <g>
+                            <text x="120" y="110" class="centerText muted" font-size="12">완료</text>
+                            <text id="centerMain" x="120" y="130" class="centerText">0 / 5</text>
+                          </g>
+                        </svg>
+                        <div class="hint">• 블록을 누르면 해당 단계로 전환되며 도넛은 초기화됩니다. 일부 선택=회색, 전부 선택=파란색.</div>
+                      </div>
+                      <div class="slideshow-container">
                           <div class="slide">
                             랜덤 포레스트 알고리즘으로 투자전략을 테스트하고 싶으시군요.
                           </div>
@@ -126,66 +82,23 @@
                             <span class="dot" onclick="currentSlide(3)"></span>
                           </div>
                         </div>
-                        <div class="recommand" id="recommand">
-                        </div> 
-                        <div class="selectDataGroup" id="selectDataGroup">
-                        </div> 
-                      </div> 
-                    </div> 
-                  </div>
-                  <!-- 단계 2 화면 -->
-                  <div class="card" data-step="1">
-                      <iframe id="frame" src="about:blank" style="width:100%;border:0;"></iframe>
-                  </div>
-
-                  <!-- 단계 3 화면 -->
-                  <div class="card" data-step="2">
-                    <div class="main">
-                    
-                    </div>
-                  </div>
-
-                  <!-- 단계 4 화면 -->
-                  <div class="card" data-step="3">
-                       <div class="main">
-                      <div class="box" id="donutBox">
-                        <h2 id="stepTitle">2단계</h2>
-                        <svg id="donut" viewBox="0 0 240 240" aria-label="도넛차트">
-                          <circle cx="120" cy="120" r="84" fill="none" stroke="#eef1f5" stroke-width="24"/>
-                          <g id="segments" transform="rotate(-90 120 120)"></g>
-                          <g>
-                            <text x="120" y="110" class="centerText muted" font-size="12">완료</text>
-                            <text id="centerMain" x="120" y="130" class="centerText">0 / 5</text>
-                          </g>
-                        </svg>
-                        <div class="hint">• 블록을 누르면 해당 단계로 전환되며 도넛은 초기화됩니다. 일부 선택=회색, 전부 선택=파란색.</div>
-                      </div>
                       <div class="box" id="box">
-                          
+                       <form id="signup3" class="signup-line" novalidate>
+                          <label for="data1">결측치 대체</label>
+                          <input id="data1" name="data1" type="text" value="이전일" required />
+
+                          <label for="data2">수익율 계산</label>
+                          <input id="data2" name="data2" type="text" value="252" required />
+
+                          <label for="data3">레깅값 계산</label>
+                          <input id="data3" name="data3" type="text" value="1개월" required />
+
+                          <label for="data4">데이터 라벨링</label>
+                          <input id="data4" name="data4" type="text" value="1개월" required />
+                        </form>
                       </div>
                     </div>
                   </div>
-
-                  <!-- 단계 5 화면 -->
-                  <div class="card" data-step="4">
-                    <div class="main">
-                      <div class="box" id="donutBox">
-                        <h2 id="stepTitle">2단계</h2>
-                        <svg id="donut" viewBox="0 0 240 240" aria-label="도넛차트">
-                          <circle cx="120" cy="120" r="84" fill="none" stroke="#eef1f5" stroke-width="24"/>
-                          <g id="segments" transform="rotate(-90 120 120)"></g>
-                          <g>
-                            <text x="120" y="110" class="centerText muted" font-size="12">완료</text>
-                            <text id="centerMain" x="120" y="130" class="centerText">0 / 5</text>
-                          </g>
-                        </svg>
-                        <div class="hint">• 블록을 누르면 해당 단계로 전환되며 도넛은 초기화됩니다. 일부 선택=회색, 전부 선택=파란색.</div>
-                      </div>
-                      <div class="box" id="box">
-                      </div>
-                    </div>
-                  </div>
-
                 </div>
                 <div class="alt-image" id="resultImage" aria-hidden="true">
                   <figure class="image-card">
@@ -199,7 +112,7 @@
                 </div>
             </div>
           </div>
-        </div>
+   
       <button id="directBtn">데이터 직접 선택하기</button> 
     </div>
     </section>
@@ -210,21 +123,11 @@
 <script>
 
   function showPage(url) {
-    document.getElementById('frame').src = url; // 예: '/pages/step2.html'
+    document.getElementById('frame').src = url;
   }
 
   // 초기
   showPage('/studio1.html');
-
-function setFrameSrc(url, step = 1) {
-  const frame = document.querySelector(`.card[data-step="${step}"] .main iframe`);
-  if (frame) frame.src = url;
-}
-
-// 예: step=1 카드에 페이지 주입
-setFrameSrc('/studio1.html', 1);
-
-
 
 // ===== #signup3 폼 ↔ 도넛 연동 (폼이 들어있는 카드 안의 도넛만 다시 그림) =====
 (function bindDonutToSignup3(){

@@ -172,12 +172,11 @@ p {
 /* Home */
 #home{
   height:924px;
-  padding:40px 40px 0;
   text-align:center;
   transition:background-size 1s ease;
   background-size:100%;
   min-height: var(--vh);
-  height: auto; 
+  height: 100vh; 
 }
 #home:hover{ background-size:110%; }
 
@@ -246,7 +245,7 @@ body.overlay-open{ overflow:hidden; }
 }
 
 /* ========== Grid / Cards ========== */
-.wrap{ max-width:100%; width:93%; margin:3% 0 0 5%; display:grid; }
+.wrap{ max-width:100%; width:93%; display:grid; }
 .card{
   position:relative;
   background:#fff;
