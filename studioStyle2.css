@@ -830,3 +830,18 @@ tr:nth-child(even) td{ background:#fcfdff; }
   color: #777;
   margin: 0;
 }
+
+.go-next-link {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 8px 14px;
+  background: #2b6fff;
+  color: #gray;
+  font-weight: bold;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.go-next-link:hover {
+  background: #1e4dcc;
+}

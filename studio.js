@@ -478,6 +478,33 @@ function syncSheetChips(){
 document.querySelectorAll('#selectDataGroup.show, #selectDataGroup .show')
   .forEach(el => el.classList.remove('show'));
 
+  
+/* ===== [PATCH] 슬라이드 문구 세트 & 유틸 ===== */
+if (typeof window.setSlideTexts !== 'function') {
+  window.setSlideTexts = function(texts) {
+    const slides = document.querySelectorAll('.slideshow-container .slide');
+    slides.forEach((el, i) => {
+      if (typeof texts[i] !== 'undefined') el.textContent = texts[i];
+    });
+  };
+}
+if (typeof window.resetSlidesAutoplayToFirst !== 'function') {
+  window.resetSlidesAutoplayToFirst = function() {
+    if (typeof currentSlide === 'function') currentSlide(1);
+    if (typeof autoTimer !== 'undefined') {
+      if (autoTimer) clearInterval(autoTimer);
+      autoTimer = setInterval(() => plusSlides(1), 3000);
+    }
+  };
+}
+
+// ✅ 추천DATA 패널이 열렸을 때 보여줄 문구
+const SLIDE_TEXTS_COLLAPSE_OPEN = [
+  "추천 데이터 패널을 열었습니다.",
+  "칩을 눌러 항목을 선택, 제외 할 수 있습니다.",
+  "완료되면 ‘결정하기’로 2단계로 이동합니다."
+];
+
 
 /* ===== Collapse ===== */
 document.addEventListener('click', (e) => {
@@ -493,36 +520,34 @@ document.addEventListener('click', (e) => {
   panel?.classList.toggle('open', willOpen);
 
   if (willOpen) {
-    // ① selectDataGroup 안의 show 전부 제거
+    // (기존 로직 그대로 유지)
     document.querySelectorAll('#selectDataGroup.show, #selectDataGroup .show')
       .forEach(el => el.classList.remove('show'));
-
-    // ② Excel 바 즉시 숨김 (선택: 버튼 비활성)
     freezeExcelBar = true;
     const barOpen = document.querySelector('.excel-bar');
     if (barOpen) {
       barOpen.classList.remove('show');
       barOpen.querySelector('#excelConfirm')?.setAttribute('disabled', '');
     }
-
-    // 칩 전체 활성화
     legendData.forEach(d => d.selected = true);
     renderLegend();
     updateDonutProgressFromChips();
 
+    // ✅ 추가: 패널 열림 시 슬라이드 문구 변경 + 리셋/자동재생
+    if (typeof setSlideTexts === 'function') {
+      setSlideTexts(SLIDE_TEXTS_COLLAPSE_OPEN);
+      resetSlidesAutoplayToFirst();
+    }
+
   } else {
-    // 강제 숨김 해제 & 재계산
+    // (기존 닫힘 로직 그대로)
     freezeExcelBar = false;
     updateExcelButton();
-
-    // 재계산이 다시 보이게 만들 수 있으므로 한 번 더 강제 숨김
     const barAfter = document.querySelector('.excel-bar');
     if (barAfter) {
       barAfter.classList.remove('show');
       barAfter.querySelector('#excelConfirm')?.setAttribute('disabled', '');
     }
-
-    // 기존 초기화 로직 유지
     legendData.forEach(d => d.selected = false);
     renderLegend();
     updateDonutProgressFromChips();
@@ -530,6 +555,7 @@ document.addEventListener('click', (e) => {
     document.querySelectorAll('.gblock.active').forEach(el => el.classList.remove('active'));
   }
 });
+
 
 
 

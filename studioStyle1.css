@@ -70,11 +70,10 @@
 html, body { height: auto;
   overflow-y: auto; margin:0; }
 body {
-  font-family:'Poppins','Do Hyeon',sans-serif;
   cursor:default;
 }
 
-a { text-decoration:none; color:var(--color-white); cursor:pointer; }
+a { text-decoration:none; color:var(--color-dark-grey); cursor:pointer; }
 ul, li { list-style:none; padding-left:0; }
 
 button {
@@ -106,7 +105,7 @@ h3 {
 p {
   font-size:var(--font-regular);
   font-weight:var(--weight-regular);
-  color:var(--color-white);
+  color:var(--color-dark-grey);
   margin:4px 0;
 }
 
@@ -123,7 +122,7 @@ p {
   position:absolute;
   width:100%;
   display:inline-block;
-  font-family:'Raleway',sans-serif;
+
   font-size:70pt;
   text-align:center;
   user-select:none;
@@ -248,7 +247,9 @@ body.overlay-open{ overflow:hidden; }
 }
 
 /* ========== Grid / Cards ========== */
-.wrap{  height:732px; width:100%;max-width:100%; width:93%; display:grid; }
+.wrap{  
+  height:732px; 
+  width:100%;max-width:100%; width:93%; display:grid; }
 .card{
   position:relative;
   background:#fff;
@@ -816,3 +817,176 @@ tr:nth-child(even) td{ background:#fcfdff; }
 #recommand .ask-opts{display:flex;gap:1rem;flex-wrap:wrap}
 #recommand .ask-opts label{display:flex;align-items:center;gap:.35rem;cursor:pointer}
 #recommand .recommend-input{flex:1;min-width:0}
+
+#choiceBtn { display: none; }
+
+#choiceBtn {
+  display: block;
+  width: 100%;                /* 버튼을 가로 전체로 */
+  padding: 14px 0;            /* 세로 여백 */
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  color: #fff;                /* 흰색 글씨 */
+  background-color: #003366;  /* 진한 파랑 배경 */
+  border: none;
+  border-radius: 4px;         /* 살짝 둥근 모서리 */
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* 호버 효과 */
+#choiceBtn:hover {
+  background-color: #0055aa;  /* 조금 밝은 파랑 */
+  transform: translateY(-2px);
+}
+
+/* 클릭 효과 */
+#choiceBtn:active {
+  background-color: #002244;
+  transform: translateY(0);
+}
+.ask-wrap.dragging {
+  opacity: 0.5;
+  border: 2px dashed #007bff;
+}
+
+.ask-content,
+.ask-ask-opts{
+  color: var(--color-dark-grey)
+}
+/* =========================
+   Choice Modal (scoped clean)
+   ========================= */
+#choiceModal.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100vh;
+  background:rgba(0,0,0,.5);
+  z-index:9999;
+}
+
+#choiceModal .modal-content{
+  background:#fff;
+  margin:auto;
+  padding:20px;
+  border-radius:12px;
+  width: min(1000px, 92vw);
+  max-height:90vh;
+  overflow-y:auto;
+  animation:fadeIn .24s ease;
+  box-shadow:0 12px 28px rgba(0,0,0,.12);
+}
+
+#choiceModal .close{
+  float:right;
+  font-size:24px;
+  font-weight:700;
+  cursor:pointer;
+  line-height:1;
+}
+
+/* 컨테이너: 그룹 단위(제목 + 그리드)로 쌓임 */
+#choiceModal .modal-boxes{
+  display:block;           /* ❌ 기존 5열 grid 제거 */
+  margin-top:14px;
+}
+
+/* 그룹 제목 */
+#choiceModal .modal-group-title{
+  margin:18px 0 10px;
+  font-weight:700;
+  font-size:15px;
+  color:#111827;
+}
+
+/* 그룹 내 카드 그리드 */
+#choiceModal .modal-grid{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:16px;
+}
+
+@media (max-width:1024px){
+  #choiceModal .modal-grid{ grid-template-columns:repeat(2,1fr); }
+}
+@media (max-width:560px){
+  #choiceModal .modal-grid{ grid-template-columns:1fr; }
+}
+
+/* 카드 */
+#choiceModal .modal-boxes .box{
+  display:block;
+  text-align:left;
+  padding:16px;
+  border:1px solid #e5e7eb;
+  border-radius:10px;
+  background:#fff;
+  transition:background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .12s ease;
+}
+#choiceModal .modal-boxes .box:hover{
+  background:#f8fbff;
+  border-color:#bcd3ff;
+  box-shadow:0 8px 18px rgba(16,24,40,.08);
+  transform:translateY(-1px);
+}
+
+/* 카드 내부 파츠 */
+#choiceModal .badge{
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#f3f4f6;
+  color:#374151;
+  font-size:12px;
+  margin-bottom:10px;
+}
+#choiceModal .b-title{
+  font-weight:700;
+  margin-bottom:6px;
+  color:#111827;
+}
+#choiceModal .b-desc{
+  color:#6b7280;
+  font-size:13px;
+}
+
+/* 모달 페이드 */
+@keyframes fadeIn{
+  from{ opacity:0; transform:scale(.98); }
+  to{ opacity:1; transform:scale(1); }
+}
+
+/* ===== (선택) 버튼: 중복 선언 방지, 한 번만 유지 ===== */
+#choiceBtn{
+  display:block;
+  width:100%;
+  padding:14px 0;
+  font-size:16px;
+  font-weight:700;
+  text-align:center;
+  color:#fff;
+  background:#003366;
+  border:0;
+  border-radius:6px;
+  cursor:pointer;
+  transition:background .2s ease, transform .15s ease;
+}
+#choiceBtn:hover{ background:#0055aa; transform:translateY(-2px); }
+#choiceBtn:active{ background:#002244; transform:translateY(0); }
+
+/* 애니메이션 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+body.modal-open { overflow: hidden; }
+
+/* 모달 열렸을 때 아래쪽 클릭 막기 (특히 iframe) */
+body.modal-open iframe { pointer-events: none; }
+
+/* 혹시 부모 영역 클릭도 막고 싶다면 */
+body.modal-open .your-panel .wrap { pointer-events: none; }
+

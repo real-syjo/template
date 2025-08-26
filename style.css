@@ -304,8 +304,8 @@ a{
   flex-direction: row;          /* 두 컬럼 가로로 배치 */
   justify-content: space-between;
   align-items: flex-start;      /* 세로(위쪽) 정렬 */
-  gap: 32px;
-  padding: 12px 28px;
+  gap: 10px;
+  padding: 12px 113px 12px 113px;
 }
 
 /* 각 컬럼: 세로로 쌓기 */
@@ -313,6 +313,7 @@ a{
   display: flex;
   flex-direction: column;
   gap: 8px;
+  
 }
 
 /* 왼쪽 컬럼: 왼쪽 정렬 */

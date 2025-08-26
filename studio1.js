@@ -1,17 +1,17 @@
 
   
 /* ===== 단계/노드 ===== */
-const steps = [
-  { name:"전처리 설정",    nodes:["결측치","스케일","인코딩","파생","샘플링"] },
-  { name:"모델 구성",      nodes:["n_estimators","max_depth","max_features","criterion","seed"] },
-  { name:"학습/검증 분할", nodes:["train","valid","test","k-fold","shuffle"] },
-  { name:"평가/리포트",    nodes:["정확도","AUC","F1","리포트","리프트"] },
-];
+// const steps = [
+//   { name:"전처리 설정",    nodes:["결측치","스케일","인코딩","파생","샘플링"] },
+//   { name:"모델 구성",      nodes:["n_estimators","max_depth","max_features","criterion","seed"] },
+//   { name:"학습/검증 분할", nodes:["train","valid","test","k-fold","shuffle"] },
+//   { name:"평가/리포트",    nodes:["정확도","AUC","F1","리포트","리프트"] },
+// ];
 
 let currentStep = 0;
 let donutData   = [];                  // 도넛 세그먼트(칩 진행도만 반영)
 let legendData  = [];                  // 추천DATA 칩 상태
-const blockStates = Array(steps.length).fill("empty");
+//const blockStates = Array(steps.length).fill("empty");
 
 /* ===== 엘리먼트 ===== */
 const wrap     = document.getElementById('stage');
@@ -78,7 +78,7 @@ function updateDirectBtnVisibility() {
 function selectBlock(i){
   currentStep = i;
   blockStates[i] = 'empty';
-  initDonutForStep(i);
+ // initDonutForStep(i);
  renderGauge();
 }
 
@@ -96,12 +96,12 @@ function arcPath(cx,cy,r,start,end){
   return `M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 1 ${e.x} ${e.y}`;
 }
 
-function initDonutForStep(stepIdx){
-  // 칩 텍스트 초기화(고정)
-  legendData = steps[stepIdx].nodes.map(n => ({ label:n, value:1, selected:false }));
-  renderLegend();
-  updateDonutProgressFromChips(); // 도넛 = 칩 진행도만 반영
-}
+// function initDonutForStep(stepIdx){
+//   // 칩 텍스트 초기화(고정)
+//   legendData = steps[stepIdx].nodes.map(n => ({ label:n, value:1, selected:false }));
+//   renderLegend();
+//   updateDonutProgressFromChips(); // 도넛 = 칩 진행도만 반영
+// }
 
 function updateDonutProgressFromChips(){
   const chipTotal = Math.max(legendData.length, 1);
@@ -114,7 +114,7 @@ function updateDonutProgressFromChips(){
 
 function drawDonut(){
   segGroup.innerHTML = '';
-  stepTitle.textContent = `2단계 · ${steps[currentStep].name}`;
+ // stepTitle.textContent = `2단계 · ${steps[currentStep].name}`;
 
   const total = donutData.length;
   const gaps  = cfg.gapDeg * total;
@@ -147,7 +147,7 @@ function applyStateToCurrentBlock(){
 
   const done  = donutData.filter(d => d.selected).length;
   const total = donutData.length;
-  blockStates[currentStep] = (done===0)?'empty':(done<total?'partial':'done');
+  //blockStates[currentStep] = (done===0)?'empty':(done<total?'partial':'done');
   //renderGauge();
 }
 
@@ -170,12 +170,19 @@ function renderLegend(){
   });
 }
 
+
+document.addEventListener('DOMContentLoaded', () => {
+  ensureAskFirstIndex();
+  enableAskWrapDragSort();
+})
 /* ===== 슬라이드/추천 패널 ===== */
 let slideIndex = 1;
 let autoTimer = setInterval(() => plusSlides(1), 3000);
 let recommandInserted = false;
+let keepChoiceBtn = false; 
 function plusSlides(n){ showSlides(slideIndex += n); }
 function currentSlide(n){ showSlides(slideIndex = n); }
+
 function showSlides(n){
   const slides = document.getElementsByClassName("slide");
   const dots   = document.getElementsByClassName("dot");
@@ -191,20 +198,33 @@ function showSlides(n){
   document.querySelector(".next").style.visibility = (slideIndex===total?"hidden":"visible");
   if (slideIndex===total && autoTimer){ clearInterval(autoTimer); autoTimer=null; }
 
+  const choiceBtn = document.getElementById('choiceBtn');
+  if (choiceBtn) {
+     const onLast = (slideIndex === total);
+    // ▼ 플래그가 켜져 있으면 항상 보이게
+    choiceBtn.style.display = (keepChoiceBtn || onLast) ? '' : 'none';
+  }
+
   if (!recommandInserted && slideIndex === total) {
   const rc = document.getElementById("recommand");
   if (rc) {
     rc.innerHTML = `
-      <div class="ask-wrap ask-first">
-        <span class="ask-title">*추천DATA 분류</span>
-        <div class="ask-opts">
-          <label><input type="checkbox" class="ask-opt"> 옵션 A</label>
-          <label><input type="checkbox" class="ask-opt"> 옵션 B</label>
-          <label><input type="checkbox" class="ask-opt"> 옵션 C</label>
+      <div class="ask-wrap ask-first" data-idx="0">
+        <span class="ask-title">*결측치 처리</span>
+        <div class="ask-opts" role="radiogroup" aria-label="결측치 처리 방식">
+          <label>
+            <input type="radio" class="ask-opt" name="ask0-missing" value="all">
+            전체
+          </label>
+          <label>
+            <input type="radio" class="ask-opt" name="ask0-missing" value="split">
+            구분
+          </label>
         </div>
       </div>
     `;
-    //ensureAskStyles();            // ← 이제 함수가 아래 2번에서 정의됨
+   ensureAskFirstIndex();
+    reindexAskWraps();               // ← 이제 함수가 아래 2번에서 정의됨
     syncLegendToRecommandInputs();// 도넛 초기 동기화
     recommandInserted = true;
   }
@@ -500,11 +520,6 @@ function syncLegendToRecommandInputs(){
 
   const groups = Array.from(rc.querySelectorAll('.ask-wrap')).slice(0,5);
   legendData = groups.map(g=>{
-    const opts = g.querySelectorAll('.ask-opt');
-    if (opts.length){
-      const anyChecked = Array.from(opts).some(o=>o.checked);
-      return { label:'custom', value:1, selected:anyChecked };
-    }
     const inp = g.querySelector('.recommend-input');
     return { label:'custom', value:1, selected: !!(inp && inp.value.trim()!=='') };
   });
@@ -514,7 +529,7 @@ function syncLegendToRecommandInputs(){
 
 // 체크박스 중 하나라도 체크되면, 아직 입력세트가 없다면 1개 생성
 document.addEventListener('change', (e)=>{
-  if (!e.target.matches('#recommand .ask-opt')) return;
+  if (!e.target.matches('#recommand')) return;
   const rc = document.getElementById('recommand');
   if (!rc) return;
 
@@ -560,7 +575,7 @@ document.addEventListener('input', (e) => {
 /* ===== 초기 실행 ===== */
 //renderGauge();
 updateDirectBtnVisibility(); 
-initDonutForStep(currentStep);
+//initDonutForStep(currentStep);
 
 
 /* ===== 단계별 카드 페이지 전환 ===== */
@@ -574,7 +589,7 @@ function showPage(stepIdx) {
 function selectBlock(i){
   currentStep = i;
   blockStates[i] = 'empty';
-  initDonutForStep(i);
+  //initDonutForStep(i);
   //renderGauge();
   showPage(i);            // ← 이 줄 추가!
 }
@@ -722,7 +737,7 @@ document.addEventListener('click', (e) => {
     // 혹시 selectBlock이 없으면 직접 처리
     currentStep = 1;
     blockStates[1] = 'empty';
-    initDonutForStep(1);
+    //initDonutForStep(1);
   //  renderGauge();
     showPage(1);
   }
@@ -748,9 +763,80 @@ function createCollapseHTML() {
     </div>`;
 }
 
+// === 슬라이드 문구 풀 ===
+const SLIDE_MESSAGES = [
+  [
+    "결측치 처리란? 데이터에서 비어있는 값을 채워주는 과정입니다.",
+    "평균값, 직전값, 보간법 등 다양한 방식으로 대체할 수 있습니다."
+  ],
+   [
+    "결측치 대체란?"
+  ],
+  [
+    "수익률 계산: (오늘가격 - 어제가격) / 어제가격",
+    "일간, 월간, 연간 단위로 계산할 수 있습니다."
+  ],
+  [
+    "래깅값 계산: 과거 데이터를 현재의 특징으로 추가하는 과정",
+    "예: 1개월 전 수익률 → 현재 예측 변수"
+  ],
+  [
+    "데이터 라벨링: 미래 수익률이 양수면 1, 음수면 0",
+    "분류 모델 학습용 타겟을 만드는 과정"
+  ],
+  [
+    "결측치 제거: 값이 없는 행을 삭제",
+    "분석의 정확성을 위해 불필요한 행 제거"
+  ]
+];
+
+let slideMsgIndex = 0;
+
+// === ask-wrap 클릭 시 새 ask-wrap 추가 ===
+// ask-wrap 클릭 시 새 ask-wrap 추가 + 도넛 게이지 진행
+// === ask-wrap 클릭 시 새 ask-wrap 추가 + 도넛 게이지 진행 ===
+// === ask-wrap 클릭 시 새 ask-wrap 추가 ===
+document.addEventListener('click', (e) => {
+  const wrap = e.target.closest('.ask-wrap');
+  if (!wrap) return;
+
+  const rc = document.getElementById("recommand");
+  if (!rc) return;
+
+  // 현재 ask-wrap 개수
+  let groups = rc.querySelectorAll('.ask-wrap');
+
+  // ask-wrap 추가 (최대 5개)
+  if (groups.length < 5) {
+      const title = getNextAskTitle();
+    const content = getNextPlaceholder();
+    const idx = inferIdxFromText(content);
+   addAskWrap(title, content, idx);
+  }
+
+  // ✅ ask-wrap 개수 기반으로 legendData 갱신
+  groups = rc.querySelectorAll('.ask-wrap');
+  const count = groups.length;  // 현재 몇 개 있는지
+  const total = 5;              // 항상 5 고정
+
+  legendData = Array.from({ length: total }, (_, i) => ({
+    label: `chip${i+1}`,
+    value: 1,
+    selected: i < count
+  }));
+
+  // donutData를 legendData 기반으로 다시 만들기
+  donutData = legendData.map(d => ({
+    label: d.label, value: 1, selected: d.selected
+  }));
+
+  drawDonut();
+});
+
+
 // ==== placeholder 문구 풀 ====
 const ASK_PLACEHOLDER_POOL = [
-  "",
+  "비어있는 날짜의 가격 데이터를 이전 날 값으로 채웁니다.",
   "1개월(21일) 및 1년(252일) 수익률을 계산하고, ETF의 Total Return Index 열을 사용하여 예측에 필요한 데이터를 준비합니다.",
   "1개월 수익률의 래깅값을 계산하여 미래 수익률 예측에 사용합니다.",
   "1개월 뒤 수익률 상승 여부를 0과 1로 구분하여 라벨링합니다.",
@@ -760,12 +846,9 @@ const ASK_PLACEHOLDER_POOL = [
 // ==== 자동 placeholder 선택 ====
 function getNextPlaceholder() {
   const rc = document.getElementById('recommand');
-  const existing = rc ? rc.querySelectorAll('.ask-wrap').length : 0; 
-  const idx = existing; // 0부터 시작
-  if (idx >= 0 && idx < ASK_PLACEHOLDER_POOL.length) {
-    return ASK_PLACEHOLDER_POOL[idx];
-  }
-  return "추천 데이터를 입력하세요."; // fallback
+  const existing = rc ? rc.querySelectorAll('.ask-wrap').length : 0;
+  const idx = existing - 1;
+  return ASK_PLACEHOLDER_POOL[idx] || "추천 데이터를 입력하세요.";
 }
 
 // 일반 입력 ask-wrap 추가 (최대 5개 제한)
@@ -782,7 +865,7 @@ function addInputAskWrap(){
   rc.insertAdjacentHTML('beforeend', `
     <div class="ask-wrap ask-input">
       <span class="ask-title">${title}</span>
-      <input type="text" class="recommend-input" placeholder="${placeholder}"/>
+      <p class="ask-content">${placeholder}</p>
     </div>
   `);
 
@@ -797,47 +880,164 @@ const ASK_TITLE_POOL = [
   '*수익률 계산',
   '*래깅값 계산',
   '*데이터 라벨링',
-  '*결측치 처리'
 ];
 
 function getNextAskTitle() {
   const rc = document.getElementById('recommand');
-  const existing = rc ? rc.querySelectorAll('.ask-wrap').length : 0; // 추가 전 개수
-  const idx = existing + 1; // 사람이 보는 순번(1부터)
-  // 1번째는 ask-first(체크박스)에서 이미 고정 타이틀 사용
-  const poolIdx = idx - 2; // 2번째부터 풀을 사용
-  if (poolIdx >= 0 && poolIdx < ASK_TITLE_POOL.length) {
-    return ASK_TITLE_POOL[poolIdx];
-  }
-  // 풀을 벗어나면 번호 붙여서 유니크 보장
-  return `*추천DATA 항목 ${idx}`;
+  const existing = rc ? rc.querySelectorAll('.ask-wrap').length : 0;
+  const idx = existing - 1; // 첫 ask-first 제외
+  return ASK_TITLE_POOL[idx] || `*추천DATA 항목 ${existing}`;
 }
 
-function addAskWrap(){
+function enableAskWrapDragSort() {
   const rc = document.getElementById("recommand");
   if (!rc) return;
 
-  const groups = rc.querySelectorAll('.ask-wrap');
-  if (groups.length >= 5) return;
+  // 기존 이벤트 중복 방지
+  rc.removeEventListener("dragover", handleDragOver);
 
-  const title = getNextAskTitle();
-  const placeholder = getNextPlaceholder();
+  // 컨테이너 dragover 등록
+  rc.addEventListener("dragover", handleDragOver);
 
-  rc.insertAdjacentHTML("beforeend", `
-    <div class="ask-wrap ask-input">
-      <span class="ask-title">${title}</span>
-      <input type="text" class="recommend-input" placeholder="${placeholder}" />
-    </div>
-  `);
+  // 자식 ask-wrap들에 draggable 속성 붙이기
+  rc.querySelectorAll(".ask-wrap").forEach(wrap => {
+    wrap.setAttribute("draggable", "true");
 
-  ensureAskStyles();
+    wrap.removeEventListener("dragstart", handleDragStart);
+    wrap.removeEventListener("dragend", handleDragEnd);
 
-  const newInput = rc.querySelector(".ask-wrap:last-child .recommend-input");
-  if (newInput) {
-    newInput.focus();
-    syncLegendToRecommandInputs();
+    wrap.addEventListener("dragstart", handleDragStart);
+    wrap.addEventListener("dragend", handleDragEnd);
+  });
+}
+
+function handleDragStart(e) {
+  this.classList.add("dragging");
+  e.dataTransfer.effectAllowed = "move";
+  e.dataTransfer.setData("text/plain", ""); // Firefox fix
+}
+
+function handleDragEnd() {
+  this.classList.remove("dragging");
+   ensureAskFirstIndex();
+ reindexAskWraps();
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  const rc = e.currentTarget;
+  const dragging = rc.querySelector(".dragging");
+  if (!dragging) return;
+
+  const afterElement = getDragAfterElement(rc, e.clientY);
+  if (afterElement == null) {
+    rc.appendChild(dragging);
+  } else {
+    rc.insertBefore(dragging, afterElement);
   }
 }
+
+// 마우스 위치 기준으로 끌고 있는 요소가 들어갈 위치 계산
+function getDragAfterElement(container, y) {
+  const draggableElements = [...container.querySelectorAll(".ask-wrap:not(.dragging)")];
+
+  return draggableElements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - (box.top + box.height / 2);
+
+    if (offset < 0 && offset > closest.offset) {
+      return { offset: offset, element: child };
+    } else {
+      return closest;
+    }
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function addAskWrap(title, content, idx){
+  if (!title || !content) return;
+  const rc = document.getElementById("recommand");
+  if (!rc) return;
+
+  const wrap = document.createElement("div");
+  wrap.className = "ask-wrap";
+  if (typeof idx === 'number' && !Number.isNaN(idx)) {
+    wrap.setAttribute("data-idx", String(idx));
+  }
+  wrap.innerHTML = `
+    <span class="ask-title">${title}</span>
+    <div class="ask-content">${content}</div>
+  `;
+  rc.appendChild(wrap);
+
+  enableAskWrapDragSort();
+  ensureAskFirstIndex();
+  reindexAskWraps(); // *순번 유지가 필요하면: 이미 data-idx 있으면 덮어쓰지 않도록 reindex 수정*
+}
+
+
+document.addEventListener("click", (e) => {
+const wasVisible = choiceBtn && getComputedStyle(choiceBtn).display !== 'none';
+if (wasVisible) keepChoiceBtn = true;
+
+  const wrap = e.target.closest(".ask-wrap");
+  if (!wrap) return;
+
+let idx = Number(wrap.getAttribute("data-idx"));
+ if (Number.isNaN(idx)) {         // 혹시 누락되어도
+   ensureAskFirstIndex();
+   reindexAskWraps();             // 즉시 재매김
+   idx = Number(wrap.getAttribute("data-idx"));
+ }
+  const messages = SLIDE_MESSAGES[idx] || ["설명이 준비되어 있지 않습니다."];
+  const slideContainer = document.querySelector(".slideshow-container");
+  if (!slideContainer) return;
+
+  // dots 래퍼 보장
+  let dotsWrap = slideContainer.querySelector(".dots");
+  if (!dotsWrap) {
+    dotsWrap = document.createElement("div");
+    dotsWrap.className = "dots";
+    slideContainer.appendChild(dotsWrap);
+  }
+
+  // 기존 슬라이드/도트 제거
+  slideContainer.querySelectorAll(".slide").forEach(s => s.remove());
+  dotsWrap.innerHTML = "";
+
+  // 새 슬라이드 붙이기
+  messages.forEach((msg, i) => {
+    const div = document.createElement("div");
+    div.className = "slide";
+    div.textContent = msg;
+    if (i !== 0) div.style.display = "none";
+    slideContainer.appendChild(div);
+
+    const dot = document.createElement("span");
+    dot.className = "dot" + (i === 0 ? " active" : "");
+    dot.addEventListener("click", () => showSlides(i+1));
+    dotsWrap.appendChild(dot);
+  });
+
+  // 네비 버튼이 없을 수도 있으니 안전 가드(선택)
+  const prevBtn = document.querySelector(".prev");
+  const nextBtn = document.querySelector(".next");
+  if (prevBtn && nextBtn) {
+    slideIndex = 1;
+    showSlides(slideIndex);
+  } else {
+    // 최소 표시만
+    document.getElementsByClassName("slide")[0]?.style && (document.getElementsByClassName("slide")[0].style.display = "block");
+  }
+});
+
+
+
+// 초기 실행 시도
+document.addEventListener("DOMContentLoaded", () => {
+  enableAskWrapDragSort();
+  ensureAskFirstIndex();
+  reindexAskWraps();
+});
 
 function fitMainToViewport(){
   const main = document.querySelector('.main');
@@ -866,6 +1066,198 @@ closeAltPane = function(paneEl){
   requestAnimationFrame(fitMainToViewport);
 };
 
+document.addEventListener('DOMContentLoaded', () => {
+  const choiceBtn = document.getElementById('choiceBtn');
+  if (choiceBtn) choiceBtn.style.display = 'none';
+});
+
+
+const MODAL_GROUPS = [
+  {
+    group: "행 삭제",
+    items: [
+      { key:"row_freq",  tag:"필터/레이블링", title:"데이터 주기 변환", desc:"데이터 주기 변환" },
+      { key:"row_na",    tag:"필터/레이블링", title:"결측치 처리",     desc:"빈 값은 기존 행 삭제 또는 해당 값 유지" }, // slide idx=0 내용과 연결
+      { key:"horizon",   tag:"통계",         title:"시간 지평 설정",   desc:"투자 기간 설정" }
+    ]
+  },
+  {
+    group: "열 삭제/변경",
+    items: [
+      { key:"col_drop",   tag:"필터/레이블링", title:"열 삭제",     desc:"특정 열 삭제" },
+      { key:"col_rename", tag:"기타",         title:"열 이름 변경", desc:"열 이름 변경" },
+      { key:"col_move",   tag:"기타",         title:"열 이동",     desc:"열 위치 이동" }
+    ]
+  },
+  {
+    group: "열 추가",
+    items: [
+      { key:"label",   tag:"필터/라벨링", title:"데이터 라벨링", desc:"데이터 라벨링하기" },         // slide idx=4
+      { key:"arith",   tag:"수학",       title:"사칙연산",     desc:"열간의 사칙연산 수행" },
+      { key:"round",   tag:"수학",       title:"반올림",       desc:"반올림 연산" },
+      { key:"date_rm", tag:"날짜",       title:"날짜 요소 제거", desc:"날짜의 특정 요소 제거" },
+      { key:"date_sp", tag:"날짜",       title:"날짜 요소 분리", desc:"날짜 요소 분리(년, 월, 일, 시간, 분, 초)" },
+      { key:"scale",   tag:"통계",       title:"스케일링",     desc:"데이터를 일정 범위로 변환" },
+            // slide idx=5
+    ]
+  }
+];
+
+function renderChoiceModalBoxes(){
+  const wrap = document.querySelector('#choiceModal .modal-boxes');
+  if (!wrap) return;
+
+  wrap.innerHTML = MODAL_GROUPS.map(g => `
+    <h5 class="modal-group-title">${g.group}(${g.items.length})</h5>
+    <div class="modal-grid">
+      ${g.items.map(it => `
+        <button class="box" data-key="${it.key}"
+                data-title="${it.title}"
+                data-desc="${it.desc}"
+                data-idx="${TITLE_TO_IDX['*'+it.title] ?? ''}">
+          <span class="badge">${it.tag}</span>
+          <div class="b-title">${it.title}</div>
+          <div class="b-desc">${it.desc}</div>
+        </button>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+// DOMContentLoaded 시 한 번만 렌더
+document.addEventListener("DOMContentLoaded", renderChoiceModalBoxes);
+
 
 // 추천 패널이 처음 만들어질 때도 한 번 보정
-document.addEventListener('DOMContentLoaded', fitMainToViewport);
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("choiceModal");
+  const btn = document.getElementById("choiceBtn");
+  const closeBtn = modal.querySelector(".close");
+
+  // 버튼 클릭 → 모달 열기
+  btn.addEventListener("click", () => {
+    modal.style.display = "block";
+  });
+
+  // 닫기 버튼 클릭 → 모달 닫기
+  closeBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  // 모달 외부 클릭 → 닫기
+  window.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+    }
+  });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("choiceModal");
+
+  // 위임 방식: 모달 안의 카드 클릭
+  modal.addEventListener("click", (e) => {
+    const box = e.target.closest(".modal-boxes .box");
+    if (!box) return;
+
+    const title = box.dataset.title || box.querySelector('.b-title')?.textContent.trim() || '';
+    const desc  = box.dataset.desc  || box.querySelector('.b-desc')?.textContent.trim()  || '';
+    const idxStr= box.dataset.idx;
+    const idx   = idxStr === '' || idxStr == null
+      ? inferIdxFromTitle('*' + title)  // 매핑 없으면 제목으로 추론
+      : Number(idxStr);
+
+    // ask-wrap 추가 (idx를 data-idx로 심어줌)
+    addAskWrap('*' + title, desc, idx);
+
+    // 모달 닫기
+    modal.style.display = "none";
+  });
+});
+
+  // ✅ 모달 내부 박스 클릭 → ask-wrap 추가
+
+  const boxContents = {
+  box1: "데이터 전처리 과정을 수행하는 ask-content",
+  box2: "머신러닝 모델 학습에 필요한 라벨링 작업 ask-content",
+  box3: "시각화 차트를 생성하는 ask-content",
+  box4: "DB에서 데이터를 가져오는 ask-content",
+  box5: "API를 호출하여 결과를 처리하는 ask-content",
+  box6: "데이터 전처리 과정을 수행하는 ask-content",
+  box7: "머신러닝 모델 학습에 필요한 라벨링 작업 ask-content",
+  box8: "시각화 차트를 생성하는 ask-content",
+  box9: "DB에서 데이터를 가져오는 ask-content",
+  box10: "API를 호출하여 결과를 처리하는 ask-content",
+  box11: "데이터 전처리 과정을 수행하는 ask-content",
+  box12: "머신러닝 모델 학습에 필요한 라벨링 작업 ask-content",
+  box13: "시각화 차트를 생성하는 ask-content",
+  box14: "DB에서 데이터를 가져오는 ask-content",
+  box15: "API를 호출하여 결과를 처리하는 ask-content",
+  box16: "데이터 전처리 과정을 수행하는 ask-content",
+  box17: "머신러닝 모델 학습에 필요한 라벨링 작업 ask-content",
+  box18: "시각화 차트를 생성하는 ask-content",
+  box19: "DB에서 데이터를 가져오는 ask-content",
+  box20: "API를 호출하여 결과를 처리하는 ask-content",
+  box21: "데이터 전처리 과정을 수행하는 ask-content",
+  box22: "머신러닝 모델 학습에 필요한 라벨링 작업 ask-content",
+  box23: "시각화 차트를 생성하는 ask-content",
+  box24: "DB에서 데이터를 가져오는 ask-content",
+  box25: "API를 호출하여 결과를 처리하는 ask-content"
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("choiceModal");
+
+  // modal 안의 box 클릭 → ask-wrap 생성
+  modal.querySelectorAll(".modal-boxes .box").forEach((box) => {
+    box.addEventListener("click", () => {
+      const key = box.getAttribute("data-key");
+      const title = box.textContent.trim();
+      const content = boxContents[key] || "⚠️ 정의되지 않은 박스입니다.";
+
+      addAskWrap("*" + title, content, inferIdxFromText(content)); // ✅ 이제 title, content 항상 있음
+      modal.style.display = "none";
+    });
+  });
+});
+function inferIdxFromText(t=''){
+  const i = ASK_PLACEHOLDER_POOL.findIndex(s => t && t.startsWith(s));
+  return i >= 0 ? i : 0;
+}
+const TITLE_TO_IDX = {
+  '*결측치 처리': 0, 
+  '*결측치 대체': 1,
+  '*수익률 계산': 2,
+  '*래깅값 계산': 3,
+  '*데이터 라벨링': 4,
+  '*결측치 제거': 5
+};
+function inferIdxFromTitle(t=''){
+  t = t.trim();
+  for (const [k,v] of Object.entries(TITLE_TO_IDX)){
+    if (t.startsWith(k)) return v;
+  }
+  return 0;
+}
+function inferIdxFromWrap(wrap){
+  const txt = wrap.querySelector('.ask-content')?.textContent?.trim() || '';
+  if (txt) return inferIdxFromText(txt);
+  const tit = wrap.querySelector('.ask-title')?.textContent?.trim() || '';
+  return inferIdxFromTitle(tit);
+}
+// ✅ ask-first가 있으면 data-idx=0 보장
+function ensureAskFirstIndex(){
+  const first = document.querySelector('#recommand .ask-wrap.ask-first');
+  if (first) first.setAttribute('data-idx','0');
+}
+function reindexAskWraps(){
+  const rc = document.getElementById('recommand');
+  if (!rc) return;
+  const first = rc.querySelector('.ask-wrap.ask-first');
+  if (first) first.setAttribute('data-idx','0');
+
+let n = 1;
+  rc.querySelectorAll('.ask-wrap:not(.ask-first)').forEach(wrap => {
+    wrap.setAttribute('data-idx', String(n++));
+  });
+}

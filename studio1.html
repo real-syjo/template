@@ -63,8 +63,8 @@
                           </div>
                           
                         </div>
-                        <div class="recommand" id="recommand">
-                         
+                        <button type="button" id="choiceBtn">항목선택하기</button>
+                        <div class="recommand" id="recommand"></div>
                         </div>
                         </div>     
                       </div> 
@@ -77,7 +77,41 @@
   
     </div>
     </section>
-
+<!-- Modal -->
+<div id="choiceModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    
+    <h2>항목 선택</h2>
+    <div class="modal-boxes">
+      <div class="box" data-key="box1">박스 1</div>
+      <div class="box" data-key="box2">박스 2</div>
+      <div class="box" data-key="box3">박스 3</div>
+      <div class="box" data-key="box4">박스 4</div>
+      <div class="box" data-key="box5">박스 5</div>
+      <div class="box" data-key="box6">박스 6</div>
+      <div class="box" data-key="box7">박스 7</div>
+      <div class="box" data-key="box8">박스 8</div>
+      <div class="box" data-key="box9">박스 9</div>
+      <div class="box" data-key="box10">박스 10</div>
+      <div class="box" data-key="box11">박스 11</div>
+      <div class="box" data-key="box12">박스 12</div>
+      <div class="box" data-key="box13">박스 13</div>
+      <div class="box" data-key="box14">박스 14</div>
+      <div class="box" data-key="box15">박스 15</div>
+      <div class="box" data-key="box16">박스 16</div>
+      <div class="box" data-key="box17">박스 17</div>
+      <div class="box" data-key="box18">박스 18</div>
+      <div class="box" data-key="box19">박스 19</div>
+      <div class="box" data-key="box20">박스 20</div>
+      <div class="box" data-key="box21">박스 21</div>
+      <div class="box" data-key="box22">박스 22</div>
+      <div class="box" data-key="box23">박스 23</div>
+      <div class="box" data-key="box24">박스 24</div>
+      <div class="box" data-key="box25">박스 25</div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
 
@@ -228,21 +262,30 @@
 })();
 
 // 마지막 input(5번째)에서만 confirm 실행
-document.addEventListener('change', (e) => {
+document.addEventListener('input', (e) => {
   if (!e.target.matches('#recommand .recommend-input')) return;
 
   const rc = document.getElementById('recommand');
   if (!rc) return;
 
   const inputs = rc.querySelectorAll('.recommend-input');
+
+  // 🔹 마지막 input(예: 5번째)
   if (inputs.length === 4) {
     const lastInput = inputs[inputs.length - 1];
 
     if (e.target === lastInput && lastInput.value.trim() !== '') {
-      const goNext = confirm("3step으로 넘어가시겠습니까?");
-      if (goNext) parent.location.href = "/studio.html?step=2";
+      // 이미 생성된 링크가 없다면 rc의 맨 아래에 추가
+      if (!rc.querySelector('.go-next-link')) {
+        rc.insertAdjacentHTML("beforeend", `
+          <div class="go-next-wrapper">
+            <a href="/studio.html?step=2" target="_parent" class="go-next-link">
+              👉 3step으로 이동하기
+            </a>
+          </div>
+        `);
+      }
     }
-
   }
 });
 

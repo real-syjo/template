@@ -73,7 +73,6 @@ html, body { margin:0;
 }
 
 body {
-  font-family:'Poppins','Do Hyeon',sans-serif;
   cursor:default;
 }
 
@@ -126,7 +125,6 @@ p {
   position:absolute;
   width:100%;
   display:inline-block;
-  font-family:'Raleway',sans-serif;
   font-size:70pt;
   text-align:center;
   user-select:none;
@@ -219,7 +217,7 @@ p {
 /* ========== Panel / Slide Up ========== */
 .your-panel{ position:relative; overflow:hidden; }
 .your-panel .wrap{
-  height: 600px;
+  height: 720px;
   transition:transform var(--slide-dur) var(--slide-ease);
   will-change:transform;
 }
@@ -463,6 +461,8 @@ tr:nth-child(even) td{ background:#fcfdff; }
 /* 카드 */
 /* 공통 호버 트랜지션 */
 .sel-box{
+  border: 1px solid rgb(228, 225, 225);
+  border-radius: 2% 2% 2% 2% ;
   transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
 }
 
@@ -498,11 +498,11 @@ tr:nth-child(even) td{ background:#fcfdff; }
 /* 미니 카드 그리드 */
 .sel-box .mini-grid{
   display:grid; gap:10px; grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-  margin-top:12px;
+  margin-top:8px;
 }
 .mini-card{
   background-color: lightgray;
-  margin: 3px; width: 179px;
+  margin: 3px; width: 160px;
   position:relative; height:35px;
   display:flex; align-items:center; justify-content:center;
   background:#f8fafc; color:#1f2937;
