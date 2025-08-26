@@ -748,7 +748,25 @@ function createCollapseHTML() {
     </div>`;
 }
 
+// ==== placeholder 문구 풀 ====
+const ASK_PLACEHOLDER_POOL = [
+  "",
+  "1개월(21일) 및 1년(252일) 수익률을 계산하고, ETF의 Total Return Index 열을 사용하여 예측에 필요한 데이터를 준비합니다.",
+  "1개월 수익률의 래깅값을 계산하여 미래 수익률 예측에 사용합니다.",
+  "1개월 뒤 수익률 상승 여부를 0과 1로 구분하여 라벨링합니다.",
+  "데이터 처리 과정에서 발생한 결측치를 모두 제거하여 정확한 분석을 위한 데이터를 준비합니다."
+];
 
+// ==== 자동 placeholder 선택 ====
+function getNextPlaceholder() {
+  const rc = document.getElementById('recommand');
+  const existing = rc ? rc.querySelectorAll('.ask-wrap').length : 0; 
+  const idx = existing; // 0부터 시작
+  if (idx >= 0 && idx < ASK_PLACEHOLDER_POOL.length) {
+    return ASK_PLACEHOLDER_POOL[idx];
+  }
+  return "추천 데이터를 입력하세요."; // fallback
+}
 
 // 일반 입력 ask-wrap 추가 (최대 5개 제한)
 function addInputAskWrap(){
@@ -756,32 +774,30 @@ function addInputAskWrap(){
   if (!rc) return;
 
   const groups = rc.querySelectorAll('.ask-wrap');
-  if (groups.length >= 5) {
-    return;
-  }
+  if (groups.length >= 5) return;
 
   const title = getNextAskTitle();
+  const placeholder = getNextPlaceholder();
 
   rc.insertAdjacentHTML('beforeend', `
     <div class="ask-wrap ask-input">
       <span class="ask-title">${title}</span>
-      <input type="text" class="recommend-input" placeholder="값을 입력하세요 (엔터로 추가)"/>
+      <input type="text" class="recommend-input" placeholder="${placeholder}"/>
     </div>
   `);
 
   const inp = rc.querySelector('.ask-wrap.ask-input:last-child .recommend-input');
-  if (inp){
-    inp.focus();
-  }
+  if (inp) inp.focus();
   syncLegendToRecommandInputs();
 }
+
 // ==== ask-title 자동 생성 ====
 const ASK_TITLE_POOL = [
-  '*추천DATA 항목',
-  '*추천DATA 조건',
-  '*추천DATA 범위',
-  '*추천DATA 기준',
-  '*추천DATA 참고'
+  '*결측치 대체',
+  '*수익률 계산',
+  '*래깅값 계산',
+  '*데이터 라벨링',
+  '*결측치 처리'
 ];
 
 function getNextAskTitle() {
@@ -802,16 +818,15 @@ function addAskWrap(){
   if (!rc) return;
 
   const groups = rc.querySelectorAll('.ask-wrap');
-  if (groups.length >= 5) {
-    return;
-  }
+  if (groups.length >= 5) return;
 
   const title = getNextAskTitle();
+  const placeholder = getNextPlaceholder();
 
   rc.insertAdjacentHTML("beforeend", `
     <div class="ask-wrap ask-input">
       <span class="ask-title">${title}</span>
-      <input type="text" class="recommend-input" placeholder="예: 지표/변수 이름" />
+      <input type="text" class="recommend-input" placeholder="${placeholder}" />
     </div>
   `);
 
@@ -851,12 +866,6 @@ closeAltPane = function(paneEl){
   requestAnimationFrame(fitMainToViewport);
 };
 
-// collapse를 추가할 때도 호출
-// const _addCollapse = addCollapse;
-// addCollapse = function(){
-//   _addCollapse && _addCollapse();
-//   requestAnimationFrame(fitMainToViewport);
-// };
 
 // 추천 패널이 처음 만들어질 때도 한 번 보정
 document.addEventListener('DOMContentLoaded', fitMainToViewport);

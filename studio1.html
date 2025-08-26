@@ -45,13 +45,10 @@
                    <div class="box" id="box">
                         <div class="slideshow-container">
                           <div class="slide">
-                            랜덤 포레스트 알asdas
+                              데이터 처리의 기본은 이상이 있거나 값이 없는 데이터의 결측치를 제거하고,
                           </div>
                           <div class="slide">
-                            우선 데이터를 선택해야해요.​
-                          </div>
-                          <div class="slide">
-                            다음과 같은 데이터로 진행하실 것을 추천드려요.​
+                             XGBoost 알고리즘을 학습할 수 있도록 데이터 라벨링 작업까지 하는게 목표입니다.
                           </div>
 
                           <!-- 버튼 -->
@@ -230,6 +227,24 @@
   }
 })();
 
+// 마지막 input(5번째)에서만 confirm 실행
+document.addEventListener('change', (e) => {
+  if (!e.target.matches('#recommand .recommend-input')) return;
+
+  const rc = document.getElementById('recommand');
+  if (!rc) return;
+
+  const inputs = rc.querySelectorAll('.recommend-input');
+  if (inputs.length === 4) {
+    const lastInput = inputs[inputs.length - 1];
+
+    if (e.target === lastInput && lastInput.value.trim() !== '') {
+      const goNext = confirm("3step으로 넘어가시겠습니까?");
+      if (goNext) parent.location.href = "/studio.html?step=2";
+    }
+
+  }
+});
 
 
 </script>

@@ -270,6 +270,7 @@ a{
 
 /* 버튼/칩 링크 모양 (필요 시 네 기존 스타일에 맞게 조절) */
 .card .btn {
+  text-align: center;
   display: inline-block;
   padding: 8px 14px;
   border: 1px solid #ddd;

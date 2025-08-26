@@ -175,6 +175,7 @@ let autoTimer = setInterval(() => plusSlides(1), 3000);
 let recommandInserted = false;
 function plusSlides(n){ showSlides(slideIndex += n); }
 function currentSlide(n){ showSlides(slideIndex = n); }
+
 function showSlides(n){
   const slides = document.getElementsByClassName("slide");
   const dots   = document.getElementsByClassName("dot");
@@ -182,32 +183,77 @@ function showSlides(n){
   if (n < 1) n = 1;
   if (n > total) n = total;
   slideIndex = n;
+
   for (let s of slides) s.style.display="none";
   for (let d of dots) d.classList.remove("active");
+
   slides[slideIndex-1].style.display="block";
   if (dots.length>=slideIndex) dots[slideIndex-1].classList.add("active");
+
   document.querySelector(".prev").style.visibility = (slideIndex===1?"hidden":"visible");
   document.querySelector(".next").style.visibility = (slideIndex===total?"hidden":"visible");
-  if (slideIndex===total && autoTimer){ clearInterval(autoTimer); autoTimer=null; }
 
+  if (slideIndex===total && autoTimer){
+    clearInterval(autoTimer);
+    autoTimer=null;
+  }
+
+  // 🚫 collapse 대신 체크박스 박스 생성
   if (!recommandInserted && slideIndex === total) {
     const rc = document.getElementById("recommand");
     if (rc) {
       rc.innerHTML = `
-        <div class="collapse">
-          <button class="collapse__btn" id="c1-button" aria-expanded="false" aria-controls="c1-panel">
-            *추천DATA
-          </button>
-          <div class="collapse__content" id="c1-panel" role="region" aria-labelledby="c1-button">
-            <div class="legend" id="legend"></div>
-            <div class="controls">
-              <button id="nextStep2">결정하기</button>
-            </div>
+        <div class="checkbox-grid">
+        <label class="cbox">
+          <input type="checkbox">
+          <div class="card-content">
+            <span class="tag">필터/레이블링</span>
+            <h3 class="title">데이터 주기 변환</h3>
+            <p class="desc">데이터 주기 변환</p>
           </div>
-        </div>`;
-      renderLegend();
-      // 버튼: 칩만 반영
-
+        </label>
+        <label class="cbox">
+          <input type="checkbox">
+          <div class="card-content">
+            <span class="tag">필터/레이블링</span>
+            <h3 class="title">결측치 처리</h3>
+            <p class="desc">빈 값은 가진 행 삭제 또는 해당 행의 유지만</p>
+          </div>
+        </label>
+        <label class="cbox">
+          <input type="checkbox">
+          <div class="card-content">
+            <span class="tag">통계</span>
+            <h3 class="title">시간 지평 설정</h3>
+            <p class="desc">투자 기간 설정</p>
+          </div>
+        </label>
+        <label class="cbox">
+          <input type="checkbox">
+          <div class="card-content">
+            <span class="tag">필터/레이블링</span>
+            <h3 class="title">열 삭제</h3>
+            <p class="desc">특정 열 삭제</p>
+          </div>
+        </label>
+        <label class="cbox">
+          <input type="checkbox">
+          <div class="card-content">
+            <span class="tag">기타</span>
+            <h3 class="title">열 이름 변경</h3>
+            <p class="desc">열 이름 변경</p>
+          </div>
+        </label>
+        <label class="cbox">
+          <input type="checkbox">
+          <div class="card-content">
+            <span class="tag">기타</span>
+            <h3 class="title">열 이동</h3>
+            <p class="desc">열 위치 이동</p>
+          </div>
+        </label>
+      </div>
+      `;
       recommandInserted = true;
     }
   }
