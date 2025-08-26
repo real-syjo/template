@@ -109,6 +109,7 @@ p {
   margin:4px 0;
 }
 
+
 /* ========== Morphing Text ========== */
 #text {
   position:absolute;
@@ -786,11 +787,13 @@ tr:nth-child(even) td{ background:#fcfdff; }
   height: 100% !important;
 }
 /* 추천DATA 영역을 독립 스크롤로 */
-#recommand{
-  max-height: none;
-  overflow: visible;
+#recommand {
+  max-height: 60vh;       /* 반드시 max-height를 줘야 함 */
+  overflow-y: auto;       /* 넘치면 스크롤 */
 }
-
+.card[data-step="0"] .main {
+  overflow: visible;      /* 부모가 스크롤 먹지 않게 */
+}
 /* 선택: 스크롤바 미세 스타일 (브라우저별 지원 상이) */
 #recommand::-webkit-scrollbar{ width:8px; }
 #recommand::-webkit-scrollbar-thumb{ background:rgba(0,0,0,.25); border-radius:4px; }
@@ -990,3 +993,48 @@ body.modal-open iframe { pointer-events: none; }
 /* 혹시 부모 영역 클릭도 막고 싶다면 */
 body.modal-open .your-panel .wrap { pointer-events: none; }
 
+.ask-head { cursor: pointer; display:flex; align-items:center; gap:.5rem; }
+/* 기본 접힘은 그대로 */
+.ask-wrap .collapse__content{
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .28s ease, padding .28s ease;
+  padding: 0 16px;
+}
+.ask-title { order: 1; }
+.ask-content { order: 2; }
+.ask-title { order: 1; }  /* 제목이 제일 먼저 */
+.ask-head label { order: 2; } /* 라디오 버튼(label들) */
+.chev { order: 3; } 
+
+/* 펼침: 내용 높이 + 여유 높이 만큼 */
+.ask-wrap .collapse__content.open{
+  /* ▼ 여유 높이 변수(--open-extra)를 더해줌 */
+  max-height: calc(var(--open-h, 480px) + var(--open-extra, 0px));
+  padding: 16px;
+}
+
+/* 보기 좋게 줄간도 조금 늘리면 체감되는 ‘넓음’이 커집니다(선택) */
+.ask-wrap .collapse__content .ask-content{
+  line-height: 1.6;  /* 선택 */
+}
+/* ▼ ask-wrap 안의 아이템을 줄바꿈 가능하게 */
+#recommand .ask-wrap{
+  display:flex;
+  align-items:flex-start;   /* 줄 상단 정렬(선택) */
+  flex-wrap:wrap;           /* 중요: 다음 줄로 내려가게 */
+}
+
+/* ▼ 상세 패널은 항상 다음 줄에 '아래로' 펼치기 */
+#recommand .ask-wrap .collapse__content{
+  flex:0 0 100%;            /* 한 줄 전체 차지 */
+  width:100%;               /* 안전 */
+  order:2;                  /* 헤더들보다 뒤쪽에 */
+}
+
+/* ▼ 제목/옵션 등 헤더 요소는 첫 줄에 고정(선택) */
+#recommand .ask-wrap .ask-title,
+#recommand .ask-wrap .ask-opts,
+#recommand .ask-wrap .recommend-input{
+  order:1;
+}

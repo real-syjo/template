@@ -170,6 +170,21 @@ function renderLegend(){
     legendEl.appendChild(chip);
   });
 }
+function upgradeAskWrapToCollapse(wrap){
+  if (!wrap || wrap.querySelector('.collapse')) return;
+  const title = wrap.querySelector('.ask-title')?.textContent?.trim() || '*항목';
+  const contentHTML = wrap.querySelector('.ask-content, .ask-opts')?.outerHTML || '';
+  const id = makeAskId();
+  wrap.innerHTML = `
+    <div class="collapse">
+      <button class="collapse__btn" aria-expanded="true" aria-controls="${id}">
+        <span class="ask-title">${title}</span>
+      </button>
+      <div class="collapse__content open" id="${id}" role="region">
+        ${contentHTML}
+      </div>
+    </div>`;
+}
 
 /* ===== 슬라이드/추천 패널 ===== */
 let slideIndex = 1;

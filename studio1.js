@@ -210,16 +210,20 @@ function showSlides(n){
   if (rc) {
     rc.innerHTML = `
       <div class="ask-wrap ask-first" data-idx="0">
-        <span class="ask-title">*결측치 처리</span>
-        <div class="ask-opts" role="radiogroup" aria-label="결측치 처리 방식">
-          <label>
-            <input type="radio" class="ask-opt" name="ask0-missing" value="all">
-            전체
-          </label>
-          <label>
-            <input type="radio" class="ask-opt" name="ask0-missing" value="split">
-            구분
-          </label>
+        <div class="ask-head collapse__btn" aria-expanded="false">
+          <span class="ask-title">*결측치 처리</span>
+          <label><input type="radio" class="ask-opt" name="ask0-missing" value="all">전체</label>
+            <label><input type="radio" class="ask-opt" name="ask0-missing" value="split">구분</label>
+          <span class="chev">▾</span>
+        </div>
+        <div class="collapse__content" role="region">
+        여기서 상세 데이터 선택 <br>
+        여기서 상세 데이터 선택 <br>
+        여기서 상세 데이터 선택 <br>
+        여기서 상세 데이터 선택 <br>
+          <div class="ask-opts" role="radiogroup" aria-label="결측치 처리 방식">
+               
+          </div>
         </div>
       </div>
     `;
@@ -964,8 +968,14 @@ function addAskWrap(title, content, idx){
     wrap.setAttribute("data-idx", String(idx));
   }
   wrap.innerHTML = `
-    <span class="ask-title">${title}</span>
-    <div class="ask-content">${content}</div>
+    <div class="ask-head collapse__btn" aria-expanded="false">
+      <span class="ask-title">${title}</span>
+      <div class="ask-content">${content}</div>
+      <span class="chev">▾</span>
+    </div>
+    <div class="collapse__content" role="region">
+        test
+    </div>
   `;
   rc.appendChild(wrap);
 
@@ -1095,10 +1105,10 @@ const MODAL_GROUPS = [
       { key:"label",   tag:"필터/라벨링", title:"데이터 라벨링", desc:"데이터 라벨링하기" },         // slide idx=4
       { key:"arith",   tag:"수학",       title:"사칙연산",     desc:"열간의 사칙연산 수행" },
       { key:"round",   tag:"수학",       title:"반올림",       desc:"반올림 연산" },
-      { key:"date_rm", tag:"날짜",       title:"날짜 요소 제거", desc:"날짜의 특정 요소 제거" },
-      { key:"date_sp", tag:"날짜",       title:"날짜 요소 분리", desc:"날짜 요소 분리(년, 월, 일, 시간, 분, 초)" },
-      { key:"scale",   tag:"통계",       title:"스케일링",     desc:"데이터를 일정 범위로 변환" },
-            // slide idx=5
+      // { key:"date_rm", tag:"날짜",       title:"날짜 요소 제거", desc:"날짜의 특정 요소 제거" },
+      // { key:"date_sp", tag:"날짜",       title:"날짜 요소 분리", desc:"날짜 요소 분리(년, 월, 일, 시간, 분, 초)" },
+      // { key:"scale",   tag:"통계",       title:"스케일링",     desc:"데이터를 일정 범위로 변환" },
+      //       // slide idx=5
     ]
   }
 ];
@@ -1261,3 +1271,87 @@ let n = 1;
     wrap.setAttribute('data-idx', String(n++));
   });
 }
+
+// 펼침 높이 갱신
+// 펼침 높이 갱신 (여유 높이 포함)
+function setOpenHeight(panel){
+  if (!panel) return;
+
+  // 기본 내용 높이
+  const contentHeight = panel.scrollHeight;
+
+  // 줄바꿈이 많은 경우 여유 높이 가산
+  let extra = 0;
+  const contentEl = panel.querySelector('.ask-content');
+  if (contentEl) {
+    const cs = getComputedStyle(contentEl);
+    const lh = parseFloat(cs.lineHeight);
+    if (!Number.isNaN(lh) && lh > 0) {
+      // 대략적인 줄 수 추정
+      const lines = Math.round(contentEl.scrollHeight / lh);
+      // 2줄 이상이면 여유를 더 줌 (줄당 8px, 최대 80px)
+      if (lines >= 2) extra = Math.min(80, (lines - 1) * 8);
+    }
+  }
+
+  panel.style.setProperty('--open-h', String(contentHeight) + 'px');
+  panel.style.setProperty('--open-extra', String(extra) + 'px');
+}
+
+
+// 클릭 토글 (입력요소 클릭은 무시)
+document.addEventListener('click', (e) => {
+  const wrap = e.target.closest('.ask-wrap');
+  if (!wrap) return;
+
+  // 폼/링크 등 실제 인터랙션은 토글 제외
+  if (e.target.closest('input, select, textarea, label, button, a')) return;
+
+  const panel = wrap.querySelector('.collapse__content');
+  const btn   = wrap.querySelector('.collapse__btn');
+  if (!panel) return;
+
+  const willOpen = !panel.classList.contains('open');
+
+  if (willOpen) {
+    // 열기: 먼저 높이 설정 후 open 클래스
+    setOpenHeight(panel);
+    panel.classList.add('open');
+    wrap.classList.add('open');
+    btn?.setAttribute('aria-expanded', 'true');
+  } else {
+    // 닫기: 현재 높이로 고정 → 강제 리플로우 → 0으로 애니메이션
+    setOpenHeight(panel);
+    void panel.offsetHeight;            // reflow
+    panel.classList.remove('open');     // max-height:0 으로 전환
+    wrap.classList.remove('open');
+    btn?.setAttribute('aria-expanded', 'false');
+  }
+});
+
+// 내용이 변해도 높이 자동 보정
+const ro = new ResizeObserver(entries => {
+  for (const { target } of entries) {
+    if (target.classList.contains('open')) setOpenHeight(target);
+  }
+});
+document.querySelectorAll('.ask-wrap .collapse__content').forEach(p => ro.observe(p));
+
+// 동적으로 생기는 ask-wrap도 관찰(옵션)
+const rc = document.getElementById('recommand');
+if (rc) {
+  const mo = new MutationObserver(muts => {
+    muts.forEach(m => {
+      m.addedNodes.forEach(node => {
+        if (node.nodeType !== 1) return;
+        node.querySelectorAll?.('.ask-wrap .collapse__content').forEach(p => ro.observe(p));
+        if (node.matches?.('.ask-wrap .collapse__content')) ro.observe(node);
+      });
+    });
+  });
+  mo.observe(rc, { childList: true, subtree: true });
+}
+
+
+
+

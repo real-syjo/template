@@ -289,5 +289,49 @@ document.addEventListener('input', (e) => {
   }
 });
 
+function fitRecommandToViewport(){
+  const el = document.getElementById('recommand');
+  if (!el) return;
+
+  const rect = el.getBoundingClientRect();
+  const bottomGap = 16; // 하단 여유
+  const excelBar = document.getElementById('excelBar');
+  const barH = (excelBar && excelBar.classList.contains('show'))
+    ? excelBar.getBoundingClientRect().height + 12
+    : 0;
+
+  const avail = Math.max(200, window.innerHeight - rect.top - bottomGap - barH);
+  el.style.setProperty('--rc-max-h', `${avail}px`);
+}
+
+// 최초/리사이즈 시 반영
+window.addEventListener('load', fitRecommandToViewport);
+window.addEventListener('resize', fitRecommandToViewport);
+
+// #recommand 내부가 변할 때도 갱신
+const rcEl = document.getElementById('recommand');
+if (rcEl) {
+  const mo = new MutationObserver(() => requestAnimationFrame(fitRecommandToViewport));
+  mo.observe(rcEl, { childList:true, subtree:true });
+}
+
+// ask-wrap 추가/정렬 등 주요 함수 뒤에도 호출(정의돼 있으면 덮어씌워 훅 연결)
+['addAskWrap','enableAskWrapDragSort','reindexAskWraps','buildSelectBoxes'].forEach(fn=>{
+  if (typeof window[fn] === 'function') {
+    const orig = window[fn];
+    window[fn] = function(...args){
+      const r = orig.apply(this, args);
+      requestAnimationFrame(fitRecommandToViewport);
+      return r;
+    };
+  }
+});
+
+// ask-wrap 열고 닫을 때도 재계산
+document.addEventListener('click', (e)=>{
+  if (e.target.closest('.ask-wrap')) {
+    requestAnimationFrame(fitRecommandToViewport);
+  }
+});
 
 </script>

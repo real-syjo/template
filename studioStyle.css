@@ -111,6 +111,16 @@ p {
   color:var(--color-white);
   margin:4px 0;
 }
+/* gauge 라벨 글자 키우기 */
+#gauge .gblock::after{
+  font-size: 16px;      /* ← 원하는 크기 */
+  font-weight: 600;     /* 가독성(선택) */
+  line-height: 1.2;
+}
+
+/* 글자가 커지며 겹치면 약간 보정 (선택) */
+#gauge .gblock{ height: 36px; }
+#gauge{ padding-bottom: 12px; }   /* 라벨과의 간격 확보 */
 
 /* ========== Morphing Text ========== */
 #text {
