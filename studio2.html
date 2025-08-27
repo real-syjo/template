@@ -113,6 +113,12 @@ document.addEventListener('change', (e) => {
       dot.className = "dot active";
       dotsWrap.appendChild(dot);
     }
+     if (window.parent) {
+      window.parent.location.href = "studio.html";
+    } else {
+      // 혹시 iframe이 아닐 경우 대비
+      window.location.href = "studio.html";
+    }
   }
 });
 
