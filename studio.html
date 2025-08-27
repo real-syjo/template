@@ -106,13 +106,10 @@
                     <div class="box" id="box">
                         <div class="slideshow-container">
                           <div class="slide">
-                            랜덤 포레스트 알고리즘으로 투자전략을 테스트하고 싶으시군요.
+                            우선 데이터를 선택해야해요.
                           </div>
                           <div class="slide">
-                            우선 데이터를 선택해야해요.​
-                          </div>
-                          <div class="slide">
-                            다음과 같은 데이터로 진행하실 것을 추천드려요.​
+                            다음 데이터로 진행하실 것을 추천드려요.
                           </div>
 
                           <!-- 버튼 -->
@@ -163,6 +160,7 @@
                   </div>
 
                 </div>
+                 
                 <div class="alt-image" id="resultImage" aria-hidden="true">
                   <figure class="image-card">
                     <img id="dataTicker" src="imgs/dataTicker.png" alt="추천 이미지">
@@ -174,9 +172,9 @@
                   </figure>
                 </div>
             </div>
+            <button id="directBtn">데이터 직접 선택하기</button> 
           </div>
         </div>
-      <button id="directBtn">데이터 직접 선택하기</button> 
     </div>
     </section>
 
@@ -233,7 +231,6 @@ document.addEventListener('click', (e) => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 현재 URL의 step 파라미터 확인
   const url = new URL(window.location.href);
   const stepParam = url.searchParams.get("step");
 
@@ -241,14 +238,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const stepIdx = parseInt(stepParam, 10);
 
     if (!isNaN(stepIdx) && typeof selectBlock === "function") {
-      // 1) gblock 클릭처럼 동작
+      // 원래대로 selectBlock
       selectBlock(stepIdx);
 
-      // 2) iframe 자동 로드 (원하시는 경우)
+      // step=2 → gblock[data-index="1"] 클릭처럼
       if (stepIdx === 1) {
         loadIframeOnce1("studio1.html");
       }
-      if (stepIdx === 2) {
+
+      // step=3 → gblock[data-index="2"] 클릭처럼
+      if (stepIdx === 2 || stepIdx === 3) {
         loadIframeOnce2("studio2.html");
       }
     }
@@ -336,9 +335,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 const ALT_SLIDE_TEXTS = [
-  "데이터를 직접 선택하는 모드로 전환했습니다.",
-  "데이터가 결정되었습니다 데이터 그룹을 누르고 컬럼선택을 해주세요",
-  "데이터 선택을 마쳤다면 ‘전처리 설정’로 2단계로 이동합니다."
+  "데이터를 직접 선택하는 모드로 전환되었어요.",
+  "데이터가 결정되었어요. 데이터 그룹을 클릭하여 세부영역도 선택해주세요."
 ];
 
 // ✅ 슬라이드 텍스트만 교체하는 함수(슬라이드 개수와 텍스트 개수가 달라도 안전하게 동작)

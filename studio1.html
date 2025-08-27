@@ -45,10 +45,7 @@
                    <div class="box" id="box">
                         <div class="slideshow-container">
                           <div class="slide">
-                              데이터 처리의 기본은 이상이 있거나 값이 없는 데이터의 결측치를 제거하고,
-                          </div>
-                          <div class="slide">
-                             XGBoost 알고리즘을 학습할 수 있도록 데이터 라벨링 작업까지 하는게 목표입니다.
+                             앞에서 선택한 데이터를 활용할 수 있도록 전처리가 필요해요.
                           </div>
 
                           <!-- 버튼 -->
@@ -57,16 +54,18 @@
 
                           <!-- 점 -->
                           <div class="dots">
-                            <span class="dot" onclick="currentSlide(1)"></span>
+                            <span class="dot" onclick="currentSTSlide(1)"></span>
                             <span class="dot" onclick="currentSlide(2)"></span>
                             <span class="dot" onclick="currentSlide(3)"></span>
                           </div>
                           
                         </div>
-                        <button type="button" id="choiceBtn">항목선택하기</button>
+                
                         <div class="recommand" id="recommand"></div>
+                            <button id="choiceBtn" >항목선택하기</button>
                         </div>
-                        </div>     
+                         
+                       </div>     
                       </div> 
                     </div> 
                   </div>

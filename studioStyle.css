@@ -321,7 +321,7 @@ article:hover{ border-color:rgba(255,255,255,0.5); }
   width:100%; height:100px; position:relative; overflow:hidden; border-radius:10px;
 }
 .slide{
-  font-size:x-large; display:none; width:100%; height:100%;
+  font-size:x-large; display:none; width:100%; height:100%; font-weight:700;
   margin:3% 0; position:absolute; color: var(--color-grey);
 }
 .slide img{ width:100%; height:100%; object-fit:cover; }
@@ -512,7 +512,7 @@ tr:nth-child(even) td{ background:#fcfdff; }
 }
 .mini-card{
   background-color: lightgray;
-  margin: 3px; width: 160px;
+  margin: 3px; width: 150px;
   position:relative; height:35px;
   display:flex; align-items:center; justify-content:center;
   background:#f8fafc; color:#1f2937;
@@ -529,6 +529,46 @@ tr:nth-child(even) td{ background:#fcfdff; }
   color:#9aa6b2; font-size:16px; line-height:1;
 }
 .mini-card:hover .mini-close{ color:#dc3545; }
+
+/* 1) 컨테이너: grid → flex-wrap */
+.sel-box .mini-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:8px;
+}
+
+/* 2) 카드: 고정폭 제거 + 내용 길이만큼 */
+.mini-card{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  height:35px;
+
+  /* 폭을 내용에 맞춤 */
+  width:auto;                 /* ← 150px 지우기/덮어쓰기 */
+  min-width:max-content;      /* 길이에 딱 맞게 */
+  max-width:100%;
+
+  /* 여백(닫기 버튼 공간 포함) */
+  padding:6px 28px 6px 12px;  /* 오른쪽은 X버튼 자리 */
+
+  background:#f8fafc; color:#1f2937;
+  border:1px solid #e6ebf2; border-radius:1px;
+  white-space:nowrap;         /* 줄바꿈 방지(칩처럼) */
+  transition:transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+}
+
+/* 3) X 버튼을 카드 안에서 오른쪽 중앙 정렬 */
+.mini-close{
+  position:absolute;
+  right:6px; top:50%;
+  transform:translateY(-50%);
+  background:transparent; border:0;
+  cursor:pointer;
+  color:#9aa6b2; font-size:16px; line-height:1;
+}
+
 
 /* 선택된 키워드 태그 줄 */
 .sel-box .selected-row{

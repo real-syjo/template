@@ -104,40 +104,62 @@ function arcPath(cx,cy,r,start,end){
 // }
 
 function updateDonutProgressFromChips(){
-  const chipTotal = Math.max(legendData.length, 1);
+  const rc = document.getElementById('recommand');
+  if (!rc) return;
+
+  // 🔥 현재 ask-wrap 총 갯수
+  const wrapCount = rc.querySelectorAll('.ask-wrap').length;
+
+  // 이미 체크된 chip 수
   const chipDone  = legendData.filter(d => d.selected).length;
-  donutData = Array.from({length: chipTotal}, (_, i) => ({
-    label:'', value:1, selected: i < chipDone
+
+  // legendData를 wrapCount에 맞춰 재구성
+  legendData = Array.from({ length: wrapCount }, (_, i) => ({
+    label: `chip${i+1}`,
+    value: 1,
+    selected: i < chipDone
   }));
+
+  donutData = legendData.map(d => ({
+    label: d.label,
+    value: 1,
+    selected: d.selected
+  }));
+
   drawDonut();
 }
-
-function drawDonut(){
+function drawDonut() {
   segGroup.innerHTML = '';
- // stepTitle.textContent = `2단계 · ${steps[currentStep].name}`;
 
-  const total = donutData.length;
+  const total = donutData.length;   // ✅ 항상 ask-wrap 개수 기준
+  if (total === 0) {
+    centerMain.textContent = "0 / 0";
+    return;
+  }
+
   const gaps  = cfg.gapDeg * total;
   let cur = 0;
 
-  donutData.forEach((d)=>{
-    const sweep = (d.value/total) * (360 - gaps);
-    const start = cur, end = cur + sweep; cur = end + cfg.gapDeg;
+  donutData.forEach((d) => {
+    const sweep = (1 / total) * (360 - gaps); // ✅ 균등 분할
+    const start = cur, end = cur + sweep; 
+    cur = end + cfg.gapDeg;
 
     const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-    path.setAttribute('d', arcPath(cfg.cx,cfg.cy,cfg.r,start,end));
-    path.setAttribute('fill','none');
+    path.setAttribute('d', arcPath(cfg.cx, cfg.cy, cfg.r, start, end));
+    path.setAttribute('fill', 'none');
     path.setAttribute('stroke', d.selected ? cfg.colorOn : cfg.colorOff);
     path.setAttribute('stroke-width', cfg.width);
-    path.setAttribute('stroke-linecap','round');
-    path.classList.add('seg');
-    // 도넛 클릭 반응 제거(칩만 반영)
-    // path.addEventListener('click', ()=>{});
+    path.setAttribute('stroke-linecap', 'round');
     segGroup.appendChild(path);
   });
 
-  applyStateToCurrentBlock();
+  // 중앙 값 표시
+  const chipDone  = donutData.filter(d => d.selected).length;
+  centerMain.textContent = `${chipDone} / ${total}`;
 }
+
+
 
 // 중앙 표시는 '칩'만, 상단 게이지 색상은 도넛 진행도 기준
 function applyStateToCurrentBlock(){
@@ -202,7 +224,7 @@ function showSlides(n){
   if (choiceBtn) {
      const onLast = (slideIndex === total);
     // ▼ 플래그가 켜져 있으면 항상 보이게
-    choiceBtn.style.display = (keepChoiceBtn || onLast) ? '' : 'none';
+    choiceBtn.style.display = (getAskWrapCount() > 0) ? '' : 'none';
   }
 
   if (!recommandInserted && slideIndex === total) {
@@ -211,18 +233,13 @@ function showSlides(n){
     rc.innerHTML = `
       <div class="ask-wrap ask-first" data-idx="0">
         <div class="ask-head collapse__btn" aria-expanded="false">
-          <span class="ask-title">*결측치 처리</span>
-          <label><input type="radio" class="ask-opt" name="ask0-missing" value="all">전체</label>
-            <label><input type="radio" class="ask-opt" name="ask0-missing" value="split">구분</label>
+          <span class="ask-title">*결측치 대체<span>
           <span class="chev">▾</span>
         </div>
         <div class="collapse__content" role="region">
-        여기서 상세 데이터 선택 <br>
-        여기서 상세 데이터 선택 <br>
-        여기서 상세 데이터 선택 <br>
-        여기서 상세 데이터 선택 <br>
           <div class="ask-opts" role="radiogroup" aria-label="결측치 처리 방식">
-               
+                 <label><input type="radio" class="ask-opt" name="ask0-missing" value="all" checked>전체</label>
+                 <label><input type="radio" class="ask-opt" name="ask0-missing" value="split">구분</label>
           </div>
         </div>
       </div>
@@ -231,6 +248,7 @@ function showSlides(n){
     reindexAskWraps();               // ← 이제 함수가 아래 2번에서 정의됨
     syncLegendToRecommandInputs();// 도넛 초기 동기화
     recommandInserted = true;
+    updateChoiceBtnByAskCount();
   }
 }
 
@@ -503,19 +521,19 @@ document.querySelectorAll('#selectDataGroup.show, #selectDataGroup .show')
 
 
 /* ===== Collapse ===== */
-document.addEventListener('click', (e) => {
-  const btn = e.target.closest('.collapse__btn');
-  if (!btn) return;
+// document.addEventListener('click', (e) => {
+//   const btn = e.target.closest('.collapse__btn');
+//   if (!btn) return;
 
-  const panelId = btn.getAttribute('aria-controls');
-  const panel   = document.getElementById(panelId);
-  const willOpen = btn.getAttribute('aria-expanded') !== 'true';
+//   const panelId = btn.getAttribute('aria-controls');
+//   const panel   = document.getElementById(panelId);
+//   const willOpen = btn.getAttribute('aria-expanded') !== 'true';
 
-  btn.setAttribute('aria-expanded', String(willOpen));
-  panel?.classList.toggle('open', willOpen);
+//   btn.setAttribute('aria-expanded', String(willOpen));
+//   panel?.classList.toggle('open', willOpen);
 
-  // ❗여기서는 legendData/도넛을 건드리지 않습니다.
-});
+//   // ❗여기서는 legendData/도넛을 건드리지 않습니다.
+// });
 
 // 추천 입력창 상태 → legendData로 재구성 → 도넛 갱신
 function syncLegendToRecommandInputs(){
@@ -547,6 +565,7 @@ document.addEventListener('change', (e)=>{
     addInputAskWrap();
   }
   syncLegendToRecommandInputs();
+  updateChoiceBtnByAskCount
 });
 
 
@@ -770,23 +789,16 @@ function createCollapseHTML() {
 // === 슬라이드 문구 풀 ===
 const SLIDE_MESSAGES = [
   [
-    "결측치 처리란? 데이터에서 비어있는 값을 채워주는 과정입니다.",
-    "평균값, 직전값, 보간법 등 다양한 방식으로 대체할 수 있습니다."
-  ],
-   [
-    "결측치 대체란?"
+    "데이터에서 비어있는 값을 채워주는 과정입니다."
   ],
   [
-    "수익률 계산: (오늘가격 - 어제가격) / 어제가격",
-    "일간, 월간, 연간 단위로 계산할 수 있습니다."
+    "분석에 활용할 기간별 수익률 데이터를 생성해야해요."
   ],
   [
-    "래깅값 계산: 과거 데이터를 현재의 특징으로 추가하는 과정",
-    "예: 1개월 전 수익률 → 현재 예측 변수"
+    "과거 시점에서 미래에 가격이 상승 또는 하락했는지 알기위해 래깅값(이전 시점의 값)을 구해야해요."
   ],
   [
-    "데이터 라벨링: 미래 수익률이 양수면 1, 음수면 0",
-    "분류 모델 학습용 타겟을 만드는 과정"
+    "상승 또는 하락에 따라 구분해서 표기할게요."
   ],
   [
     "결측치 제거: 값이 없는 행을 삭제",
@@ -796,54 +808,13 @@ const SLIDE_MESSAGES = [
 
 let slideMsgIndex = 0;
 
-// === ask-wrap 클릭 시 새 ask-wrap 추가 ===
-// ask-wrap 클릭 시 새 ask-wrap 추가 + 도넛 게이지 진행
-// === ask-wrap 클릭 시 새 ask-wrap 추가 + 도넛 게이지 진행 ===
-// === ask-wrap 클릭 시 새 ask-wrap 추가 ===
-document.addEventListener('click', (e) => {
-  const wrap = e.target.closest('.ask-wrap');
-  if (!wrap) return;
-
-  const rc = document.getElementById("recommand");
-  if (!rc) return;
-
-  // 현재 ask-wrap 개수
-  let groups = rc.querySelectorAll('.ask-wrap');
-
-  // ask-wrap 추가 (최대 5개)
-  if (groups.length < 5) {
-      const title = getNextAskTitle();
-    const content = getNextPlaceholder();
-    const idx = inferIdxFromText(content);
-   addAskWrap(title, content, idx);
-  }
-
-  // ✅ ask-wrap 개수 기반으로 legendData 갱신
-  groups = rc.querySelectorAll('.ask-wrap');
-  const count = groups.length;  // 현재 몇 개 있는지
-  const total = 5;              // 항상 5 고정
-
-  legendData = Array.from({ length: total }, (_, i) => ({
-    label: `chip${i+1}`,
-    value: 1,
-    selected: i < count
-  }));
-
-  // donutData를 legendData 기반으로 다시 만들기
-  donutData = legendData.map(d => ({
-    label: d.label, value: 1, selected: d.selected
-  }));
-
-  drawDonut();
-});
 
 
 // ==== placeholder 문구 풀 ====
 const ASK_PLACEHOLDER_POOL = [
-  "비어있는 날짜의 가격 데이터를 이전 날 값으로 채웁니다.",
-  "1개월(21일) 및 1년(252일) 수익률을 계산하고, ETF의 Total Return Index 열을 사용하여 예측에 필요한 데이터를 준비합니다.",
-  "1개월 수익률의 래깅값을 계산하여 미래 수익률 예측에 사용합니다.",
-  "1개월 뒤 수익률 상승 여부를 0과 1로 구분하여 라벨링합니다.",
+  "([[month=21]]일)개월 및 ([[year=252]]일)년 수익률을 계산하고, ETF의 Total Return Index 열을 사용하여 예측에 필요한 데이터를 준비합니다.",
+  "([[month=1]])개월 수익률의 래깅값을 계산하여 미래 수익률 예측에 사용합니다.",
+  "([[month=1]])개월 뒤 수익률 상승 여부를 0과 1로 구분하여 라벨링합니다.",
   "데이터 처리 과정에서 발생한 결측치를 모두 제거하여 정확한 분석을 위한 데이터를 준비합니다."
 ];
 
@@ -880,7 +851,6 @@ function addInputAskWrap(){
 
 // ==== ask-title 자동 생성 ====
 const ASK_TITLE_POOL = [
-  '*결측치 대체',
   '*수익률 계산',
   '*래깅값 계산',
   '*데이터 라벨링',
@@ -890,7 +860,7 @@ function getNextAskTitle() {
   const rc = document.getElementById('recommand');
   const existing = rc ? rc.querySelectorAll('.ask-wrap').length : 0;
   const idx = existing - 1; // 첫 ask-first 제외
-  return ASK_TITLE_POOL[idx] || `*추천DATA 항목 ${existing}`;
+  return ASK_TITLE_POOL[idx] ;
 }
 
 function enableAskWrapDragSort() {
@@ -962,28 +932,79 @@ function addAskWrap(title, content, idx){
   const rc = document.getElementById("recommand");
   if (!rc) return;
 
+  // 문장 중 토큰을 인라인 input으로 변환
+  const contentHTML = compileInlineInputs(content);
+
   const wrap = document.createElement("div");
   wrap.className = "ask-wrap";
   if (typeof idx === 'number' && !Number.isNaN(idx)) {
     wrap.setAttribute("data-idx", String(idx));
   }
+
   wrap.innerHTML = `
-    <div class="ask-head collapse__btn" aria-expanded="false">
+    <div class="ask-head collapse__btn" aria-expanded="true">
       <span class="ask-title">${title}</span>
-      <div class="ask-content">${content}</div>
       <span class="chev">▾</span>
     </div>
-    <div class="collapse__content" role="region">
-        test
+    <div class="collapse__content open" role="region" style="--open-h:0px; --open-extra:0px;">
+      <div class="ask-content">${contentHTML}</div>
     </div>
   `;
+
+  // ✅ 이전 ask-wrap 접기
+  const prevWrap = rc.querySelector('.ask-wrap:last-child');
+  if (prevWrap) {
+    const prevPanel = prevWrap.querySelector('.collapse__content');
+    const prevBtn   = prevWrap.querySelector('.collapse__btn');
+    prevPanel?.classList.remove('open');
+    prevWrap.classList.remove('open');
+    prevBtn?.setAttribute('aria-expanded','false');
+  }
+
+  // ✅ 새 ask-wrap 추가 (항상 열린 상태)
   rc.appendChild(wrap);
+  wrap.classList.add('open');
+  const panel = wrap.querySelector('.collapse__content');
+  panel?.classList.add('open');
+  wrap.querySelector('.collapse__btn')?.setAttribute('aria-expanded','true');
+
+  // 높이 계산 반영
+  if (panel) setOpenHeight(panel);
 
   enableAskWrapDragSort();
   ensureAskFirstIndex();
-  reindexAskWraps(); // *순번 유지가 필요하면: 이미 data-idx 있으면 덮어쓰지 않도록 reindex 수정*
+  reindexAskWraps();
+  updateChoiceBtnByAskCount();
 }
 
+
+
+// 예: "기간은 [[days=21]]일 입니다." → 중간에 <input ...>
+function compileInlineInputs(text){
+  // [[key=기본값]]  또는 [[key]] 패턴
+  return text.replace(/\[\[(\w+)(?:=([^\]]*))?\]\]/g, (_, key, def='') => {
+    const v = (def ?? '').replace(/"/g,'&quot;');     // 안전 처리
+    return `<input type="text" class="inline-input bind-input"
+                   data-key="${key}" value="${v}" placeholder="${v}">`;
+  });
+}
+
+function autoSizeInline(inp){
+  const basis = (inp.value || inp.placeholder || '').length;
+  inp.size = Math.max(1, basis);   // 글자 수만큼 폭 자동
+}
+
+document.addEventListener('focusin', (e)=>{
+  const inp = e.target.closest('.inline-input');
+  if (inp){ autoSizeInline(inp); }
+});
+document.addEventListener('input', (e)=>{
+  const inp = e.target.closest('.inline-input');
+  if (!inp) return;
+  autoSizeInline(inp);
+  const panel = inp.closest('.collapse__content');
+  if (panel) setOpenHeight(panel);   // 기존 함수로 펼침 높이 보정
+});
 
 document.addEventListener("click", (e) => {
 const wasVisible = choiceBtn && getComputedStyle(choiceBtn).display !== 'none';
@@ -1047,6 +1068,7 @@ document.addEventListener("DOMContentLoaded", () => {
   enableAskWrapDragSort();
   ensureAskFirstIndex();
   reindexAskWraps();
+  updateChoiceBtnByAskCount();
 });
 
 function fitMainToViewport(){
@@ -1078,7 +1100,7 @@ closeAltPane = function(paneEl){
 
 document.addEventListener('DOMContentLoaded', () => {
   const choiceBtn = document.getElementById('choiceBtn');
-  if (choiceBtn) choiceBtn.style.display = 'none';
+  //if (choiceBtn) choiceBtn.style.display = 'none';
 });
 
 
@@ -1164,26 +1186,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
 document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById("choiceModal");
+  if (!modal) return;
 
-  // 위임 방식: 모달 안의 카드 클릭
+  let addingFromModal = false; // 안전 가드 (중복 방지용)
+
   modal.addEventListener("click", (e) => {
     const box = e.target.closest(".modal-boxes .box");
-    if (!box) return;
+    if (!box || addingFromModal) return;
 
-    const title = box.dataset.title || box.querySelector('.b-title')?.textContent.trim() || '';
-    const desc  = box.dataset.desc  || box.querySelector('.b-desc')?.textContent.trim()  || '';
-    const idxStr= box.dataset.idx;
-    const idx   = idxStr === '' || idxStr == null
-      ? inferIdxFromTitle('*' + title)  // 매핑 없으면 제목으로 추론
-      : Number(idxStr);
+    addingFromModal = true;     // 🔒 가드 ON
+    try {
+      // 우선 data-* 사용, 없으면 내부 텍스트/사전으로 보완
+      const title =
+        box.dataset.title ||
+        box.querySelector(".b-title")?.textContent?.trim() ||
+        box.textContent.trim() ||
+        "";
 
-    // ask-wrap 추가 (idx를 data-idx로 심어줌)
-    addAskWrap('*' + title, desc, idx);
+      const desc =
+        box.dataset.desc ||
+        box.querySelector(".b-desc")?.textContent?.trim() ||
+        (typeof boxContents === "object" ? boxContents[box.dataset.key] : "") ||
+        "";
 
-    // 모달 닫기
-    modal.style.display = "none";
+      const idxStr = box.dataset.idx;
+      const idx =
+        idxStr === "" || idxStr == null
+          ? inferIdxFromTitle("*" + title)
+          : Number(idxStr);
+
+      addAskWrap("*" + title, desc, idx);
+      modal.style.display = "none";
+    } finally {
+      // 다음 이벤트를 위해 해제
+      setTimeout(() => (addingFromModal = false), 0);
+    }
   });
 });
+
 
   // ✅ 모달 내부 박스 클릭 → ask-wrap 추가
 
@@ -1215,21 +1255,7 @@ document.addEventListener("DOMContentLoaded", () => {
   box25: "API를 호출하여 결과를 처리하는 ask-content"
 };
 
-document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById("choiceModal");
 
-  // modal 안의 box 클릭 → ask-wrap 생성
-  modal.querySelectorAll(".modal-boxes .box").forEach((box) => {
-    box.addEventListener("click", () => {
-      const key = box.getAttribute("data-key");
-      const title = box.textContent.trim();
-      const content = boxContents[key] || "⚠️ 정의되지 않은 박스입니다.";
-
-      addAskWrap("*" + title, content, inferIdxFromText(content)); // ✅ 이제 title, content 항상 있음
-      modal.style.display = "none";
-    });
-  });
-});
 function inferIdxFromText(t=''){
   const i = ASK_PLACEHOLDER_POOL.findIndex(s => t && t.startsWith(s));
   return i >= 0 ? i : 0;
@@ -1300,35 +1326,39 @@ function setOpenHeight(panel){
 
 
 // 클릭 토글 (입력요소 클릭은 무시)
-// 클릭 토글 (입력요소 클릭은 무시)
-// 클릭 토글: chev 아이콘만 동작
+// collapse 토글: chev 또는 collapse__btn을 눌렀을 때만 동작
+// collapse 토글: chev 또는 collapse__btn을 눌렀을 때만 동작
 document.addEventListener('click', (e) => {
-  // chev(span)만 타겟으로 지정
-  const chev = e.target.closest('.chev');
-  if (!chev) return;
+  const trigger = e.target.closest('.chev, .collapse__btn');
+  if (!trigger) return;
 
-  const wrap  = chev.closest('.ask-wrap');
-  const panel = wrap?.querySelector('.collapse__content');
-  const btn   = wrap?.querySelector('.collapse__btn');
+  // 클릭한 ask-wrap만 선택
+  const wrap  = trigger.closest('.ask-wrap');
+  if (!wrap) return;
+
+  const panel = wrap.querySelector('.collapse__content');
+  const btn   = wrap.querySelector('.collapse__btn');
   if (!panel) return;
 
   const willOpen = !panel.classList.contains('open');
 
   if (willOpen) {
-    // 열기
+    // 열기: 이 wrap만 열림
     setOpenHeight(panel);
     panel.classList.add('open');
     wrap.classList.add('open');
     btn?.setAttribute('aria-expanded', 'true');
   } else {
-    // 닫기
+    // 닫기: 이 wrap만 닫힘
     setOpenHeight(panel);
-    void panel.offsetHeight;            // reflow
+    void panel.offsetHeight;   // reflow
     panel.classList.remove('open');
     wrap.classList.remove('open');
     btn?.setAttribute('aria-expanded', 'false');
   }
 });
+
+
 
 
 // 내용이 변해도 높이 자동 보정
@@ -1354,6 +1384,84 @@ if (rc) {
   mo.observe(rc, { childList: true, subtree: true });
 }
 
+function getAskWrapCount() {
+  return document.querySelectorAll('#recommand .ask-wrap').length;
+}
+
+function updateChoiceBtnByAskCount() {
+  const count = getAskWrapCount();
+  const show = (count >0 );
+
+  // choiceBtn 처리
+  const choiceBtn = document.getElementById('choiceBtn');
+  if (choiceBtn) choiceBtn.style.display = show ? '' : 'none';
+
+  // finishBtn 처리
+  const finishBtn = document.getElementById('finishBtn');
+  if (finishBtn) finishBtn.style.display = show ? '' : 'none';
+
+  keepChoiceBtn = show;   // 기존 로직 유지
+}
 
 
+// ✅ 개수 기반 도넛/칩 갱신 도우미
+// ✅ ask-wrap 개수 기반으로 legendData 갱신
+function updateLegendFromAskCount() {
+  const rc = document.getElementById('recommand');
+  if (!rc) return;
 
+  const wraps = rc.querySelectorAll('.ask-wrap');
+const count = wraps.length;       // 현재 ask-wrap 개수
+const total = count;              // 🔥 분모도 count와 동일하게 맞춤
+
+legendData = Array.from({ length: total }, (_, i) => ({
+  label: `chip${i+1}`, 
+  value: 1, 
+  selected: i < count   // 이미 생성된 개수만큼 선택 처리
+}));
+
+donutData = legendData.map(d => ({ 
+  label: d.label, 
+  value: d.value, 
+  selected: d.selected 
+}));
+
+drawDonut();
+}
+
+
+// ✅ 중복 추가 방지 락
+let addOnceGuard = false;
+
+// ✅ "마지막 ask-wrap"을 눌렀을 때만 새 ask-wrap 생성
+// === ask-wrap 클릭 시 "마지막"일 때만 새 ask-wrap 추가 ===
+document.getElementById('recommand')?.addEventListener('click', (e) => {
+  const wrap = e.target.closest('.ask-wrap');
+  if (!wrap) return;
+
+  // collapse 버튼 누른 경우만 무시
+  if (e.target.closest('.collapse__btn, .chev')) return;
+
+  const rc = e.currentTarget;
+  const wraps = rc.querySelectorAll('.ask-wrap');
+  if (!wraps.length) return;
+
+  const last = wraps[wraps.length - 1];
+
+  // 마지막이 아니면 추가 금지
+  if (wrap !== last) return;
+
+  // 최대 5개 제한
+  if (wraps.length >= 5) return;
+
+  // 새 카드 추가
+  const title   = getNextAskTitle();
+  const content = getNextPlaceholder();
+  const idx     = inferIdxFromText(content);
+
+  addAskWrap(title, content, idx);
+
+  reindexAskWraps();            // 인덱스 갱신
+  updateChoiceBtnByAskCount();  // 버튼 갱신
+  updateLegendFromAskCount();   // 도넛 갱신
+});

@@ -308,7 +308,7 @@ article:hover{ border-color:rgba(255,255,255,0.5); }
   width:100%; height:100px; position:relative; overflow:hidden; border-radius:10px;
 }
 .slide{
-  font-size:x-large; display:none; width:100%; height:100%;
+  font-size:x-large; display:none; width:100%; height:100%; font-weight:700;
   margin:3% 0; position:absolute; color: var(--color-grey);
 }
 .slide img{ width:100%; height:100%; object-fit:cover; }

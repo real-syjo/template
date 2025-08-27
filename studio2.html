@@ -45,14 +45,12 @@
                    <div class="box" id="box">
                         <div class="slideshow-container">
                           <div class="slide">
-                            기술지표를 생성하여 XGBoost 학습에 필요한 데이터를 만듭니다.
+                            투자전략 설계에 활용하고 싶은 알고리즘을 선택해주세요.
                           </div>
                           <div class="slide">
-                           다양한 기술지표 중 변동성을 고려하여 가격 상승 확률을 예측할 것이므로,
+                           마우스를 올리면 각 알고리즘에 대한 설명을 확인할 수 있어요.
                           </div>
-                          <div class="slide">
-                           관련성이 높은 MA, MACD, STD, RSI 등의 기술지표를 활용합니다.
-                          </div>
+                        
                           
 
                           <!-- 버튼 -->
@@ -87,6 +85,98 @@
 </html>
 
 <script>
+// 첫 번째 cbox 체크 시 슬라이드 문구 추가
+document.addEventListener('change', (e) => {
+  const firstCbox = document.querySelector('#recommand .cbox:first-child input[type="checkbox"]');
+  if (!firstCbox) return;
+
+  if (e.target === firstCbox && firstCbox.checked) {
+    // alert 대신 슬라이드 문구 변경
+    const slideContainer = document.querySelector(".slideshow-container");
+    if (!slideContainer) return;
+
+    // 기존 슬라이드/도트 제거
+    slideContainer.querySelectorAll(".slide").forEach(s => s.remove());
+    const dotsWrap = slideContainer.querySelector(".dots");
+    if (dotsWrap) dotsWrap.innerHTML = "";
+
+    // 새 문구 추가
+    const div = document.createElement("div");
+    div.className = "slide";
+    div.textContent = "데이터부터 선택해 주세요.";
+    div.style.display = "block"; // 첫 슬라이드만 보이게
+    slideContainer.appendChild(div);
+
+    // 점도 하나만
+    if (dotsWrap) {
+      const dot = document.createElement("span");
+      dot.className = "dot active";
+      dotsWrap.appendChild(dot);
+    }
+  }
+});
+
+document.addEventListener('change', (e) => {
+  // recommand 안에 있는 모든 체크박스 수집
+  const cboxes = document.querySelectorAll('#recommand input[type="checkbox"]');
+  if (cboxes.length < 2) return; // 최소 2개 이상일 때만
+  
+  const secondCbox = cboxes[1]; // 두 번째 체크박스 (0=첫번째, 1=두번째)
+
+  if (e.target === secondCbox && secondCbox.checked) {
+    // ✅ 슬라이드 문구 교체
+    const slides = document.querySelectorAll(".slideshow-container .slide");
+    if (slides.length > 0) {
+      slides.forEach(s => s.style.display = "none"); // 기존 슬라이드 숨기기
+    }
+
+    // 새 문구 추가
+    const slideContainer = document.querySelector(".slideshow-container");
+    const div = document.createElement("div");
+    div.className = "slide";
+    div.textContent = "XG부스트 알고리즘으로 투자전략을 만들어보겠습니다.";
+    slideContainer.appendChild(div);
+
+    // 새 슬라이드 표시
+    div.style.display = "block";
+  }
+});
+
+
+document.addEventListener('change', (e) => {
+  const cboxes = document.querySelector('#recommand .cbox:nth-child(2) input[type="checkbox"]');
+  if (cboxes.length < 2) return;   // 두 개 이상 있을 때만
+
+  const secondCbox = cboxes[1];    // 0 = 첫 번째, 1 = 두 번째
+
+  if (e.target === secondCbox && secondCbox.checked) {
+    const slideContainer = document.querySelector(".slideshow-container");
+    if (!slideContainer) return;
+
+    let dotsWrap = slideContainer.querySelector(".dots");
+    if (!dotsWrap) {
+      dotsWrap = document.createElement("div");
+      dotsWrap.className = "dots";
+      slideContainer.appendChild(dotsWrap);
+    }
+
+    // 새 슬라이드
+    const div = document.createElement("div");
+    div.className = "slide";
+    div.textContent = "XG부스트 알고리즘으로 투자전략을 만들어보겠습니다.";
+    div.style.display = "none";
+    slideContainer.appendChild(div);
+
+    // 새 dot
+    const dot = document.createElement("span");
+    dot.className = "dot";
+    dot.addEventListener("click", () => showSlides(dotsWrap.children.length));
+    dotsWrap.appendChild(dot);
+  }
+});
+
+
+
 
   (() => {
   let __slideTimer = null;
