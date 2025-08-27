@@ -143,6 +143,7 @@ document.addEventListener('change', (e) => {
 });
 
 
+
 document.addEventListener('change', (e) => {
   const cboxes = document.querySelector('#recommand .cbox:nth-child(2) input[type="checkbox"]');
   if (cboxes.length < 2) return;   // 두 개 이상 있을 때만
@@ -175,8 +176,55 @@ document.addEventListener('change', (e) => {
   }
 });
 
+const algoDescriptions = {
+  "K-Means": "K-Means는 데이터를 K개의 군집으로 나누는 비지도 학습 알고리즘입니다.",
+  "Linear Regression": "Linear Regression은 입력 변수와 출력 변수 간의 선형 관계를 모델링합니다.",
+  "Logistic Regression": "Logistic Regression은 이진 분류 문제를 해결하는 알고리즘입니다.",
+  "Naive Bayes": "Naive Bayes는 조건부 확률을 기반으로 하는 간단하고 빠른 분류 알고리즘입니다.",
+  "PCA": "PCA는 고차원 데이터를 저차원으로 축소하여 주요 특징을 추출합니다.",
+  "Random Forest": "Random Forest는 여러 개의 의사결정나무를 학습시켜 앙상블로 예측하는 알고리즘입니다."
+};
+function showAlgoDescription(desc) {
+  const slides = document.querySelectorAll(".slideshow-container .slide");
 
+  // 모든 기존 슬라이드 숨김
+  slides.forEach(s => s.style.display = "none");
 
+  // 설명 슬라이드가 없으면 새로 생성
+  const slideContainer = document.querySelector(".slideshow-container");
+  let descSlide = slideContainer.querySelector(".slide.desc-slide");
+
+  if (!descSlide) {
+    descSlide = document.createElement("div");
+    descSlide.className = "slide desc-slide";
+    slideContainer.appendChild(descSlide);
+  }
+
+  descSlide.textContent = desc;
+  descSlide.style.display = "block";
+}
+
+// 이벤트 위임: #recommand 안의 .cbox 감지
+document.addEventListener("mouseover", (e) => {
+  const box = e.target.closest("#recommand .cbox");
+  if (!box) return;
+
+  const title = box.querySelector(".title")?.textContent.trim();
+  if (!title) return;
+
+  const desc = algoDescriptions[title] || `${title} 설명이 준비되지 않았습니다.`;
+  showAlgoDescription(desc);
+});
+
+document.addEventListener("mouseout", (e) => {
+  const box = e.target.closest("#recommand .cbox");
+  if (!box) return;
+
+  // 마우스가 빠지면 첫 번째 슬라이드로 복원
+  const slides = document.querySelectorAll(".slideshow-container .slide");
+  slides.forEach(s => s.style.display = "none");
+  if (slides[0]) slides[0].style.display = "block";
+});
 
   (() => {
   let __slideTimer = null;

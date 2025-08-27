@@ -207,49 +207,49 @@ function showSlides(n){
         <label class="cbox">
           <input type="checkbox">
           <div class="card-content">
-            <span class="tag">필터/레이블링</span>
-            <h3 class="title">데이터 주기 변환</h3>
-            <p class="desc">데이터 주기 변환</p>
+            <span class="tag">알고리즘 노드</span>
+            <h3 class="title">K-Means</h3>
+            <p class="desc">K-Means</p>
           </div>
         </label>
         <label class="cbox">
           <input type="checkbox">
           <div class="card-content">
-            <span class="tag">필터/레이블링</span>
-            <h3 class="title">결측치 처리</h3>
-            <p class="desc">빈 값은 가진 행 삭제 또는 해당 행의 유지만</p>
+            <span class="tag">Linear Regression</span>
+            <h3 class="title">Linear Regression</h3>
+            <p class="desc">Linear Regression</p>
           </div>
         </label>
         <label class="cbox">
           <input type="checkbox">
           <div class="card-content">
-            <span class="tag">통계</span>
-            <h3 class="title">시간 지평 설정</h3>
-            <p class="desc">투자 기간 설정</p>
+            <span class="tag">알고리즘 노드</span>
+            <h3 class="title">Logistic Regression</h3>
+            <p class="desc">Logistic Regression</p>
           </div>
         </label>
         <label class="cbox">
           <input type="checkbox">
           <div class="card-content">
-            <span class="tag">필터/레이블링</span>
-            <h3 class="title">열 삭제</h3>
-            <p class="desc">특정 열 삭제</p>
+            <span class="tag">알고리즘 노드</span>
+            <h3 class="title">Naive Bayes</h3>
+            <p class="desc">Naive Bayes</p>
           </div>
         </label>
         <label class="cbox">
           <input type="checkbox">
           <div class="card-content">
-            <span class="tag">기타</span>
-            <h3 class="title">열 이름 변경</h3>
-            <p class="desc">열 이름 변경</p>
+            <span class="tag">알고리즘 노드</span>
+            <h3 class="title">PCA</h3>
+            <p class="desc">PCA</p>
           </div>
         </label>
         <label class="cbox">
           <input type="checkbox">
           <div class="card-content">
-            <span class="tag">기타</span>
-            <h3 class="title">열 이동</h3>
-            <p class="desc">열 위치 이동</p>
+            <span class="tag">알고리즘 노드</span>
+            <h3 class="title">Random Forest</h3>
+            <p class="desc">Random Forest</p>
           </div>
         </label>
       </div>
