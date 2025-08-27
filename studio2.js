@@ -215,7 +215,7 @@ function showSlides(n){
         <label class="cbox">
           <input type="checkbox">
           <div class="card-content">
-            <span class="tag">Linear Regression</span>
+            <span class="tag">알고리즘 노드</span>
             <h3 class="title">Linear Regression</h3>
             <p class="desc">Linear Regression</p>
           </div>
