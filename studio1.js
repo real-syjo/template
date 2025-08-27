@@ -1300,34 +1300,36 @@ function setOpenHeight(panel){
 
 
 // 클릭 토글 (입력요소 클릭은 무시)
+// 클릭 토글 (입력요소 클릭은 무시)
+// 클릭 토글: chev 아이콘만 동작
 document.addEventListener('click', (e) => {
-  const wrap = e.target.closest('.ask-wrap');
-  if (!wrap) return;
+  // chev(span)만 타겟으로 지정
+  const chev = e.target.closest('.chev');
+  if (!chev) return;
 
-  // 폼/링크 등 실제 인터랙션은 토글 제외
-  if (e.target.closest('input, select, textarea, label, button, a')) return;
-
-  const panel = wrap.querySelector('.collapse__content');
-  const btn   = wrap.querySelector('.collapse__btn');
+  const wrap  = chev.closest('.ask-wrap');
+  const panel = wrap?.querySelector('.collapse__content');
+  const btn   = wrap?.querySelector('.collapse__btn');
   if (!panel) return;
 
   const willOpen = !panel.classList.contains('open');
 
   if (willOpen) {
-    // 열기: 먼저 높이 설정 후 open 클래스
+    // 열기
     setOpenHeight(panel);
     panel.classList.add('open');
     wrap.classList.add('open');
     btn?.setAttribute('aria-expanded', 'true');
   } else {
-    // 닫기: 현재 높이로 고정 → 강제 리플로우 → 0으로 애니메이션
+    // 닫기
     setOpenHeight(panel);
     void panel.offsetHeight;            // reflow
-    panel.classList.remove('open');     // max-height:0 으로 전환
+    panel.classList.remove('open');
     wrap.classList.remove('open');
     btn?.setAttribute('aria-expanded', 'false');
   }
 });
+
 
 // 내용이 변해도 높이 자동 보정
 const ro = new ResizeObserver(entries => {
