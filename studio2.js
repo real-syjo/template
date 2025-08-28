@@ -182,8 +182,8 @@ function showSlides(n){
           <input type="checkbox">
           <div class="card-content">
             <span class="tag">알고리즘 노드</span>
-            <h3 class="title">K-Means</h3>
-            <p class="desc">K-Means</p>
+            <h3 class="title">XG-Boost</h3>
+            <p class="desc">XG-Boost</p>
           </div>
         </label>
         <label class="cbox">
