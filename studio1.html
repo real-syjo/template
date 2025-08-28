@@ -113,28 +113,95 @@
 </html>
 
 <script>
+/* =================== ASK-WRAP 기반 프로그래스 =================== */
+/* 구간(눈금) 다시 그리기 */
+function renderProgressTicksFromAskWraps() {
+  const total = document.querySelectorAll('#recommand .ask-wrap').length || 0;
+  const bar = document.querySelector('.progress .bar');
+  if (!bar) return;
 
-  (() => {
-  let __slideTimer = null;
-
-  // 안전장치: 페이지 숨김 시 일시정지(선택)
-  function stopSlideShow() {
-    clearInterval(__slideTimer);
-    __slideTimer = null;
+  let ticks = bar.querySelector('.ticks');
+  if (!ticks) {
+    ticks = document.createElement('div');
+    ticks.className = 'ticks';
+    bar.appendChild(ticks);
   }
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) stopSlideShow();
-  });
+  // 총 N개면 눈금은 N-1개
+  ticks.innerHTML = '';
+  for (let i = 1; i < total; i++) {
+    const t = document.createElement('i');
+    t.className = 'tick';
+    t.style.left = (i * 100 / total) + '%';
+    ticks.appendChild(t);
+  }
+}
 
-  // 부모가 보내는 신호를 받은 뒤에만 시작
-  window.addEventListener('message', (e) => {
-    if (e?.data?.type === 'START_SLIDES') {
-      window.startSlideShow(e.data.interval || 3000);
-    }
+/* 방문(클릭)한 ask-wrap 수 → 프로그래스 폭/퍼센트 계산 */
+function updateProgressFromAskWraps() {
+  const total   = document.querySelectorAll('#recommand .ask-wrap').length || 0;
+  const visited = document.querySelectorAll('#recommand .ask-wrap.visited').length || 0;
+  const percent = total ? Math.round((visited / total) * 100) : 0;
+
+  const fill  = document.getElementById('chipProgress');
+  const label = document.getElementById('chipPercent');
+  if (fill)  fill.style.width = percent + '%';
+  if (label) label.textContent = percent + '%';
+
+  // 부모(1단계 게이지)에 진행률 전달(필요 시)
+  try {
+    window.parent?.postMessage({ type: 'IFRAME_STEP_PROGRESS', stepIndex: 1, percent }, '*');
+  } catch (_) {}
+}
+
+/* 첫 클릭만 카운트: ask-wrap을 클릭하면 visited 표시 + 진행률 업데이트 */
+document.getElementById('recommand')?.addEventListener('click', (e) => {
+  const wrap = e.target.closest('.ask-wrap');
+  if (!wrap) return;
+
+  // 처음 클릭한 카드만 visited 부여
+  if (!wrap.classList.contains('visited')) {
+    wrap.classList.add('visited');
+    updateProgressFromAskWraps();
+  }
+});
+
+/* ask-wrap 추가/삭제되면 구간/진행률 재계산 */
+(() => {
+  const rc = document.getElementById('recommand');
+  if (!rc) return;
+
+  const mo = new MutationObserver(() => {
+    renderProgressTicksFromAskWraps();
+    updateProgressFromAskWraps();
   });
+  mo.observe(rc, { childList: true, subtree: false });
+
+  // 초기 1회
+  renderProgressTicksFromAskWraps();
+  updateProgressFromAskWraps();
+})();
+
+//   (() => {
+//   let __slideTimer = null;
+
+//   // 안전장치: 페이지 숨김 시 일시정지(선택)
+//   function stopSlideShow() {
+//     clearInterval(__slideTimer);
+//     __slideTimer = null;
+//   }
+//   document.addEventListener('visibilitychange', () => {
+//     if (document.hidden) stopSlideShow();
+//   });
+
+//   // 부모가 보내는 신호를 받은 뒤에만 시작
+//   window.addEventListener('message', (e) => {
+//     if (e?.data?.type === 'START_SLIDES') {
+//       window.startSlideShow(e.data.interval || 3000);
+//     }
+//   });
 
   
-})();
+// })();
 
 // ===== #signup3 폼 ↔ 도넛 연동 (폼이 들어있는 카드 안의 도넛만 다시 그림) =====
 // ✅ 진행률 바 업데이트 함수

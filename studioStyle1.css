@@ -1131,3 +1131,24 @@ body.modal-open .your-panel .wrap { pointer-events: none; }
   border-radius: 999px;
   z-index: 1;
 }
+/* progress 구간 눈금 */
+.progress .bar .fill {
+  height: 100%;
+  width: 0;
+  transition: width .35s ease;
+}
+.progress .bar .ticks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.progress .bar .tick {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: rgba(0,0,0,.15);
+  transform: translateX(-0.5px);
+}
+
+/* (선택) 방문한 ask-wrap 시각화 */
+#recommand .ask-wrap.visited .ask-title { color: var(--accent, #2563eb); }
