@@ -618,8 +618,6 @@ tr:nth-child(even) td{ background:#fcfdff; }
 /* 레전드 칩 */
 .legend .chip.active{ background:var(--accent); border-color:var(--accent); color:#fff; }
 
-
-
 /* ========== Excel 확인 바 (정리본) ========== */
 .excel-bar{
   position:fixed; left:0; right:0; bottom:16px;

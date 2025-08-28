@@ -111,8 +111,6 @@ function updateDonutProgressFromChips(){
  
 }
 
-
-
 // 중앙 표시는 '칩'만, 상단 게이지 색상은 도넛 진행도 기준
 function applyStateToCurrentBlock(){
   const chipDone  = legendData.filter(d => d.selected).length;
