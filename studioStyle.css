@@ -341,6 +341,7 @@ article:hover{ border-color:rgba(255,255,255,0.5); }
 .active,.dot:hover{ color:var(--color-blue); }
 
 /* ========== Collapse ========== */
+
 .collapse{
   width:100%; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:#fff;
 }

@@ -99,7 +99,6 @@ function arcPath(cx,cy,r,start,end){
 function initDonutForStep(stepIdx){
   // 칩 텍스트 초기화(고정)
   legendData = steps[stepIdx].nodes.map(n => ({ label:n, value:1, selected:false }));
-  renderLegend();
   updateDonutProgressFromChips(); // 도넛 = 칩 진행도만 반영
 }
 

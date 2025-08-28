@@ -280,8 +280,6 @@ function renderLegend(){
       d.selected = !d.selected;
       chip.classList.toggle('active', d.selected);
 
-      // 기존: updateDonutProgressFromChips();
-      // ✅ 통일: 진행률 갱신
       updateChipProgress();
     });
     legendEl.appendChild(chip);
