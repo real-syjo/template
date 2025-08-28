@@ -181,6 +181,21 @@
 
 <script>
   
+// 부모 html (studio.html)의 <script> 어딘가(초반)에 추가
+// 부모 html (studio.html) - postMessage 수신부 교체
+window.addEventListener('message', (e) => {
+  const d = e?.data;
+  if (d?.type !== 'IFRAME_STEP_PROGRESS') return;
+  if (Number(d.stepIndex) !== 1) return;  // data-index="1"만 반영
+
+  const p = Number(d.percent) || 0;
+
+  // 0% = empty(기본), 1~99% = partial(회색), 100% = done(파랑)
+  blockStates[1] = (p >= 100) ? 'done' : (p > 0 ? 'partial' : 'empty');
+
+  renderGauge();
+});
+
 
 // iframe 로드 함수
 function loadIframeOnce1(url) {

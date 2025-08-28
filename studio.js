@@ -48,22 +48,21 @@ function updateDirectBtnVisibility() {
 }
 
 
-/* ===== 게이지 ===== */
 function renderGauge(){
   gaugeEl.innerHTML = '';
   steps.forEach((s,i)=>{
+    const state = blockStates[i];
     const div = document.createElement('div');
-    div.className = 'gblock'
-      + (i===currentStep ? ' active' : '')
-      + (blockStates[i]==='partial' ? ' partial' : '')
-      + (blockStates[i]==='done' ? ' done' : '');
+    div.className =
+      'gblock' +
+      (i===currentStep ? ' active' : '') +
+      (state==='empty'  ? ' empty'  : '') +
+      (state==='partial'? ' partial': '') +
+      (state==='done'   ? ' done'   : '');
     div.dataset.index = i;
     div.setAttribute('data-label', `${i+1}단계 · ${s.name}`);
-    div.title = `${i+1}단계 · ${s.name}`;
     gaugeEl.appendChild(div);
   });
-
-  // ▼ 여기서 버튼 가시성 갱신
   updateDirectBtnVisibility();
 }
 

@@ -181,24 +181,27 @@ document.getElementById('recommand')?.addEventListener('click', (e) => {
   updateProgressFromAskWraps();
 })();
 
-//   (() => {
-//   let __slideTimer = null;
+// 자식 html (studio1.html 같은 파일) 안의 updateChipProgress() 끝부분에 추가
+function updateChipProgress() {
+  const total = document.querySelectorAll('#legend .chip, .kw-chip').length;
+  const done  = document.querySelectorAll('#legend .chip.active, .kw-chip.active').length;
 
-//   // 안전장치: 페이지 숨김 시 일시정지(선택)
-//   function stopSlideShow() {
-//     clearInterval(__slideTimer);
-//     __slideTimer = null;
-//   }
-//   document.addEventListener('visibilitychange', () => {
-//     if (document.hidden) stopSlideShow();
-//   });
+  const percent = total ? Math.round((done / total) * 100) : 0;
 
-//   // 부모가 보내는 신호를 받은 뒤에만 시작
-//   window.addEventListener('message', (e) => {
-//     if (e?.data?.type === 'START_SLIDES') {
-//       window.startSlideShow(e.data.interval || 3000);
-//     }
-//   });
+  const fill  = document.getElementById('chipProgress');
+  const label = document.getElementById('chipPercent');
+
+  if (fill)  fill.style.width = percent + '%';
+  if (label) label.textContent = percent + '%';
+
+  // 부모(부모 탭의 게이지)에게 진행률 전달
+  window.parent?.postMessage({
+    type: 'IFRAME_STEP_PROGRESS',
+    stepIndex: 1,   // 부모의 data-index="1" 블록(전처리 단계)
+    percent
+  }, '*');
+}
+
 
   
 // })();

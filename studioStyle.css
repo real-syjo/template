@@ -639,7 +639,7 @@ tr:nth-child(even) td{ background:#fcfdff; }
 
 
 .card[data-step] { display: none; }
-.card[data-step].active { display: block;    height: 100vh;
+.card[data-step].active { display: block;    height: 100vh;}
 
   /* kw-chip tooltip */
 .kw-chip[data-tip] { position: relative; outline: none; }
@@ -892,4 +892,40 @@ iframe {
   transition: width 0.3s ease;
   border-radius: 999px;
   z-index: 1;
+}
+/* (기존) .gblock.active { background: blue; } 는 주석처리하거나 지우는 게 가장 좋음 */
+/* 지우기 어렵다면, 상태 클래스가 더 우선되도록 강하게 덮어쓰기 */
+
+.block-gauge .gblock.active.empty,
+.block-gauge .gblock.active.partial {
+  background-color: #cbd5e1 !important; /* 회색 */
+  border-color: #cbd5e1 !important;
+  color: #fff;
+}
+
+.block-gauge .gblock.active.done {
+  background-color: var(--accent, #2563eb) !important; /* 파란색 */
+  border-color: var(--accent, #2563eb) !important;
+  color: #fff;
+}
+
+/* 기본칸(0%) + 선택됨(active) → 흰 배경 + 파란 글씨 */
+.block-gauge .gblock.active:not(.partial):not(.done) {
+  background-color: #fff !important;
+  border-color: var(--bs-border-strong) !important;
+  color: var(--accent, #2563eb) !important;  /* 글씨 파란색 */
+}
+
+/* 1~99% (partial) → 회색 바탕 + 흰 글씨 */
+.block-gauge .gblock.active.partial {
+  background-color: #cbd5e1 !important;
+  border-color: #cbd5e1 !important;
+  color: #fff !important;
+}
+
+/* 100% (done) → 파란 바탕 + 흰 글씨 */
+.block-gauge .gblock.active.done {
+  background-color: var(--accent, #2563eb) !important;
+  border-color: var(--accent, #2563eb) !important;
+  color: #fff !important;
 }
