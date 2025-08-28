@@ -265,25 +265,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-function renderLegend(){
-  const legendEl = document.getElementById("legend");
-  if (!legendEl) return;
-  legendEl.innerHTML = '';
-
-  legendData.forEach((d)=>{
-    const chip = document.createElement('div');
-    chip.className = `chip ${d.selected ? 'active' : ''}`;
-    chip.textContent = d.label;
-    chip.addEventListener('click', ()=>{
-      d.selected = !d.selected;
-      chip.classList.toggle('active', d.selected);
-
-      updateChipProgress();
-    });
-    legendEl.appendChild(chip);
-  });
-}
-
 
 const ALT_SLIDE_TEXTS = [
   "데이터를 직접 선택하는 모드로 전환되었어요.",

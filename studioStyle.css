@@ -960,3 +960,60 @@ iframe {
   background:var(--accent, #4c8bf5);
   transition:width .25s ease;
 }
+/* legend 전체는 세로 스택 */
+.legend {
+  display: flex;
+  flex-direction: column;   /* chip 그룹 / kw-chip 그룹은 위아래로 쌓임 */
+  gap: 16px;                /* 두 그룹 사이 간격 */
+}
+
+/* chip 묶음은 가로정렬 */
+.legend-row {
+  display: flex;
+  flex-wrap: wrap;   /* 길면 줄바꿈 */
+  gap: 8px;
+}
+
+/* kw-chip 묶음도 가로정렬 */
+.legend-kw-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* chip */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f4f6fb;
+  color: darkslategray;
+  font-size: 14px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* kw-chip */
+.kw-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border: 1px solid #e4eaf3;
+  border-radius: 999px;
+  background: #f7f9fd;
+  color: #27364a;
+  font-size: 14px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.kw-chip .kw-chip-remove {
+  margin-left: 6px;
+  color: #666;
+  cursor: pointer;
+}
+.kw-chip .kw-chip-remove:hover {
+  color: red;
+}

@@ -123,42 +123,81 @@ function applyStateToCurrentBlock(){
   renderGauge();
 }
 
-/* ===== 추천DATA 칩 ===== */
-function renderLegend(){
+const KW_ITEMS = [
+  "데이터 기준 일자","시가","장중 최고가","장중 최저가","종가"
+];
+
+function renderLegend() {
   let legendEl = document.getElementById("legend");
+
   if (!legendEl) {
-    // 추천DATA 영역이 아직 없으면 만들어 줌(안 열어도 동작하도록 안전장치)
     const rc = document.getElementById("recommand");
-    if (rc) {
-      rc.innerHTML = `
-        <div class="collapse">
-          <button class="collapse__btn" id="c1-button" aria-expanded="true" aria-controls="c1-panel">
-            *추천DATA
-          </button>
-          <div class="collapse__content open" id="c1-panel" role="region" aria-labelledby="c1-button">
-            <div class="legend" id="legend"></div>
-            <div class="controls">
-              <button id="nextStep2">결정하기</button>
-            </div>
+    if (!rc) return;
+
+    rc.innerHTML = `
+      <div class="collapse">
+        <button class="collapse__btn" id="c1-button" aria-expanded="false" aria-controls="c1-panel">
+          *추천DATA
+        </button>
+        <div class="collapse__content" id="c1-panel" role="region" aria-labelledby="c1-button">
+          <div class="legend" id="legend"></div>
+          <div class="controls">
+            <button id="nextStep2">결정하기</button>
           </div>
-        </div>`;
-      legendEl = document.getElementById("legend");
-    } else {
-      return; // 추천 영역이 전혀 없다면 일단 종료
-    }
+        </div>
+      </div>`;
+    legendEl = document.getElementById("legend");
   }
 
-  legendEl.innerHTML = '';
-  legendData.forEach((d)=>{
-    const chip = document.createElement('div');
-    chip.className = `chip ${d.selected ? 'active' : ''}`;
-    chip.textContent = d.label;
-    legendEl.appendChild(chip);
-  });
+  // legend 비우기
+legendEl.innerHTML = "";
 
-  // 그려진 직후 진행률 1회 갱신
+// chip 그룹
+const chipRow = document.createElement("div");
+chipRow.className = "legend-row";
+legendData.forEach(d => {
+  const chip = document.createElement("div");
+  chip.className = `chip ${d.selected ? "active" : ""}`
+  chip.textContent = d.label;
+  chipRow.appendChild(chip);
+});
+legendEl.appendChild(chipRow);
+
+// kw-chip 그룹
+const kwRow = document.createElement("div");
+kwRow.className = "legend-kw-row";
+KW_ITEMS.forEach(k => {
+  const chip = document.createElement("div");
+  chip.className = "kw-chip";
+  chip.dataset.key = k;
+  chip.innerHTML = `${k}<button class="kw-chip-remove">×</button>`;
+  kwRow.appendChild(chip);
+});
+legendEl.appendChild(kwRow);
+
+
   updateChipProgress();
 }
+
+
+document.addEventListener('click', (e) => {
+  // 삭제 버튼 클릭
+  const rm = e.target.closest('.kw-chip-remove');
+  if (rm) {
+    rm.closest('.kw-chip')?.remove();
+    updateChipProgress();
+    return;
+  }
+
+  // kw-chip 클릭 → 선택 토글
+  const chip = e.target.closest('.kw-chip');
+  if (chip && !e.target.closest('.kw-chip-remove')) {
+    chip.classList.toggle('active');
+    updateChipProgress();
+  }
+});
+
+
 
 function upgradeAskWrapToCollapse(wrap){
   if (!wrap || wrap.querySelector('.collapse')) return;
@@ -198,25 +237,10 @@ function showSlides(n){
   if (slideIndex===total && autoTimer){ clearInterval(autoTimer); autoTimer=null; }
 
   if (!recommandInserted && slideIndex === total) {
-    const rc = document.getElementById("recommand");
-    if (rc) {
-      rc.innerHTML = `
-        <div class="collapse">
-          <button class="collapse__btn" id="c1-button" aria-expanded="false" aria-controls="c1-panel">
-            *추천DATA
-          </button>
-          <div class="collapse__content" id="c1-panel" role="region" aria-labelledby="c1-button">
-            <div class="legend" id="legend"></div>
-            <div class="controls">
-              <button id="nextStep2">결정하기</button>
-            </div>
-          </div>
-        </div>`;
-      renderLegend();
-      // 버튼: 칩만 반영
 
+      renderLegend();
       recommandInserted = true;
-    }
+    
   }
 }
 showSlides(slideIndex);
@@ -528,25 +552,19 @@ document.addEventListener('click', (e) => {
   panel?.classList.toggle('open', willOpen);
 
   if (willOpen) {
-    // (기존 로직 그대로 유지)
-    document.querySelectorAll('#selectDataGroup.show, #selectDataGroup .show')
-      .forEach(el => el.classList.remove('show'));
-    freezeExcelBar = true;
-    const barOpen = document.querySelector('.excel-bar');
-    if (barOpen) {
-      barOpen.classList.remove('show');
-      barOpen.querySelector('#excelConfirm')?.setAttribute('disabled', '');
-    }
-    legendData.forEach(d => d.selected = true);
-    renderLegend();
-    updateDonutProgressFromChips();
+        legendData.forEach(d => d.selected = true);
+      renderLegend();
 
-    // ✅ 추가: 패널 열림 시 슬라이드 문구 변경 + 리셋/자동재생
-    if (typeof setSlideTexts === 'function') {
-      setSlideTexts(SLIDE_TEXTS_COLLAPSE_OPEN);
-      resetSlidesAutoplayToFirst();
-    }
+      document.querySelectorAll('#legend .chip, #legend .kw-chip')
+        .forEach(el => el.classList.add('active'));
 
+      const fill  = document.getElementById('chipProgress');
+      const label = document.getElementById('chipPercent');
+      if (fill)  fill.style.width = '80%';
+      if (label) label.textContent = '80%';
+
+      blockStates[currentStep] = 'partial';
+      renderGauge();
   } else {
     // (기존 닫힘 로직 그대로)
     freezeExcelBar = false;
