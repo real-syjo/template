@@ -91,18 +91,16 @@
                 <!-- 하단: 도넛 + 범례 -->
                 <div class="card"  data-step="0">
                   <div class="main">
-                    <div class="box" id="donutBox">
-                      <h2 id="stepTitle">1단계</h2>
-                      <svg id="donut" viewBox="0 0 240 240" aria-label="도넛차트">
-                        <circle cx="120" cy="120" r="84" fill="none" stroke="#eef1f5" stroke-width="24"/>
-                        <g id="segments" transform="rotate(-90 120 120)"></g>
-                        <g>
-                          <text x="120" y="110" class="centerText muted" font-size="12">완료</text>
-                          <text id="centerMain" x="120" y="130" class="centerText">0 / 5</text>
-                        </g>
-                      </svg>
-                      <div class="hint">• 블록을 누르면 해당 단계로 전환되며 도넛은 초기화됩니다. 일부 선택=회색, 전부 선택=파란색.</div>
+                    <div class="box" id="progressBox">
+                      <div class="progress">
+                        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                          <div class="fill" id="chipProgress"></div>
+                          
+                        </div>
+                        <div class="percent" id="chipPercent">0%</div>
+                      </div>
                     </div>
+
                     <div class="box" id="box">
                         <div class="slideshow-container">
                           <div class="slide">
@@ -254,84 +252,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+function renderLegend(){
+  const legendEl = document.getElementById("legend");
+  if (!legendEl) return;
+  legendEl.innerHTML = '';
 
+  legendData.forEach((d)=>{
+    const chip = document.createElement('div');
+    chip.className = `chip ${d.selected ? 'active' : ''}`;
+    chip.textContent = d.label;
+    chip.addEventListener('click', ()=>{
+      d.selected = !d.selected;
+      chip.classList.toggle('active', d.selected);
 
-// ===== #signup3 폼 ↔ 도넛 연동 (폼이 들어있는 카드 안의 도넛만 다시 그림) =====
-(function bindDonutToSignup3(){
-  const form = document.getElementById('signup3');
-  if (!form) return;
-
-  // 폼이 들어있는 카드 컨테이너 기준으로 도넛 요소 찾기(중복 ID 안전)
-  const container   = form.closest('.card[data-step]') || document;
-  const segGroup    = container.querySelector('#segments');
-  const centerMain  = container.querySelector('#centerMain');
-  const stepTitleEl = container.querySelector('#stepTitle');
-
-  // (전역 cfg가 없을 때 대비한 기본값)
-  const cfgLocal = window.cfg || {
-    cx:120, cy:120, r:84, width:24, gapDeg:4,
-    colorOn: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#2b6fff',
-    colorOff: getComputedStyle(document.documentElement).getPropertyValue('--base').trim() || '#eef1f5'
-  };
-
-  const toRad  = d => d * Math.PI / 180;
-  const polar  = (cx,cy,r,a)=>({ x: cx + r*Math.cos(toRad(a)), y: cy + r*Math.sin(toRad(a)) });
-  const arcPath = (cx,cy,r,start,end)=>{
-    const s = polar(cx,cy,r,start), e = polar(cx,cy,r,end);
-    const large = ((end-start)%360) > 180 ? 1 : 0;
-    return `M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 1 ${e.x} ${e.y}`;
-  };
-
-  const fields = Array.from(form.querySelectorAll('input, select, textarea'))
-    .filter(el => !el.disabled && el.type !== 'hidden');
-
-  const isFilled = (el) => {
-    if (el.type === 'checkbox' || el.type === 'radio') return el.checked;
-    if (el.type === 'file') return (el.files?.length || 0) > 0;
-    return (el.value || '').trim().length > 0;
-  };
-
-  function repaint(filled, total){
-    if (!segGroup || !centerMain) return;
-    segGroup.innerHTML = '';
-
-    const gaps = cfgLocal.gapDeg * total;
-    let cur = 0;
-    for (let i=0; i<total; i++){
-      const selected = i < filled;
-      const sweep = (1/total) * (360 - gaps);
-      const start = cur, end = cur + sweep; cur = end + cfgLocal.gapDeg;
-
-      const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-      path.setAttribute('d', arcPath(cfgLocal.cx,cfgLocal.cy,cfgLocal.r,start,end));
-      path.setAttribute('fill','none');
-      path.setAttribute('stroke', selected ? cfgLocal.colorOn : cfgLocal.colorOff);
-      path.setAttribute('stroke-width', cfgLocal.width);
-      path.setAttribute('stroke-linecap','round');
-      segGroup.appendChild(path);
-    }
-
-    centerMain.textContent = `${filled} / ${total}`;
-    if (stepTitleEl) {
-      const stepIdx = Number(container.dataset.step || 0);
-      const stepName = (window.steps && window.steps[stepIdx]?.name) || '';
-      stepTitleEl.textContent = `${stepIdx + 1}단계 · ${stepName}`;
-    }
-  }
-
-  function update(){
-    const total  = fields.length;
-    const filled = fields.reduce((n, el) => n + (isFilled(el) ? 1 : 0), 0);
-    repaint(filled, total);
-  }
-
-  fields.forEach(el => el.addEventListener('input',  update));
-  fields.forEach(el => el.addEventListener('change', update));
-
-  // 초기 1회 갱신
-  update();
-})();
-
+      // 기존: updateDonutProgressFromChips();
+      // ✅ 통일: 진행률 갱신
+      updateChipProgress();
+    });
+    legendEl.appendChild(chip);
+  });
+}
 
 
 const ALT_SLIDE_TEXTS = [
@@ -368,5 +308,49 @@ function setSlideTexts(texts) {
     }
   });
 })();
+
+
+// ✅ 진행률 바 업데이트 함수
+// ✅ 칩 개수 기반 진행률 (추천DATA .chip + KW 시트 .kw-chip)
+function updateChipProgress() {
+  const total = document.querySelectorAll('#legend .chip, .kw-chip').length;
+  const done  = document.querySelectorAll('#legend .chip.active, .kw-chip.active').length;
+
+  const percent = total ? Math.round((done / total) * 100) : 0;
+
+  const fill  = document.getElementById('chipProgress');
+  const label = document.getElementById('chipPercent');
+
+  if (fill)  fill.style.width = percent + '%';
+  if (label) label.textContent = percent + '%';
+
+  // (선택) 상단 단계 게이지 색 업데이트가 필요하면 유지
+  if (typeof renderGauge === 'function' && typeof currentStep !== 'undefined') {
+    blockStates[currentStep] = (done===0) ? 'empty' : (done<total ? 'partial' : 'done');
+    renderGauge();
+  }
+}
+
+
+// ✅ 칩 선택 시 프로그래스바 갱신하도록 수정
+function updateDonutProgressFromChips(){
+  updateChipProgress();
+}
+
+
+// 추천DATA 칩 토글(위임)
+document.addEventListener('click', (e)=>{
+  const chip = e.target.closest('#legend .chip');
+  if (!chip) return;
+
+  const label = chip.textContent.trim();
+  const item  = legendData.find(d => d.label === label);
+  if (!item) return;
+
+  item.selected = !item.selected;
+  chip.classList.toggle('active', item.selected);
+
+  updateChipProgress();   // ✅ 진행률 갱신
+});
 
 </script>

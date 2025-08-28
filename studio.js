@@ -110,35 +110,10 @@ function updateDonutProgressFromChips(){
   donutData = Array.from({length: chipTotal}, (_, i) => ({
     label:'', value:1, selected: i < chipDone
   }));
-  drawDonut();
+ 
 }
 
-function drawDonut(){
-  segGroup.innerHTML = '';
-  stepTitle.textContent = `${currentStep+1}단계 · ${steps[currentStep].name}`;
 
-  const total = donutData.length;
-  const gaps  = cfg.gapDeg * total;
-  let cur = 0;
-
-  donutData.forEach((d)=>{
-    const sweep = (d.value/total) * (360 - gaps);
-    const start = cur, end = cur + sweep; cur = end + cfg.gapDeg;
-
-    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-    path.setAttribute('d', arcPath(cfg.cx,cfg.cy,cfg.r,start,end));
-    path.setAttribute('fill','none');
-    path.setAttribute('stroke', d.selected ? cfg.colorOn : cfg.colorOff);
-    path.setAttribute('stroke-width', cfg.width);
-    path.setAttribute('stroke-linecap','round');
-    path.classList.add('seg');
-    // 도넛 클릭 반응 제거(칩만 반영)
-    // path.addEventListener('click', ()=>{});
-    segGroup.appendChild(path);
-  });
-
-  applyStateToCurrentBlock();
-}
 
 // 중앙 표시는 '칩'만, 상단 게이지 색상은 도넛 진행도 기준
 function applyStateToCurrentBlock(){
@@ -154,22 +129,41 @@ function applyStateToCurrentBlock(){
 
 /* ===== 추천DATA 칩 ===== */
 function renderLegend(){
-  const legendEl = document.getElementById("legend");
-  if (!legendEl) return;
-  legendEl.innerHTML = '';
+  let legendEl = document.getElementById("legend");
+  if (!legendEl) {
+    // 추천DATA 영역이 아직 없으면 만들어 줌(안 열어도 동작하도록 안전장치)
+    const rc = document.getElementById("recommand");
+    if (rc) {
+      rc.innerHTML = `
+        <div class="collapse">
+          <button class="collapse__btn" id="c1-button" aria-expanded="true" aria-controls="c1-panel">
+            *추천DATA
+          </button>
+          <div class="collapse__content open" id="c1-panel" role="region" aria-labelledby="c1-button">
+            <div class="legend" id="legend"></div>
+            <div class="controls">
+              <button id="nextStep2">결정하기</button>
+            </div>
+          </div>
+        </div>`;
+      legendEl = document.getElementById("legend");
+    } else {
+      return; // 추천 영역이 전혀 없다면 일단 종료
+    }
+  }
 
+  legendEl.innerHTML = '';
   legendData.forEach((d)=>{
     const chip = document.createElement('div');
     chip.className = `chip ${d.selected ? 'active' : ''}`;
     chip.textContent = d.label;
-    chip.addEventListener('click', ()=>{
-      d.selected = !d.selected;
-      chip.classList.toggle('active', d.selected);
-      updateDonutProgressFromChips();
-    });
     legendEl.appendChild(chip);
   });
+
+  // 그려진 직후 진행률 1회 갱신
+  updateChipProgress();
 }
+
 function upgradeAskWrapToCollapse(wrap){
   if (!wrap || wrap.querySelector('.collapse')) return;
   const title = wrap.querySelector('.ask-title')?.textContent?.trim() || '*항목';
@@ -267,6 +261,7 @@ document.getElementById('selectDataGroup')?.addEventListener('click', (e)=>{
 
     renderSelectedRow(boxKey);
     updateExcelButton();
+    updateChipProgress();
     return;
   }
 
@@ -304,6 +299,7 @@ document.getElementById('selectDataGroup')?.addEventListener('click', (e)=>{
 
     renderSelectedRow(boxKey);
     updateExcelButton();
+    updateChipProgress();
     return;
   }
 
@@ -459,6 +455,7 @@ const KW_TOOLTIPS = {
   requestAnimationFrame(()=> selectGroup.classList.add('show'));
   syncSheetChips();
   updateExcelButton();
+  updateChipProgress();
 }
 
 /* ===== KW 상태 ===== */

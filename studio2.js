@@ -108,35 +108,9 @@ function updateDonutProgressFromChips(){
   donutData = Array.from({length: chipTotal}, (_, i) => ({
     label:'', value:1, selected: i < chipDone
   }));
-  drawDonut();
+
 }
 
-function drawDonut(){
-  segGroup.innerHTML = '';
-  stepTitle.textContent = `3단계 · ${steps[currentStep].name}`;
-
-  const total = donutData.length;
-  const gaps  = cfg.gapDeg * total;
-  let cur = 0;
-
-  donutData.forEach((d)=>{
-    const sweep = (d.value/total) * (360 - gaps);
-    const start = cur, end = cur + sweep; cur = end + cfg.gapDeg;
-
-    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-    path.setAttribute('d', arcPath(cfg.cx,cfg.cy,cfg.r,start,end));
-    path.setAttribute('fill','none');
-    path.setAttribute('stroke', d.selected ? cfg.colorOn : cfg.colorOff);
-    path.setAttribute('stroke-width', cfg.width);
-    path.setAttribute('stroke-linecap','round');
-    path.classList.add('seg');
-    // 도넛 클릭 반응 제거(칩만 반영)
-    // path.addEventListener('click', ()=>{});
-    segGroup.appendChild(path);
-  });
-
-  applyStateToCurrentBlock();
-}
 
 // 중앙 표시는 '칩'만, 상단 게이지 색상은 도넛 진행도 기준
 function applyStateToCurrentBlock(){

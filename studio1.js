@@ -126,37 +126,7 @@ function updateDonutProgressFromChips(){
     selected: d.selected
   }));
 
-  drawDonut();
-}
-function drawDonut() {
-  segGroup.innerHTML = '';
 
-  const total = donutData.length;   // ✅ 항상 ask-wrap 개수 기준
-  if (total === 0) {
-    centerMain.textContent = "0 / 0";
-    return;
-  }
-
-  const gaps  = cfg.gapDeg * total;
-  let cur = 0;
-
-  donutData.forEach((d) => {
-    const sweep = (1 / total) * (360 - gaps); // ✅ 균등 분할
-    const start = cur, end = cur + sweep; 
-    cur = end + cfg.gapDeg;
-
-    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-    path.setAttribute('d', arcPath(cfg.cx, cfg.cy, cfg.r, start, end));
-    path.setAttribute('fill', 'none');
-    path.setAttribute('stroke', d.selected ? cfg.colorOn : cfg.colorOff);
-    path.setAttribute('stroke-width', cfg.width);
-    path.setAttribute('stroke-linecap', 'round');
-    segGroup.appendChild(path);
-  });
-
-  // 중앙 값 표시
-  const chipDone  = donutData.filter(d => d.selected).length;
-  centerMain.textContent = `${chipDone} / ${total}`;
 }
 
 
@@ -186,11 +156,15 @@ function renderLegend(){
     chip.addEventListener('click', ()=>{
       d.selected = !d.selected;
       chip.classList.toggle('active', d.selected);
-      updateDonutProgressFromChips();
+
+      // 기존: updateDonutProgressFromChips();
+      // ✅ 통일: 진행률 갱신
+      updateChipProgress();
     });
     legendEl.appendChild(chip);
   });
 }
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1426,7 +1400,7 @@ donutData = legendData.map(d => ({
   selected: d.selected 
 }));
 
-drawDonut();
+
 }
 
 

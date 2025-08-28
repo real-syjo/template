@@ -8,6 +8,9 @@
   --nav-h: 64px;  /* 고정 네비 대략 높이 */
   --top-pad: 40px;/* #home 상단 패딩 */
   --bottom-gap: 24px; /* 여유 하단 간격 */
+
+    --progress-fill: #2563eb;  /* 신뢰감 블루(높은 대비, 접근성 우수) */
+  --progress-bg:   #eef2f7;
   /* Color */
   --color-white:#ffffff;
   --color-light-white:#eeeeee;
@@ -264,8 +267,7 @@ body.overlay-open{ overflow:hidden; }
 .apply{ color:var(--primary); text-decoration:none; font-weight:400; margin-left:8px; }
 
 /* ========== Donut / Legend (공통) ========== */
-#box{ padding:18px; }
-#donutBox{ width:67%; margin:17% 0 16% 8%; }
+
 .block-gauge{ display:flex; gap:12px; padding:14px 18px 8px; position:relative; z-index:5; }
 .gblock{
   flex:1 1 0; height:30px; cursor:pointer; position:relative;
@@ -284,8 +286,12 @@ body.overlay-open{ overflow:hidden; }
   color:#fff; background:var(--accent); border-color:#0b3d56; box-shadow:inset 0 -2px 0 rgba(0,0,0,.35);
 }
 
-.main{ 
-  display:grid; grid-template-columns:380px 1fr; padding:0 22px 22px; }
+.main {
+  display: flex;             /* grid → flex */
+  flex-direction: column;    /* 세로 정렬 */
+  gap: 20px;                 /* 박스 사이 간격 */
+  padding: 0 22px 22px;
+}
 
   .main:where(*) { } /* no-op: 우선순위 트릭 방지 */
 .your-panel, .your-panel .wrap,
@@ -293,17 +299,12 @@ body.overlay-open{ overflow:hidden; }
   min-height: 0; /* flex/grid 부모에서 자식 스크롤 되게 하는 필수 값 */
 }
 
-
-
-svg{ display:block; width:100%; height:auto; }
-.centerText{ font-weight:400; font-size:18px; text-anchor:middle; dominant-baseline:middle; }
-.muted{ fill:#8b93a1; }
-.seg{ cursor:pointer; transition:opacity .15s ease, stroke .15s ease; }
-.seg:hover{ opacity:.9; }
-.seg:focus{ outline:none; }
-.seg:focus-visible{ filter:drop-shadow(0 0 .6rem rgba(10,111,176,.5)); }
-
-.legend{ display:flex; flex-wrap:wrap; gap:10px; align-content:flex-start; }
+.legend{ 
+  display:flex; 
+  flex-wrap:wrap; 
+  gap:10px; 
+  align-content:flex-start; 
+}
 
 /* ========== Article Hover Overlay ========== */
 article{ position:relative; overflow:hidden; }
@@ -322,7 +323,7 @@ article:hover{ border-color:rgba(255,255,255,0.5); }
 }
 .slide{
   font-size:x-large; display:none; width:100%; height:100%; font-weight:700;
-  margin:3% 0; position:absolute; color: var(--color-grey);
+  margin:2% 0; position:absolute; color: var(--color-grey);
 }
 .slide img{ width:100%; height:100%; object-fit:cover; }
 .prev,.next{
@@ -1073,4 +1074,60 @@ body.modal-open .your-panel .wrap { pointer-events: none; }
 #btnGroup .btn {
   min-width: 100px;          /* 버튼 너비 */
   padding: 8px 16px;
+}
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.bar {
+  position: relative;
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: #eee;
+  overflow: hidden;
+}
+
+.bar > .fill {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 0%;
+  background: var(--accent, #2b6fff);
+  transition: width 0.3s ease;
+  border-radius: 999px;
+}
+
+.percent {
+  min-width: 40px;
+  font-size: 14px;
+  color: #333;
+}
+.progress {
+  position: relative;
+  height: 12px;
+  background: #eee;
+  border-radius: 999px;
+  margin: 30px 0;
+}
+
+.progress .bar {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--progress-bg);
+}
+
+.progress .fill {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 0%;
+  background: var(--accent);
+  transition: width 0.3s ease;
+  border-radius: 999px;
+  z-index: 1;
 }
