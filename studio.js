@@ -480,7 +480,6 @@ const KW_TOOLTIPS = {
   updateChipProgress();
   applyOverlayProgress();
 }
-
 /* ===== KW 상태 ===== */
 const selectedKeywords = { A:new Set(), B:new Set() };
 
@@ -497,7 +496,6 @@ function renderSelectedRow(boxKey){
   `);
   row.innerHTML = tags.join('');
 }
-
 function syncSheetChips(){
   const group = document.getElementById('selectDataGroup');
   ['A','B'].forEach(k=>{

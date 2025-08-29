@@ -49,7 +49,6 @@ function updateDirectBtnVisibility() {
   if (btn) btn.style.display = hasActiveFirst ? '' : 'none'; // 없으면 숨김
 }
 
-
 /* ===== 게이지 ===== */
 // function renderGauge(){
 //   // gaugeEl.innerHTML = '';

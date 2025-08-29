@@ -951,8 +951,6 @@ function addAskWrap(title, content, idx){
   updateChoiceBtnByAskCount();
 }
 
-
-
 // 예: "기간은 [[days=21]]일 입니다." → 중간에 <input ...>
 function compileInlineInputs(text){
   // [[key=기본값]]  또는 [[key]] 패턴

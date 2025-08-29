@@ -615,6 +615,7 @@ tr:nth-child(even) td{ background:#fcfdff; }
   box-shadow:0 .4rem .9rem rgba(43,124,255,.15);
 }
 
+
 /* 레전드 칩 */
 .legend .chip.active{ background:var(--accent); border-color:var(--accent); color:#fff; }
 
