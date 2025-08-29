@@ -342,8 +342,7 @@ function updateChipProgress() {
   // 열린 collapse 안에서만 집계
   const panel = document.querySelector('.collapse__content.open');
   if (!panel) {
-    fill.style.width = '0%';
-    label.textContent = '0%';
+    applyOverlayProgress(); // 닫혀있으면 legend=0으로 처리
     return;
   }
 
@@ -358,16 +357,7 @@ function updateChipProgress() {
   let percent = 0;
   if (total > 0) percent = Math.round((done / total) * 80); // 0~80%
 
-  // 렌더
-  fill.style.width = percent + '%';
-  label.textContent = percent + '%';
-
-  // 게이지 색
-  if (typeof renderGauge === 'function' && typeof currentStep !== 'undefined') {
-    blockStates[currentStep] =
-      percent === 0 ? 'empty' : (percent < 80 ? 'partial' : 'done');
-    renderGauge();
-  }
+ applyOverlayProgress();
 }
 
 
@@ -467,7 +457,7 @@ function setProgressPercent(percent){
 
     // ✅ 슬라이드 문구 교체
     const CONFIRM_SLIDE_TEXTS = [
-      "다음 단계로 이동합니다. 준비되셨나요?"
+      "다음 단계로 이동합니다."
     ];
     if (typeof setSlideTexts === 'function') {
       setSlideTexts(CONFIRM_SLIDE_TEXTS);
@@ -496,12 +486,14 @@ function clampProgressFloor() {
 
 // 1) dataTicker 클릭 시 60% 고정 + 바닥값 60
 document.getElementById('dataTicker')?.addEventListener('click', () => {
-  progressFloor = 60;
-  setProgressPercent(60);
+  progressFloor = 60;       // 바닥 60
+ groupBonusEnabled = true; // A/B 보너스 활성화
+ applyOverlayProgress(); 
 });
 
 // 2) selected-row에 tag가 하나라도 생기면 바닥값 80으로 올림
 function bumpTo80IfAnyTagSelected() {
+  if (currentStep === 0) return; // 데이터 선택 단계에서는 바닥 안 올림
   const rows = document.querySelectorAll('#selectDataGroup .selected-row');
   const anyHasTag = Array.from(rows).some(r => r.querySelector('.tag'));
   if (anyHasTag) progressFloor = Math.max(progressFloor, 80);
@@ -521,4 +513,54 @@ document.getElementById('selectDataGroup')?.addEventListener('click', (e) => {
 document.getElementById('directBtn')?.addEventListener('click', () => {
   progressFloor = 0;
 });
+
+// === overlay: legend 계산(0~80%)은 유지하고, 화면 표시만 덮어쓰기 ===
+let groupBonusEnabled = false; // dataTicker 전에는 A/B 보너스 OFF
+
+// legend(추천DATA) 퍼센트만 분리 계산: 열렸을 때만 0~80%
+function computeLegendPercent(){
+  const panel = document.querySelector('.collapse__content.open');
+  if (!panel) return 0;
+  const all  = panel.querySelectorAll('#legend .chip, #legend .kw-chip');
+  const on   = panel.querySelectorAll('#legend .chip.active, #legend .kw-chip.active');
+  const total = all.length, done = on.length;
+  return total ? Math.round((done/total) * 80) : 0;
+}
+
+// A/B 그룹 중 'kw-chip.active'가 하나 이상 있는 그룹당 +10
+function getSelectGroupBonus(){
+  const root = document.getElementById('selectDataGroup');
+  if (!root) return 0;
+  let bonus = 0;
+  root.querySelectorAll('.sel-group[data-box]').forEach(g=>{
+    if (g.querySelector('.kw-chip.active')) bonus += 10;
+  });
+  return bonus; // 0, 10, 20 ...
+}
+
+// 최종 표시치 = max(legend%, progressFloor + A/B보너스)
+function applyOverlayProgress(){
+  const fill  = document.getElementById('chipProgress');
+  const label = document.getElementById('chipPercent');
+
+  const legendPercent = computeLegendPercent(); // 0~80 (열렸고 전부 active면 80)
+  const base = Math.max(legendPercent, progressFloor || 0);
+
+  const overlay = (groupBonusEnabled && currentStep === 0)
+    ? Math.max(legendPercent, progressFloor + getSelectGroupBonus())
+    : base;
+
+  // step0에서는 0~80까지만 표시(100%는 '결정하기' 버튼이 별도로 올림)
+  const finalPercent = (currentStep === 0) ? Math.min(overlay, 80) : overlay;
+
+  if (fill)  fill.style.width = finalPercent + '%';
+  if (label) label.textContent = finalPercent + '%';
+
+  if (typeof renderGauge === 'function') {
+    blockStates[currentStep] =
+      finalPercent === 0 ? 'empty' : (finalPercent < 100 ? 'partial' : 'done');
+    renderGauge();
+  }
+}
+
 </script>

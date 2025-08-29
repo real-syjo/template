@@ -182,7 +182,7 @@ legendEl.appendChild(kwRow);
 
 document.addEventListener('click', (e) => {
   // 삭제 버튼 클릭
-  const rm = e.target.closest('.kw-chip-remove');
+  const rm = e.target.closest('#legend .kw-chip-remove'); // legend 안에서만 삭제
   if (rm) {
     rm.closest('.kw-chip')?.remove();
     updateChipProgress();
@@ -190,7 +190,7 @@ document.addEventListener('click', (e) => {
   }
 
   // kw-chip 클릭 → 선택 토글
-  const chip = e.target.closest('.kw-chip');
+  const chip = e.target.closest('#legend .kw-chip'); // legend 안에서만 토글
   if (chip && !e.target.closest('.kw-chip-remove')) {
     chip.classList.toggle('active');
     updateChipProgress();
@@ -281,7 +281,8 @@ document.getElementById('selectDataGroup')?.addEventListener('click', (e)=>{
 
     renderSelectedRow(boxKey);
     updateExcelButton();
-    updateChipProgress();
+     updateChipProgress();    // legend 쪽 갱신(변화 없을 수 있음)
+     applyOverlayProgress(); 
     return;
   }
 
@@ -319,7 +320,8 @@ document.getElementById('selectDataGroup')?.addEventListener('click', (e)=>{
 
     renderSelectedRow(boxKey);
     updateExcelButton();
-    updateChipProgress();
+     updateChipProgress();    // legend 쪽 갱신(변화 없을 수 있음)
+   applyOverlayProgress(); 
     return;
   }
 
@@ -476,6 +478,7 @@ const KW_TOOLTIPS = {
   syncSheetChips();
   updateExcelButton();
   updateChipProgress();
+  applyOverlayProgress();
 }
 
 /* ===== KW 상태 ===== */
@@ -552,13 +555,11 @@ document.addEventListener('click', (e) => {
   panel?.classList.toggle('open', willOpen);
 
   if (willOpen) {
-        legendData.forEach(d => d.selected = true);
+      legendData.forEach(d => d.selected = true);
       renderLegend();
-
-      document.querySelectorAll('#legend .chip, #legend')
-        .forEach(el => el.classList.add('active'));
-
-      updateChipProgress();;
+      document.querySelectorAll('#legend .chip, #legend .kw-chip')
+        .forEach(el => el.classList.add('active')); // legend만
+      updateChipProgress(); // => legend 80%가 되어도 overlay에서 조합됨;
   } else {
     // (기존 닫힘 로직 그대로)
     freezeExcelBar = false;
