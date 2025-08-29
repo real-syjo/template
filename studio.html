@@ -211,6 +211,33 @@ document.addEventListener('click', (e) => {
     loadIframeOnce1('studio1.html');
   }
 });
+
+// ⛔ 기존 '#nextStep2' 클릭 핸들러는 제거/교체하세요.
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('#nextStep2');
+  if (!btn) return;
+
+  e.preventDefault();
+
+  // 1) 프로그래스바 100%
+  const fill  = document.getElementById('chipProgress');
+  const label = document.getElementById('chipPercent');
+  if (fill)  fill.style.width = '100%';
+  if (label) label.textContent = '100%';
+
+  // (선택) 단계 게이지도 완료로 표시
+  if (typeof currentStep !== 'undefined') {
+    blockStates[currentStep] = 'done';
+    if (typeof renderGauge === 'function') renderGauge();
+  }
+
+  // 2) 2초 뒤 페이지 이동
+  setTimeout(() => {
+    window.location.href = 'studio.html?step=2';
+    // 만약 파라미터를 'step2'로 쓰고 싶다면 위 줄을 'studio.html?step2'로 변경
+  }, 1000);
+});
+
 // nextStep2 버튼 클릭 시
 // gblock 클릭 시 iframe 로드
 document.addEventListener('click', (e) => {

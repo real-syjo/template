@@ -731,28 +731,3 @@ if (excelTickerEl) {
   });
 }
 
-
-// ▼ 추천DATA의 "결정하기" 클릭 → 2단계 페이지로 이동
-document.addEventListener('click', (e) => {
-  const go = e.target.closest('#nextStep2');
-  if (!go) return;
-  e.preventDefault();
-
-  // 기존 단계 전환 로직 재사용
-  if (typeof selectBlock === 'function') {
-    selectBlock(1); // data-step="1" (2단계)
-  } else {
-    // 혹시 selectBlock이 없으면 직접 처리
-    currentStep = 1;
-    blockStates[1] = 'empty';
-    initDonutForStep(1);
-    renderGauge();
-    showPage(1);
-  }
-
-  // 선택: 추천 패널 닫기(접힘 상태 동기화)
-  const panel = document.getElementById('c1-panel');
-  const btn   = document.getElementById('c1-button');
-  if (panel) panel.classList.remove('open');
-  if (btn)   btn.setAttribute('aria-expanded', 'false');
-});
