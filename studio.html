@@ -231,6 +231,23 @@ document.addEventListener('click', (e) => {
     if (typeof renderGauge === 'function') renderGauge();
   }
 
+// 🔹 간단 추가: 슬라이드에 안내 문구 보여주기
+  const NEXT_STEP2_TEXTS = [
+    "다음 단계로 이동합니다."
+  ];
+  if (typeof setSlideTexts === 'function') {
+    setSlideTexts(NEXT_STEP2_TEXTS);   // 문구 반영
+  } else {
+    // setSlideTexts가 없으면 최소한의 대체 적용
+    const slides = document.querySelectorAll('.slideshow-container .slide');
+    slides.forEach((el, i) => el && (el.textContent = NEXT_STEP2_TEXTS[i] || el.textContent));
+  }
+  if (typeof currentSlide === 'function') currentSlide(1); // 첫 슬라이드로 이동
+  // (옵션) 자동재생 유지 원하면 아래 3줄 추가
+  if (typeof autoTimer !== 'undefined') {
+    try { if (autoTimer) clearInterval(autoTimer); autoTimer = setInterval(() => plusSlides(1), 3000); } catch (_) {}
+  }
+
   // 2) 2초 뒤 페이지 이동
   setTimeout(() => {
     window.location.href = 'studio.html?step=1';
