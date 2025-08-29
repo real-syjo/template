@@ -329,37 +329,46 @@ function setSlideTexts(texts) {
 })();
 
 
+
+
 // ✅ 진행률 바 업데이트 함수
 // ✅ 칩 개수 기반 진행률 (추천DATA .chip + KW 시트 .kw-chip)
+// --- REPLACE (progress 계산 0~80%) ---
 function updateChipProgress() {
-  const legend = document.getElementById('legend');
-  if (!legend) return;
-
-  // ✅ legend 내부만 집계 (콤마 셀렉터 버그 수정)
-  const chipsAll   = legend.querySelectorAll('.chip, .kw-chip');
-  const chipsOn    = legend.querySelectorAll('.chip.active, .kw-chip.active');
-
-  const total = chipsAll.length;
-  const done  = chipsOn.length;
-
-  // ✅ 모두 active여도 80% (선형 감소)
-  const percent = total ? Math.round((done / total) * 80) : 0;
-
   const fill  = document.getElementById('chipProgress');
   const label = document.getElementById('chipPercent');
-  if (fill)  fill.style.width = percent + '%';
-  if (label) label.textContent = percent + '%';
+  if (!fill || !label) return;
 
-  // ✅ 게이지 색상은 '선택 개수'로 판정
+  // 열린 collapse 안에서만 집계
+  const panel = document.querySelector('.collapse__content.open');
+  if (!panel) {
+    fill.style.width = '0%';
+    label.textContent = '0%';
+    return;
+  }
+
+  const chipsAll = panel.querySelectorAll('#legend .chip');
+  const kwAll    = panel.querySelectorAll('#legend .kw-chip');
+  const chipsOn  = panel.querySelectorAll('#legend .chip.active');
+  const kwOn     = panel.querySelectorAll('#legend .kw-chip.active');
+
+  const total = chipsAll.length + kwAll.length;   // 예: 4 + 5 = 9
+  const done  = chipsOn.length + kwOn.length;
+
+  let percent = 0;
+  if (total > 0) percent = Math.round((done / total) * 80); // 0~80%
+
+  // 렌더
+  fill.style.width = percent + '%';
+  label.textContent = percent + '%';
+
+  // 게이지 색
   if (typeof renderGauge === 'function' && typeof currentStep !== 'undefined') {
     blockStates[currentStep] =
-      (done === 0)      ? 'empty'  :
-      (done < total)    ? 'partial': 
-                          'done';
+      percent === 0 ? 'empty' : (percent < 80 ? 'partial' : 'done');
     renderGauge();
   }
 }
-
 
 
 // ✅ 칩 선택 시 프로그래스바 갱신하도록 수정
@@ -382,5 +391,124 @@ document.addEventListener('click', (e)=>{
 
   updateChipProgress();   // ✅ 진행률 갱신
 });
+// 1) 공용: 프로그래스바 % 설정 헬퍼
+function setProgressPercent(percent){
+  const fill  = document.getElementById('chipProgress');
+  const label = document.getElementById('chipPercent');
+  const p = Math.max(0, Math.min(100, Math.round(percent)));
+  if (fill)  fill.style.width = p + '%';
+  if (label) label.textContent = p + '%';
 
+  // 게이지 상태도 함께 갱신
+  if (typeof currentStep !== 'undefined') {
+    blockStates[currentStep] = (p === 0) ? 'empty' : (p < 80 ? 'partial' : 'done');
+    if (typeof renderGauge === 'function') renderGauge();
+  }
+}
+
+// 2) dataTicker 클릭 시 60%로 고정
+(function attachDataTickerProgress(){
+  const el = document.getElementById('dataTicker');
+  if (!el) return;
+  el.addEventListener('click', () => {
+    // buildSelectBoxes() 등에서 진행률을 다시 계산해도
+    // 최종적으로 60%가 되도록 이벤트 루프 끝에서 적용
+    setTimeout(() => setProgressPercent(60), 0);
+  });
+})();
+
+
+(() => {
+  const excel = document.getElementById('excelTicker');
+  const direct = document.getElementById('directBtn');
+  if (!excel || !direct) return;
+
+  function ensureFinalConfirmLink() {
+    // 이미 만들어졌으면 재생성 안 함
+    if (document.getElementById('finalConfirmLink')) return;
+
+    const a = document.createElement('a');
+    a.id = 'finalConfirmLink';
+    a.textContent = '최종확인';
+    a.href = 'studio.html?step=1';                    // 필요 시 이동 경로 지정 (예: 'studio.html?step=3')
+    a.className = 'btn final-confirm';
+    a.setAttribute('role', 'button');
+    // directBtn 바로 위에 삽입
+    direct.insertAdjacentElement('beforebegin', a);
+  }
+
+  // 캡처 단계에서 등록하여 다른 리스너보다 먼저/항상 동작
+  excel.addEventListener('click', () => {
+    // 오버레이 닫힘 등 다른 처리 이후에 DOM 삽입되도록 살짝 지연
+    setTimeout(ensureFinalConfirmLink, 0);
+  }, true);
+})();
+
+(() => {
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('#finalConfirmLink');
+    if (!link) return;
+
+    e.preventDefault();
+
+    // 중복 클릭 방지
+    if (link.dataset.busy === '1') return;
+    link.dataset.busy = '1';
+
+    // 100%로 채우기 (setProgressPercent가 있으면 사용, 없으면 직접 반영)
+    if (typeof setProgressPercent === 'function') {
+      setProgressPercent(100);
+    } else {
+      const fill  = document.getElementById('chipProgress');
+      const label = document.getElementById('chipPercent');
+      if (fill)  fill.style.width = '100%';
+      if (label) label.textContent = '100%';
+    }
+
+    // 이동 경로: 링크의 href가 #가 아니면 그걸 사용, 아니면 기본값
+    const hrefAttr = link.getAttribute('href');
+    const dest = (hrefAttr && hrefAttr !== '#') ? hrefAttr : 'studio.html?step=2';
+
+    setTimeout(() => {
+      window.location.href = dest;
+    }, 1000);
+  });
+})();
+
+// 전역: 진행률 바닥값
+let progressFloor = 0;
+
+function clampProgressFloor() {
+  const label = document.getElementById('chipPercent');
+  const cur = parseInt(label?.textContent || '0', 10) || 0;
+  if (cur < progressFloor) setProgressPercent(progressFloor);
+}
+
+// 1) dataTicker 클릭 시 60% 고정 + 바닥값 60
+document.getElementById('dataTicker')?.addEventListener('click', () => {
+  progressFloor = 60;
+  setProgressPercent(60);
+});
+
+// 2) selected-row에 tag가 하나라도 생기면 바닥값 80으로 올림
+function bumpTo80IfAnyTagSelected() {
+  const rows = document.querySelectorAll('#selectDataGroup .selected-row');
+  const anyHasTag = Array.from(rows).some(r => r.querySelector('.tag'));
+  if (anyHasTag) progressFloor = Math.max(progressFloor, 80);
+  // 태그 이벤트 끝에 updateChipProgress가 불려도 최소 80% 보장
+  setTimeout(clampProgressFloor, 0);
+}
+
+// 태그 추가/삭제 이후에 호출 (당신 코드 흐름에 맞게 붙이세요)
+document.getElementById('selectDataGroup')?.addEventListener('click', (e) => {
+  if (e.target.closest('.tag-remove') || e.target.closest('.kw-chip')) {
+    // 기존 로직들(updateChipProgress 등) 그대로 둔 뒤:
+    setTimeout(bumpTo80IfAnyTagSelected, 0);
+  }
+});
+
+// 3) directBtn 누르면 바닥값 초기화(0%)
+document.getElementById('directBtn')?.addEventListener('click', () => {
+  progressFloor = 0;
+});
 </script>
