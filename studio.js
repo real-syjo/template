@@ -558,13 +558,7 @@ document.addEventListener('click', (e) => {
       document.querySelectorAll('#legend .chip, #legend .kw-chip')
         .forEach(el => el.classList.add('active'));
 
-      const fill  = document.getElementById('chipProgress');
-      const label = document.getElementById('chipPercent');
-      if (fill)  fill.style.width = '80%';
-      if (label) label.textContent = '80%';
-
-      blockStates[currentStep] = 'partial';
-      renderGauge();
+      updateChipProgress();;
   } else {
     // (기존 닫힘 로직 그대로)
     freezeExcelBar = false;

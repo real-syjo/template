@@ -305,23 +305,34 @@ function setSlideTexts(texts) {
 // ✅ 진행률 바 업데이트 함수
 // ✅ 칩 개수 기반 진행률 (추천DATA .chip + KW 시트 .kw-chip)
 function updateChipProgress() {
-  const total = document.querySelectorAll('#legend .chip, .kw-chip').length;
-  const done  = document.querySelectorAll('#legend .chip.active, .kw-chip.active').length;
+  const legend = document.getElementById('legend');
+  if (!legend) return;
 
-  const percent = total ? Math.round((done / total) * 100) : 0;
+  // ✅ legend 내부만 집계 (콤마 셀렉터 버그 수정)
+  const chipsAll   = legend.querySelectorAll('.chip, .kw-chip');
+  const chipsOn    = legend.querySelectorAll('.chip.active, .kw-chip.active');
+
+  const total = chipsAll.length;
+  const done  = chipsOn.length;
+
+  // ✅ 모두 active여도 80% (선형 감소)
+  const percent = total ? Math.round((done / total) * 80) : 0;
 
   const fill  = document.getElementById('chipProgress');
   const label = document.getElementById('chipPercent');
-
   if (fill)  fill.style.width = percent + '%';
   if (label) label.textContent = percent + '%';
 
-  // (선택) 상단 단계 게이지 색 업데이트가 필요하면 유지
+  // ✅ 게이지 색상은 '선택 개수'로 판정
   if (typeof renderGauge === 'function' && typeof currentStep !== 'undefined') {
-    blockStates[currentStep] = (done===0) ? 'empty' : (done<total ? 'partial' : 'done');
+    blockStates[currentStep] =
+      (done === 0)      ? 'empty'  :
+      (done < total)    ? 'partial': 
+                          'done';
     renderGauge();
   }
 }
+
 
 
 // ✅ 칩 선택 시 프로그래스바 갱신하도록 수정
