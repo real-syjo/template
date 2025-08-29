@@ -555,7 +555,7 @@ document.addEventListener('click', (e) => {
         legendData.forEach(d => d.selected = true);
       renderLegend();
 
-      document.querySelectorAll('#legend .chip, #legend .kw-chip')
+      document.querySelectorAll('#legend .chip, #legend')
         .forEach(el => el.classList.add('active'));
 
       updateChipProgress();;
