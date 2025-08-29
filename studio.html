@@ -233,7 +233,7 @@ document.addEventListener('click', (e) => {
 
 // 🔹 간단 추가: 슬라이드에 안내 문구 보여주기
   const NEXT_STEP2_TEXTS = [
-    "다음 단계로 이동합니다."
+    "해당 단계가 완료되었습니다. 다음 단계로 이동합니다."
   ];
   if (typeof setSlideTexts === 'function') {
     setSlideTexts(NEXT_STEP2_TEXTS);   // 문구 반영
@@ -474,7 +474,7 @@ function setProgressPercent(percent){
 
     // ✅ 슬라이드 문구 교체
     const CONFIRM_SLIDE_TEXTS = [
-      "다음 단계로 이동합니다."
+      "해당 단계가 완료되었습니다. 다음 단계로 이동합니다."
     ];
     if (typeof setSlideTexts === 'function') {
       setSlideTexts(CONFIRM_SLIDE_TEXTS);
