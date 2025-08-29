@@ -140,17 +140,50 @@ function updateProgressFromAskWraps() {
   const total   = document.querySelectorAll('#recommand .ask-wrap').length || 0;
   const visited = document.querySelectorAll('#recommand .ask-wrap.visited').length || 0;
   const percent = total ? Math.round((visited / total) * 100) : 0;
+  const clamped = Math.min(percent, 80);
 
   const fill  = document.getElementById('chipProgress');
   const label = document.getElementById('chipPercent');
-  if (fill)  fill.style.width = percent + '%';
-  if (label) label.textContent = percent + '%';
+  if (fill)  fill.style.width = clamped + '%';
+  if (label) label.textContent = clamped + '%';
 
   // 부모(1단계 게이지)에 진행률 전달(필요 시)
   try {
     window.parent?.postMessage({ type: 'IFRAME_STEP_PROGRESS', stepIndex: 1, percent }, '*');
   } catch (_) {}
 }
+
+function updateProgressFromInlineInputs() {
+  const inputs = document.querySelectorAll('.inline-input.bind-input');
+  if (!inputs.length) return;
+
+  const total   = inputs.length;
+  const filled  = Array.from(inputs).filter(inp => inp.value.trim() !== '').length;
+
+  // ✅ 비율대로 퍼센트 계산 (최대 80%)
+  const percent = total ? Math.round((filled / total) * 80) : 0;
+
+  const fill  = document.getElementById('chipProgress');
+  const label = document.getElementById('chipPercent');
+  if (fill)  fill.style.width = percent + '%';
+  if (label) label.textContent = percent + '%';
+
+  // 필요하다면 부모 단계 게이지에도 전달
+  try {
+    window.parent?.postMessage({
+      type: 'IFRAME_STEP_PROGRESS',
+      stepIndex: 1,
+      percent
+    }, '*');
+  } catch (_) {}
+}
+
+document.addEventListener('input', (e) => {
+  if (e.target.classList.contains('inline-input') && e.target.classList.contains('bind-input')) {
+    updateProgressFromInlineInputs();
+  }
+});
+
 
 /* 첫 클릭만 카운트: ask-wrap을 클릭하면 visited 표시 + 진행률 업데이트 */
 document.getElementById('recommand')?.addEventListener('click', (e) => {
@@ -368,6 +401,47 @@ document.addEventListener('click', (e)=>{
   if (e.target.closest('.ask-wrap')) {
     requestAnimationFrame(fitRecommandToViewport);
   }
+});
+// ✅ ask-wrap 추가 감시 → data-idx="3"인 요소가 생기면 최종확인 a태그 추가
+(() => {
+  const rc = document.getElementById('recommand');
+  if (!rc) return;
+
+  const observer = new MutationObserver(() => {
+    const thirdWrap = rc.querySelector('.ask-wrap[data-idx="3"]');
+    const choiceBtn = document.getElementById('choiceBtn');
+
+    // 조건: data-idx="3"이 존재하고, 아직 finalConfirmLink가 없을 때
+    if (thirdWrap && choiceBtn && !document.getElementById('finalConfirmLink')) {
+      const a = document.createElement('a');
+      a.id = 'finalConfirmLink';
+      a.href = '#'; // 필요 시 studio.html?step=2 로 바꿔도 됨
+      a.textContent = '최종확인';
+      a.className = 'btn final-confirm';
+
+      // choiceBtn 바로 뒤에 삽입
+      choiceBtn.insertAdjacentElement('afterend', a);
+    }
+  });
+
+  observer.observe(rc, { childList: true, subtree: true });
+})();
+document.addEventListener('click', (e) => {
+  const link = e.target.closest('#finalConfirmLink');
+  if (!link) return;
+
+  e.preventDefault();
+
+  // 프로그래스바 100%
+  const fill  = document.getElementById('chipProgress');
+  const label = document.getElementById('chipPercent');
+  if (fill)  fill.style.width = '100%';
+  if (label) label.textContent = '100%';
+
+  // 2초 뒤 화면 이동
+  setTimeout(() => {
+    parent.window.location.href = 'studio.html?step=2';
+  }, 1000);
 });
 
 </script>
