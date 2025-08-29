@@ -109,14 +109,18 @@ document.addEventListener('change', (e) => {
       dot.className = "dot active";
       dotsWrap.appendChild(dot);
     }
-     if (window.parent) {
-      window.parent.location.href = "studio.html";
-    } else {
-      // 혹시 iframe이 아닐 경우 대비
-      window.location.href = "studio.html";
-    }
+
+    // ✅ 2초 뒤 페이지 이동
+    setTimeout(() => {
+      if (window.parent) {
+        window.parent.location.href = "studio.html";
+      } else {
+        window.location.href = "studio.html";
+      }
+    }, 1000); // 2000ms = 2초
   }
 });
+
 
 document.addEventListener('change', (e) => {
   // recommand 안에 있는 모든 체크박스 수집
