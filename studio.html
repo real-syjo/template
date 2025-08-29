@@ -178,7 +178,46 @@
 </html>
 
 <script>
-  
+  // ★ 부모 페이지(studio.html)에 넣는 걸 추천 (자식에서 넣어도 parent로 접근 가능)
+(function persistGaugeHighlight(){
+  const W = window.parent && window.parent !== window ? window.parent : window;
+  const D = W.document;
+
+  function apply() {
+    const step = parseInt(new URLSearchParams(W.location.search).get('step'), 10);
+    // 초기화
+    D.querySelectorAll('.gblock').forEach(el => el.classList.remove('is-done'));
+    if (!isNaN(step) && step >= 1) {
+      // step=1 -> data-index=0, step=2 -> 0~1 누적 파란색
+      for (let i = 0; i < step; i++) {
+        D.querySelectorAll(`.gblock[data-index="${i}"]`).forEach(el => el.classList.add('is-done'));
+      }
+    }
+  }
+
+  // 처음 한 번 적용
+  if (D.readyState === 'loading') {
+    D.addEventListener('DOMContentLoaded', apply, { once: true });
+  } else {
+    apply();
+  }
+
+  // 게이지가 재렌더(자식 교체)될 때마다 다시 적용
+  const gauge = D.querySelector('#gauge') || D.body;
+  if (gauge && W.MutationObserver) {
+    const mo = new W.MutationObserver(apply);
+    mo.observe(gauge, { childList: true, subtree: true });
+  }
+
+  // 혹시 다른 코드가 한번 더 건드리면 짧게 몇 번 재적용 (안전망)
+  let tries = 10;
+  const t = setInterval(() => {
+    apply();
+    if (--tries <= 0) clearInterval(t);
+  }, 100);
+})();
+
+
 // 부모 html (studio.html)의 <script> 어딘가(초반)에 추가
 // 부모 html (studio.html) - postMessage 수신부 교체
 window.addEventListener('message', (e) => {

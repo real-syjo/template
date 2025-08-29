@@ -207,7 +207,7 @@ function showSlides(n){
     rc.innerHTML = `
       <div class="ask-wrap ask-first" data-idx="0">
         <div class="ask-head collapse__btn" aria-expanded="false">
-          <span class="ask-title">*결측치 대체<span>
+          <span class="ask-title">결측치 대체<span>
           <span class="chev">▾</span>
         </div>
         <div class="collapse__content" role="region">
@@ -825,9 +825,9 @@ function addInputAskWrap(){
 
 // ==== ask-title 자동 생성 ====
 const ASK_TITLE_POOL = [
-  '*수익률 계산',
-  '*래깅값 계산',
-  '*데이터 라벨링',
+  '수익률 계산',
+  '래깅값 계산',
+  '데이터 라벨링',
 ];
 
 function getNextAskTitle() {
@@ -1235,12 +1235,12 @@ function inferIdxFromText(t=''){
   return i >= 0 ? i : 0;
 }
 const TITLE_TO_IDX = {
-  '*결측치 처리': 0, 
-  '*결측치 대체': 1,
-  '*수익률 계산': 2,
-  '*래깅값 계산': 3,
-  '*데이터 라벨링': 4,
-  '*결측치 제거': 5
+  '결측치 처리': 0, 
+  '결측치 대체': 1,
+  '수익률 계산': 2,
+  '래깅값 계산': 3,
+  '데이터 라벨링': 4,
+  '결측치 제거': 5
 };
 function inferIdxFromTitle(t=''){
   t = t.trim();
@@ -1260,17 +1260,30 @@ function ensureAskFirstIndex(){
   const first = document.querySelector('#recommand .ask-wrap.ask-first');
   if (first) first.setAttribute('data-idx','0');
 }
+
 function reindexAskWraps(){
   const rc = document.getElementById('recommand');
   if (!rc) return;
-  const first = rc.querySelector('.ask-wrap.ask-first');
-  if (first) first.setAttribute('data-idx','0');
 
-let n = 1;
-  rc.querySelectorAll('.ask-wrap:not(.ask-first)').forEach(wrap => {
-    wrap.setAttribute('data-idx', String(n++));
+  const wraps = rc.querySelectorAll('.ask-wrap');
+  wraps.forEach((wrap, i) => {
+    // data-idx 속성 갱신
+    wrap.setAttribute('data-idx', String(i));
+
+    // 🔹 번호 요소가 이미 있으면 갱신, 없으면 새로 추가
+    let numEl = wrap.querySelector('.ask-num');
+    if (!numEl) {
+      numEl = document.createElement('span');
+      numEl.className = 'ask-num';
+      // 보이는 위치는 제목 앞쪽에 삽입
+      const head = wrap.querySelector('.ask-head, .ask-title') || wrap.firstChild;
+      if (head) head.prepend(numEl);
+      else wrap.prepend(numEl);
+    }
+    numEl.textContent = (i + 1) + '.'; // 1부터 시작
   });
 }
+
 
 // 펼침 높이 갱신
 // 펼침 높이 갱신 (여유 높이 포함)

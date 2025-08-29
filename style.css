@@ -112,7 +112,7 @@ a{
   h2 {
     font-size: var(--font-medium);
     font-weight: var(--weight-semi-bold);
-    color: var(--color-black);
+    color: var(--color-white);
     margin: 8px 0;
   }
   
@@ -489,3 +489,24 @@ article:hover{
   color:var(--color-orange);
 }
 
+.card__front {
+  display: flex;            /* 가로 정렬 */
+  justify-content: center;  /* 가운데 정렬 */
+  align-items: center;      /* 세로 가운데 정렬 */
+  gap: 20px;                /* 버튼 사이 간격 */
+}
+
+.card__front .btn {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: 6px;
+  background: #3b82f6;   /* 파란색 */
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.card__front .btn:hover {
+  background: #2563eb;   /* hover 시 더 진한 파랑 */
+}

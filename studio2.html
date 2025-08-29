@@ -300,4 +300,15 @@ document.addEventListener('click', (e)=>{
 });
 
 
+(function markBluePersistently(){
+  // 같은 도메인이면 직접 클래스 부여 (더 빠름)
+  try {
+    parent.document.getElementById('gauge')?.classList.add('iframe-mark');
+  } catch (_) {
+    // 교차 도메인이면 postMessage 사용
+    parent.postMessage({ type: 'MARK_GBLOCKS_01' }, '*');
+  }
+})();
+
+
 </script>

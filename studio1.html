@@ -502,5 +502,55 @@ if (typeof addAskWrap === 'function') {
     return r;
   }
 }
+/* =================== 빈 입력 하이라이트(다수 입력 중 하나라도 비면 invalid) =================== */
+function isAskWrapInvalid(wrap){
+  // 텍스트/숫자 등 인라인 입력들
+  const inputsAll = Array.from(wrap.querySelectorAll('.inline-input.bind-input, .recommend-input'));
+
+  // optional 표시가 있는 입력은 제외하고 검사하고 싶다면: .optional 또는 data-optional 사용
+  const requiredInputs = inputsAll.filter(inp => !inp.classList.contains('optional') && !inp.hasAttribute('data-optional'));
+  const targetInputs   = requiredInputs.length ? requiredInputs : inputsAll;
+
+  // 하나라도 비어 있으면 invalid
+  const hasInputs = targetInputs.length > 0;
+  const anyEmpty  = hasInputs && targetInputs.some(inp => inp.value.trim() === '');
+
+  // 라디오 그룹은 그룹별로 하나라도 미선택이면 invalid
+  const radios  = Array.from(wrap.querySelectorAll('input[type="radio"]'));
+  const groups  = [...new Set(radios.map(r => r.name))];
+  const anyRadioGroupUnselected = radios.length > 0 && groups.some(name => {
+    // CSS.escape로 name 안전 처리(특수문자 대비)
+    const sel = `input[type="radio"][name="${CSS.escape(name)}"]:checked`;
+    return !wrap.querySelector(sel);
+  });
+
+  return (anyEmpty || anyRadioGroupUnselected);
+}
+
+// 전체 ask-wrap 검사해서 .invalid 토글
+function validateAskWraps(){
+  document.querySelectorAll('#recommand .ask-wrap').forEach(wrap=>{
+    wrap.classList.toggle('invalid', isAskWrapInvalid(wrap));
+  });
+}
+
+// 이미 달아둔 이벤트가 있다면 그대로 유지. 없다면 아래 정도만 추가해주면 됨:
+document.addEventListener('DOMContentLoaded', validateAskWraps);
+document.getElementById('recommand')?.addEventListener('input',  validateAskWraps);
+document.getElementById('recommand')?.addEventListener('change', validateAskWraps);
+(() => {
+  const rc = document.getElementById('recommand');
+  if (!rc) return;
+  new MutationObserver(validateAskWraps).observe(rc, { childList:true, subtree:true });
+})();
+if (typeof addAskWrap === 'function'){
+  const _add = addAskWrap;
+  window.addAskWrap = function(...args){
+    const r = _add.apply(this, args);
+    validateAskWraps();
+    return r;
+  }
+}
+
 
 </script>

@@ -1184,3 +1184,21 @@ body.modal-open .your-panel .wrap { pointer-events: none; }
   background:var(--accent, #4c8bf5);
   transition:width .25s ease;
 }
+/* 빈 입력이 있는 ask-wrap 하이라이트 */
+.ask-wrap.invalid{
+  outline: 2px solid #ff6b6b;
+  border-radius: 12px;
+  box-shadow: 0 0 0 3px rgba(255,107,107,.12) inset;
+}
+.ask-wrap.invalid .ask-title::after{
+  content: " • 입력 필요";
+  color: #ff6b6b;
+  font-weight: 600;
+  margin-left: 6px;
+}
+.ask-num {
+  display: inline-block;
+  margin-right: 6px;
+  font-weight: bold;
+  color: #2563eb; /* 파란색 */
+}
