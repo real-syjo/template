@@ -190,7 +190,11 @@ document.addEventListener('click', (e) => {
   }
 
   // kw-chip 클릭 → 선택 토글
-
+  const chip = e.target.closest('.kw-chip');
+  if (chip && !e.target.closest('.kw-chip-remove')) {
+    chip.classList.toggle('active');
+    updateChipProgress();
+  }
 });
 
 
@@ -535,29 +539,45 @@ const SLIDE_TEXTS_COLLAPSE_OPEN = [
 
 
 /* ===== Collapse ===== */
-// --- REPLACE (collapse open/close) ---
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('.collapse__btn');
   if (!btn) return;
 
   const panelId = btn.getAttribute('aria-controls');
   const panel   = document.getElementById(panelId);
-  const willOpen = btn.getAttribute('aria-expanded') !== 'true';
+  const wasOpen = btn.getAttribute('aria-expanded') === 'true';
+  const willOpen = !wasOpen;
 
   btn.setAttribute('aria-expanded', String(willOpen));
   panel?.classList.toggle('open', willOpen);
 
   if (willOpen) {
-    // 열자마자 80%: 전부 활성화
-    panel.querySelectorAll('#legend .chip, #legend .kw-chip')
-      .forEach(el => el.classList.add('active'));
+        legendData.forEach(d => d.selected = true);
+      renderLegend();
+
+      document.querySelectorAll('#legend .chip, #legend')
+        .forEach(el => el.classList.add('active'));
+
+      updateChipProgress();;
   } else {
-    // 닫으면 0%: 전부 비활성화
-    panel.querySelectorAll('#legend .chip, #legend .kw-chip')
-      .forEach(el => el.classList.remove('active'));
+    // (기존 닫힘 로직 그대로)
+    freezeExcelBar = false;
+    updateExcelButton();
+    const barAfter = document.querySelector('.excel-bar');
+    if (barAfter) {
+      barAfter.classList.remove('show');
+      barAfter.querySelector('#excelConfirm')?.setAttribute('disabled', '');
+    }
+    legendData.forEach(d => d.selected = false);
+    renderLegend();
+    updateDonutProgressFromChips();
+    blockStates[currentStep] = 'empty';
+    document.querySelectorAll('.gblock.active').forEach(el => el.classList.remove('active'));
   }
-  updateChipProgress();
 });
+
+
+
 
 
 /* ===== 초기 실행 ===== */

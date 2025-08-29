@@ -438,10 +438,19 @@ document.addEventListener('click', (e) => {
   if (fill)  fill.style.width = '100%';
   if (label) label.textContent = '100%';
 
+  // ✅ 슬라이드 문구 교체
+  const slides = document.querySelectorAll('.slideshow-container .slide');
+  if (slides.length > 0) {
+    slides[0].textContent = "해당 단계가 완료되었습니다. 다음 단계로 이동합니다.";   // 첫 슬라이드에 문구 반영
+    if (typeof currentSlide === 'function') currentSlide(1); // 첫 슬라이드로 이동
+  }
+
   // 2초 뒤 화면 이동
   setTimeout(() => {
     parent.window.location.href = 'studio.html?step=2';
-  }, 1000);
+  }, 2000);
 });
+
+
 
 </script>

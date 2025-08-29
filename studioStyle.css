@@ -270,7 +270,7 @@ body.overlay-open{ overflow:hidden; }
   box-shadow:0 6px 24px rgba(0,0,0,.05);
 }
 .card-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px; }
-.chip{ color: darkslategray;background:#f4f6fb; border:1px solid var(--line); padding:4px 10px; border-radius:999px; font-weight:400; }
+.chip{ color: darkslategray;background:#f4f6fb; border:1px solid var(--line); padding:4px 10px; border-radius:5px; font-weight:400; }
 .hint{ color:var(--muted); font-size:13px; }
 .apply{ color:var(--primary); text-decoration:none; font-weight:400; margin-left:8px; }
 
@@ -987,7 +987,7 @@ iframe {
   align-items: center;
   padding: 6px 12px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 5px;
   background: #f4f6fb;
   color: darkslategray;
   font-size: 14px;

@@ -455,7 +455,7 @@ function setProgressPercent(percent){
     if (link.dataset.busy === '1') return;
     link.dataset.busy = '1';
 
-    // 100%로 채우기 (setProgressPercent가 있으면 사용, 없으면 직접 반영)
+    // 100%로 채우기
     if (typeof setProgressPercent === 'function') {
       setProgressPercent(100);
     } else {
@@ -465,7 +465,16 @@ function setProgressPercent(percent){
       if (label) label.textContent = '100%';
     }
 
-    // 이동 경로: 링크의 href가 #가 아니면 그걸 사용, 아니면 기본값
+    // ✅ 슬라이드 문구 교체
+    const CONFIRM_SLIDE_TEXTS = [
+      "다음 단계로 이동합니다. 준비되셨나요?"
+    ];
+    if (typeof setSlideTexts === 'function') {
+      setSlideTexts(CONFIRM_SLIDE_TEXTS);
+      if (typeof currentSlide === 'function') currentSlide(1); // 첫 슬라이드로 이동
+    }
+
+    // 1초 뒤 페이지 이동
     const hrefAttr = link.getAttribute('href');
     const dest = (hrefAttr && hrefAttr !== '#') ? hrefAttr : 'studio.html?step=2';
 
@@ -474,6 +483,7 @@ function setProgressPercent(percent){
     }, 1000);
   });
 })();
+
 
 // 전역: 진행률 바닥값
 let progressFloor = 0;
