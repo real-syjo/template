@@ -452,5 +452,55 @@ document.addEventListener('click', (e) => {
 });
 
 
+/* =================== ask-wrap 개수 기반 프로그래스 (최대 80%) =================== */
+
+// 1) 퍼센트 계산: 1~4개 → 20,40,60,80 / 5개 이상 → 80 * (4 / n) (점점 감소)
+function computeAskWrapPercent(n){
+  if (!n) return 0;
+  if (n <= 4) return n * 20;
+  return Math.max(0, Math.round(80 * (4 / n))); // 5개=64, 6개=53, ...
+}
+
+// 2) 실제 바/라벨/부모게이지 적용
+function setAskWrapProgress(p){
+  const pct = Math.max(0, Math.min(80, Math.round(p)));  // MAX 80%
+  const fill  = document.getElementById('chipProgress');
+  const label = document.getElementById('chipPercent');
+  if (fill)  fill.style.width = pct + '%';
+  if (label) label.textContent = pct + '%';
+
+  // 부모(1단계 게이지)에도 반영
+  try {
+    window.parent?.postMessage({ type:'IFRAME_STEP_PROGRESS', stepIndex: 1, percent: pct }, '*');
+  } catch (_) {}
+}
+
+// 3) 카운트 → 진행률 반영
+function updateProgressFromAskWrapCount(){
+  const n = document.querySelectorAll('#recommand .ask-wrap').length || 0;
+  setAskWrapProgress(computeAskWrapPercent(n));
+}
+
+// 4) 기존 방문/입력 기반 함수 덮어쓰기(호출해도 결과는 '개수 기준'으로 계산됨)
+window.updateProgressFromAskWraps = updateProgressFromAskWrapCount;
+
+// 5) 최초/변경시 자동 갱신
+document.addEventListener('DOMContentLoaded', updateProgressFromAskWrapCount);
+(() => {
+  const rc = document.getElementById('recommand');
+  if (!rc) return;
+  const mo = new MutationObserver(() => updateProgressFromAskWrapCount());
+  mo.observe(rc, { childList: true, subtree: false });
+})();
+
+// 6) addAskWrap 실행 후에도 강제 갱신 (함수 존재 시 안전하게 래핑)
+if (typeof addAskWrap === 'function') {
+  const _addAskWrap = addAskWrap;
+  window.addAskWrap = function(...args){
+    const r = _addAskWrap.apply(this, args);
+    updateProgressFromAskWrapCount();
+    return r;
+  }
+}
 
 </script>
