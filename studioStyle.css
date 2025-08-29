@@ -611,7 +611,7 @@ tr:nth-child(even) td{ background:#fcfdff; }
 }
 .kw-chip:hover{ background:#eef5ff; border-color:#cfe0ff; transform:translateY(-1px); }
 .kw-chip.active{
-  background:var(--primary-weak); border-color:var(--bs-primary); color:var(--bs-primary);
+  background:var(--primary-weak); border-color:var(--color-light-grey); color:var(--bs-primary);
   box-shadow:0 .4rem .9rem rgba(43,124,255,.15);
 }
 
@@ -1017,3 +1017,8 @@ iframe {
 .kw-chip .kw-chip-remove:hover {
   color: red;
 }
+/* 기존 */
+.kw-chip.active { background:#FFFF; color:rgb(19, 18, 18); }
+
+/* 변경 → 그냥 kw-chip */
+.kw-chip { background:#FFFF; color:rgb(32, 31, 31); }

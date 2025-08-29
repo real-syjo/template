@@ -1407,13 +1407,11 @@ donutData = legendData.map(d => ({
 // ✅ 중복 추가 방지 락
 let addOnceGuard = false;
 
-// ✅ "마지막 ask-wrap"을 눌렀을 때만 새 ask-wrap 생성
-// === ask-wrap 클릭 시 "마지막"일 때만 새 ask-wrap 추가 ===
 document.getElementById('recommand')?.addEventListener('click', (e) => {
   const wrap = e.target.closest('.ask-wrap');
   if (!wrap) return;
 
-  // collapse 버튼 누른 경우만 무시
+  // collapse 버튼 누른 경우 무시
   if (e.target.closest('.collapse__btn, .chev')) return;
 
   const rc = e.currentTarget;
@@ -1425,6 +1423,18 @@ document.getElementById('recommand')?.addEventListener('click', (e) => {
   // 마지막이 아니면 추가 금지
   if (wrap !== last) return;
 
+  // ✅ 조건: 마지막 ask-wrap 안의 input OR radio 값 확인
+  const hasInput = Array.from(last.querySelectorAll('.inline-input.bind-input, .recommend-input'))
+                        .some(inp => inp.value.trim() !== '');
+
+  const hasRadio = Array.from(last.querySelectorAll('input[type="radio"]'))
+                        .some(r => r.checked);
+
+  if (!hasInput && !hasRadio) {
+    // 값이 없고 라디오도 선택 안 됐으면 추가 안 함
+    return;
+  }
+
   // 최대 5개 제한
   if (wraps.length >= 5) return;
 
@@ -1435,7 +1445,7 @@ document.getElementById('recommand')?.addEventListener('click', (e) => {
 
   addAskWrap(title, content, idx);
 
-  reindexAskWraps();            // 인덱스 갱신
-  updateChoiceBtnByAskCount();  // 버튼 갱신
-  updateLegendFromAskCount();   // 도넛 갱신
+  reindexAskWraps();            
+  updateChoiceBtnByAskCount();  
+  updateLegendFromAskCount();   
 });
