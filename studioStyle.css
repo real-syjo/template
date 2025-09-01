@@ -230,7 +230,7 @@ p {
 /* ========== Panel / Slide Up ========== */
 .your-panel{ position:relative; overflow:hidden; }
 .your-panel .wrap{
-  height: 720px;
+  height: 760px;
   transition:transform var(--slide-dur) var(--slide-ease);
   will-change:transform;
 }
@@ -621,7 +621,7 @@ tr:nth-child(even) td{ background:#fcfdff; }
 
 /* ========== Excel 확인 바 (정리본) ========== */
 .excel-bar{
-  position:fixed; left:0; right:0; bottom:16px;
+  position:fixed; left:0; right:0; bottom:27px;
   display:none; justify-content:center; z-index:1000;
   pointer-events:none;
 }
