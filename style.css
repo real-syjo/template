@@ -3,7 +3,7 @@
 
 body {
 	margin: 0px;
-  min-height: 200vh; 
+  min-height: 100vh; 
 }
 a{
   cursor: pointer;
@@ -26,7 +26,6 @@ a{
 	position: absolute;
 	width: 100%;
 	display: inline-block;
-	font-family: 'Raleway', sans-serif;
 	font-size: 70pt;
 	text-align: center;
 	user-select: none;
@@ -35,6 +34,7 @@ a{
 }
 
 :root {
+    --accent:#0a70b08a;
     /* Color */
     --color-white: #ffffff;
     --color-light-white: #eeeeee;
@@ -74,8 +74,6 @@ a{
   }
 
   body{
-    font-family: 'Do Hyeon', sans-serif;
-    font-family: 'Poppins', sans-serif;
     margin: 0;
     cursor: default;
   }
@@ -227,10 +225,12 @@ a{
   padding: 20px 24px;
   transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
 }
+
 .card:hover{
   transform: translateY(-4px);
   box-shadow: 0 16px 40px rgba(0,0,0,0.35);
-  background: rgba(20,24,31,0.42);
+  background: rgba(251, 251, 251, 0.507);
+
 }
 
 /* 강조 카드(파란 그라데이션) */
@@ -363,6 +363,11 @@ a{
   border:1px solid rgba(255,255,255,0.25);
   font-weight:700;
 }
+.meters img{
+  width: 100%;
+  height: auto;
+  display: block; /* 이미지 밑 여백 제거 */
+}
 
 /* 배치: 반응형 그리드 */
 .home-grid{
@@ -404,12 +409,12 @@ article::before{
 
 /* 호버 시 반투명 흰색 */
 article:hover::before{
-  background: rgba(255,255,255,0.25); /* 진하기는 0.15~0.35 사이로 조절 추천 */
+  background: rgba(210, 204, 204, 0.25); /* 진하기는 0.15~0.35 사이로 조절 추천 */
 }
 
 /* 선택: 테두리 있는 카드라면 살짝 밝게 */
 article:hover{
-  border-color: rgba(255,255,255,0.5);
+  border-color: rgba(224, 221, 221, 0.5);
 }
 .card--primary::before { content: none !important; }
 
@@ -476,7 +481,8 @@ article:hover{
 
 /* Contact */
 #contact {
-  background-color: var(--color-blue);
+  background-color: var(--accent);
+  
 }
 .contact__title,
 .contact__email,

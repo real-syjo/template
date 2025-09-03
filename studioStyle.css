@@ -158,7 +158,7 @@ p {
   transition:all var(--animation-duration) ease-in-out;
   z-index:1000;
 }
-.navbar__logo a{ font-size:30px; color:#616161; }
+.navbar__logo a{ font-size:30px; color:var(--accent, #2563eb) !important }
 .navbar__menu{ display:flex; }
 .navbar__menu__item{
   padding:8px 12px;
