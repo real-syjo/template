@@ -201,7 +201,7 @@ function showSlides(n){
     choiceBtn.style.display = (getAskWrapCount() > 0) ? '' : 'none';
   }
 
-  if (!recommandInserted && slideIndex === total) {
+if (!recommandInserted && slideIndex === total) {  
   const rc = document.getElementById("recommand");
   if (rc) {
     rc.innerHTML = `
@@ -225,16 +225,19 @@ function showSlides(n){
     updateChoiceBtnByAskCount();
 
   const firstWrap = rc.querySelector('.ask-wrap.ask-first');
-    requestAnimationFrame(() => {
+    if (firstWrap) {
+    firstWrap.addEventListener('click', () => {
       if (typeof renderSlidesForWrap === 'function') renderSlidesForWrap(firstWrap);
       if (typeof showSlides === 'function') showSlides(1);
-    });
+    }, { once: true });
+  }
+    
   }
 }
 
 }
 showSlides(slideIndex);
-
+ booted = true;
 
 
 /* ===== dataTicker 클릭 → 선택 박스 표시 ===== */
@@ -923,7 +926,10 @@ function getDragAfterElement(container, y) {
 }
 
 function addAskWrap(title, content, idx){
-  if (!title || !content) return;
+  if (!title) return;
+  if (!content || !content.trim()) {
+    content = "내용을 입력하세요.";  // 기본 메시지
+  }
   const rc = document.getElementById("recommand");
   if (!rc) return;
 
@@ -1202,11 +1208,12 @@ document.addEventListener("DOMContentLoaded", () => {
         box.textContent.trim() ||
         "";
 
-      const desc =
-        box.dataset.desc ||
-        box.querySelector(".b-desc")?.textContent?.trim() ||
-        (typeof boxContents === "object" ? boxContents[box.dataset.key] : "") ||
-        "";
+     const desc =
+            (box.dataset.desc && box.dataset.desc.trim())
+            || box.querySelector(".b-desc")?.textContent?.trim()
+            || (boxContents && boxContents[box.dataset.key])
+            || "설명이 준비되어 있지 않습니다. 필요한 옵션을 입력하세요.";
+
 
       const idxStr = box.dataset.idx;
       let idx = (idxStr !== '' && idxStr != null) ? Number(idxStr) : inferIdxFromTitle(title);

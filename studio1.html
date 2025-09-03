@@ -51,7 +51,7 @@
 
                           <!-- 점 -->
                           <div class="dots">
-                            <span class="dot" onclick="currentSTSlide(1)"></span>
+                            <span class="dot" onclick="currentSlide(1)"></span>
                             <span class="dot" onclick="currentSlide(2)"></span>
                             <span class="dot" onclick="currentSlide(3)"></span>
                           </div>
@@ -112,6 +112,7 @@
 </html>
 
 <script>
+  let booted = false;
 /* =================== ASK-WRAP 기반 프로그래스 =================== */
 /* 구간(눈금) 다시 그리기 */
 function renderProgressTicksFromAskWraps() {
@@ -615,7 +616,7 @@ function switchSlidesToNewestWrapIfCountIncreased() {
 
   const wraps = rc.querySelectorAll('.ask-wrap');
   const count = wraps.length;
-
+if (_prevWrapCount === 0) { _prevWrapCount = count; return; }
   // "갯수 증가"시에만 반응 (drag-sort 등에는 반응 안 함)
   if (count > _prevWrapCount) {
     const newest = rc.querySelector(`.ask-wrap[data-idx="${count - 1}"]`) || wraps[wraps.length - 1];
