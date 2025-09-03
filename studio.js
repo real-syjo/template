@@ -124,8 +124,18 @@ function applyStateToCurrentBlock(){
 }
 
 const KW_ITEMS = [
-  "데이터 기준 일자","시가","장중 최고가","장중 최저가","종가"
+  "데이터 기준일자","시가","장중 최고가","장중 최저가","종가"
 ];
+const KW_ITEMS_TOOLTIPS = {
+  // 한글 라벨 버전
+  "데이터 기준일자": "컬럼명:ymd",
+  "시가": "컬럼명:po",
+  "장중 최고가": "컬럼명:ph",
+  "장중 최저가": "컬럼명:pl",
+  "종가": "컬럼명:p",
+  "총수익지수": "컬럼명:ri",
+  "거래량 기준 회전율": "컬럼명:pi"
+}
 
 function renderLegend() {
   let legendEl = document.getElementById("legend");
@@ -167,14 +177,17 @@ legendEl.appendChild(chipRow);
 const kwRow = document.createElement("div");
 kwRow.className = "legend-kw-row";
 KW_ITEMS.forEach(k => {
+  console.log(k)
+  const tip = KW_ITEMS_TOOLTIPS[k] || String(k);
+  console.log(tip)
   const chip = document.createElement("div");
   chip.className = "kw-chip";
   chip.dataset.key = k;
+  chip.setAttribute("data-tip", tip); 
   chip.innerHTML = `${k}<button class="kw-chip-remove">×</button>`;
   kwRow.appendChild(chip);
 });
 legendEl.appendChild(kwRow);
-
 
   updateChipProgress();
 }
@@ -434,7 +447,7 @@ function buildSelectBoxes() {
   // kw-chip용 툴팁 문구
 const KW_TOOLTIPS = {
   // 한글 라벨 버전
-  "데이터 기준 일자": "컬럼명:ymd",
+  "데이터 기준일자": "컬럼명:ymd",
   "시가": "컬럼명:po",
   "장중 최고가": "컬럼명:ph",
   "장중 최저가": "컬럼명:pl",
