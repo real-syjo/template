@@ -463,7 +463,11 @@ const KW_TOOLTIPS = {
               <span>${v}</span>
             </div>`).join("")}
         </div>
-        <div class="selected-row" aria-live="polite"></div>
+        <div class="selected-row" aria-live="polite">
+            <span class="tag" data-key="데이터 기준일자">데이터 기준일자
+              <button class="tag-remove" aria-lable="데이터 기준일자 제거" data-key="데이터 기준일자" data-box="A">x</button>
+            </span>
+        </div>
       </div>
       <div class="kw-sheet" data-box="${boxKey}">
        ${keywordMap[boxKey].map(k=>{
@@ -480,6 +484,7 @@ const KW_TOOLTIPS = {
   updateChipProgress();
   applyOverlayProgress();
 }
+
 /* ===== KW 상태 ===== */
 const selectedKeywords = { A:new Set(), B:new Set() };
 
@@ -488,14 +493,26 @@ function renderSelectedRow(boxKey){
   const selGroup = group?.querySelector(`.sel-group[data-box="${boxKey}"]`);
   if (!selGroup) return;
   const row = selGroup.querySelector('.selected-row');
-  const tags = Array.from(selectedKeywords[boxKey]).map(k => `
-    <span class="tag" data-key="${k}">
-      ${k}
-      <button class="tag-remove" aria-label="${k} 제거" data-key="${k}" data-box="${boxKey}">×</button>
-    </span>
-  `);
-  row.innerHTML = tags.join('');
+  if (!row) return;
+
+  // 기본 example 태그 HTML을 그대로 보존
+  const defaultHTML = '<span class="tag" data-key="데이터 기준일자">데이터 기준일자'
+                    +'<button class="tag-remove" aria-label="데이터 기준일자 제거" data-key="데이터 기준일자" data-box="데이터 기준일자">×</button>'
+                    +'</span>';
+  // 선택 키워드 렌더(예: 'example'은 중복 방지로 제외)
+  const dynamicHTML = Array.from(selectedKeywords[boxKey] || [])
+    .filter(k => k !== 'example')
+    .map(k => `
+      <span class="tag" data-key="${k}">
+        ${k}
+        <button class="tag-remove" aria-label="${k} 제거" data-key="${k}" data-box="${boxKey}">×</button>
+      </span>
+    `).join('');
+
+  row.innerHTML = defaultHTML + dynamicHTML;
 }
+
+
 function syncSheetChips(){
   const group = document.getElementById('selectDataGroup');
   ['A','B'].forEach(k=>{
