@@ -122,7 +122,12 @@ a{
     color: var(--color-black);
     margin: 8px 0;
   }
-  
+  .subTitle{
+      font-size: var(--font-medium);
+    font-weight: var(--weight-semi-bold);
+    color: var(--color-white);
+    margin: 8px 0
+  }
   p {
     font-size: var(--font-regular);
     font-weight: var(--font-regular);
