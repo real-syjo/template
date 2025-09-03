@@ -223,6 +223,12 @@ function showSlides(n){
     syncLegendToRecommandInputs();// 도넛 초기 동기화
     recommandInserted = true;
     updateChoiceBtnByAskCount();
+
+  const firstWrap = rc.querySelector('.ask-wrap.ask-first');
+    requestAnimationFrame(() => {
+      if (typeof renderSlidesForWrap === 'function') renderSlidesForWrap(firstWrap);
+      if (typeof showSlides === 'function') showSlides(1);
+    });
   }
 }
 
@@ -539,7 +545,7 @@ document.addEventListener('change', (e)=>{
     addInputAskWrap();
   }
   syncLegendToRecommandInputs();
-  updateChoiceBtnByAskCount
+  updateChoiceBtnByAskCount();
 });
 
 
@@ -777,9 +783,10 @@ const SLIDE_MESSAGES = [
   [
     "결측치 제거: 값이 없는 행을 삭제",
     "분석의 정확성을 위해 불필요한 행 제거"
-  ]
+  ],
+  ["결측치 제거: 값이 없는 행을 삭제","분석의 정확성을 위해 불필요한 행 제거"] // idx=5
 ];
-
+window.SLIDE_MESSAGES = SLIDE_MESSAGES; 
 let slideMsgIndex = 0;
 
 
@@ -811,13 +818,27 @@ function addInputAskWrap(){
   const title = getNextAskTitle();
   const placeholder = getNextPlaceholder();
 
-  rc.insertAdjacentHTML('beforeend', `
-    <div class="ask-wrap ask-input">
-      <span class="ask-title">${title}</span>
-      <p class="ask-content">${placeholder}</p>
-    </div>
-  `);
+  const idx = inferIdxFromTitle(title);
 
+rc.insertAdjacentHTML('beforeend', `
+  <div class="ask-wrap ask-input">
+     <div class="ask-head collapse__btn" aria-expanded="true">
+       <span class="ask-title">${title}</span>
+       <span class="chev">▾</span>
+     </div>
+     <div class="collapse__content open" role="region">
+       <div class="ask-content">${compileInlineInputs(placeholder)}</div>
+     </div>
+   </div>
+ `);
+
+const created = rc.querySelector('.ask-wrap.ask-input:last-child');
+ if (created) {
+    const idx = inferIdxFromTitle(title);
+    if (!Number.isNaN(idx)) 
+    window.lastAddedAskWrap = created;
+    renderSlidesForWrap(created);
+  }
   const inp = rc.querySelector('.ask-wrap.ask-input:last-child .recommend-input');
   if (inp) inp.focus();
   syncLegendToRecommandInputs();
@@ -911,9 +932,7 @@ function addAskWrap(title, content, idx){
 
   const wrap = document.createElement("div");
   wrap.className = "ask-wrap";
-  if (typeof idx === 'number' && !Number.isNaN(idx)) {
-    wrap.setAttribute("data-idx", String(idx));
-  }
+
 
   wrap.innerHTML = `
     <div class="ask-head collapse__btn" aria-expanded="true">
@@ -944,11 +963,16 @@ function addAskWrap(title, content, idx){
 
   // 높이 계산 반영
   if (panel) setOpenHeight(panel);
+ 
+  window.lastAddedAskWrap = wrap;
+ renderSlidesForWrap(wrap);
 
   enableAskWrapDragSort();
   ensureAskFirstIndex();
   reindexAskWraps();
   updateChoiceBtnByAskCount();
+switchSlidesToNewestWrapIfCountIncreased();
+  return wrap;
 }
 
 // 예: "기간은 [[days=21]]일 입니다." → 중간에 <input ...>
@@ -979,7 +1003,8 @@ document.addEventListener('input', (e)=>{
 });
 
 document.addEventListener("click", (e) => {
-const wasVisible = choiceBtn && getComputedStyle(choiceBtn).display !== 'none';
+const choiceBtn = document.getElementById('choiceBtn');
+ const wasVisible = choiceBtn && getComputedStyle(choiceBtn).display !== 'none';
 if (wasVisible) keepChoiceBtn = true;
 
   const wrap = e.target.closest(".ask-wrap");
@@ -991,7 +1016,9 @@ let idx = Number(wrap.getAttribute("data-idx"));
    reindexAskWraps();             // 즉시 재매김
    idx = Number(wrap.getAttribute("data-idx"));
  }
-  const messages = SLIDE_MESSAGES[idx] || ["설명이 준비되어 있지 않습니다."];
+  
+  const messages = SLIDE_MESSAGES[idx];
+
   const slideContainer = document.querySelector(".slideshow-container");
   if (!slideContainer) return;
 
@@ -1031,7 +1058,7 @@ let idx = Number(wrap.getAttribute("data-idx"));
     // 최소 표시만
     document.getElementsByClassName("slide")[0]?.style && (document.getElementsByClassName("slide")[0].style.display = "block");
   }
-});
+}, true);
 
 
 
@@ -1118,7 +1145,7 @@ function renderChoiceModalBoxes(){
         <button class="box" data-key="${it.key}"
                 data-title="${it.title}"
                 data-desc="${it.desc}"
-                data-idx="${TITLE_TO_IDX['*'+it.title] ?? ''}">
+                data-idx="${TITLE_TO_IDX[it.title] ?? ''}">
           <span class="badge">${it.tag}</span>
           <div class="b-title">${it.title}</div>
           <div class="b-desc">${it.desc}</div>
@@ -1182,10 +1209,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "";
 
       const idxStr = box.dataset.idx;
-      const idx =
-        idxStr === "" || idxStr == null
-          ? inferIdxFromTitle("*" + title)
-          : Number(idxStr);
+      let idx = (idxStr !== '' && idxStr != null) ? Number(idxStr) : inferIdxFromTitle(title);
 
       addAskWrap("*" + title, desc, idx);
       modal.style.display = "none";
@@ -1241,11 +1265,11 @@ const TITLE_TO_IDX = {
   '결측치 제거': 5
 };
 function inferIdxFromTitle(t=''){
-  t = t.trim();
+   t = t.trim().replace(/^\*/,''); // 앞의 * 제거
   for (const [k,v] of Object.entries(TITLE_TO_IDX)){
     if (t.startsWith(k)) return v;
   }
-  return 0;
+  return NaN;
 }
 function inferIdxFromWrap(wrap){
   const txt = wrap.querySelector('.ask-content')?.textContent?.trim() || '';
@@ -1265,22 +1289,21 @@ function reindexAskWraps(){
 
   const wraps = rc.querySelectorAll('.ask-wrap');
   wraps.forEach((wrap, i) => {
-    // data-idx 속성 갱신
+    // ✅ 매번 DOM 순서대로 강제 세팅 (조건문 제거)
     wrap.setAttribute('data-idx', String(i));
 
-    // 🔹 번호 요소가 이미 있으면 갱신, 없으면 새로 추가
+    // 번호 뱃지 유지
     let numEl = wrap.querySelector('.ask-num');
     if (!numEl) {
       numEl = document.createElement('span');
       numEl.className = 'ask-num';
-      // 보이는 위치는 제목 앞쪽에 삽입
       const head = wrap.querySelector('.ask-head, .ask-title') || wrap.firstChild;
-      if (head) head.prepend(numEl);
-      else wrap.prepend(numEl);
+      (head || wrap).prepend(numEl);
     }
-    numEl.textContent = (i + 1) + '.'; // 1부터 시작
+    numEl.textContent = (i + 1) + '.';
   });
 }
+
 
 
 // 펼침 높이 갱신
@@ -1454,9 +1477,16 @@ document.getElementById('recommand')?.addEventListener('click', (e) => {
   const content = getNextPlaceholder();
   const idx     = inferIdxFromText(content);
 
-  addAskWrap(title, content, idx);
 
-  reindexAskWraps();            
-  updateChoiceBtnByAskCount();  
-  updateLegendFromAskCount();   
+const newWrap = addAskWrap(title, content, idx);
+  // 이 클릭 버블링 중에 다른 핸들러가 이전 카드로 슬라이드를 다시 덮지 못하게
+  e.stopImmediatePropagation();
+  e.stopPropagation();
+  return;
+
 });
+function safeIdx(i) {
+  return Number.isFinite(i)
+    ? Math.min(Math.max(0, i), SLIDE_MESSAGES.length - 1)
+    : 0;
+}

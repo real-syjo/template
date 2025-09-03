@@ -205,6 +205,7 @@ document.getElementById('recommand')?.addEventListener('click', (e) => {
   const mo = new MutationObserver(() => {
     renderProgressTicksFromAskWraps();
     updateProgressFromAskWraps();
+    switchSlidesToNewestWrapIfCountIncreased();
   });
   mo.observe(rc, { childList: true, subtree: false });
 
@@ -550,6 +551,83 @@ if (typeof addAskWrap === 'function'){
     validateAskWraps();
     return r;
   }
+}
+// 새로 생긴 ask-wrap의 DOM 순서 → 그 순서에 맞는 슬라이드 메시지로 교체
+function getWrapOrderIndex(wrap){
+  const rc = document.getElementById('recommand');
+  return Math.max(0, Array.from(rc.querySelectorAll('.ask-wrap')).indexOf(wrap));
+}
+
+function renderSlidesForWrap(wrap){
+
+ let idx = Number(wrap.getAttribute('data-idx'));
+ if (Number.isNaN(idx)) idx = inferIdxFromWrap(wrap);
+  if (Number.isNaN(idx)) idx = getWrapOrderIndex(wrap);
+
+  // 2) 메시지 범위 보정
+idx = safeIdx(idx);
+
+  const msgs = (window.SLIDE_MESSAGES && SLIDE_MESSAGES[idx])
+     ? SLIDE_MESSAGES[idx]
+     : ["설명이 준비되어 있지 않습니다."];
+  const box = document.querySelector('.slideshow-container');
+  if (!box) return;
+
+  // 기존 슬라이드/도트 리셋
+  box.querySelectorAll('.slide').forEach(n => n.remove());
+  let dots = box.querySelector('.dots');
+  if (!dots) {
+    dots = document.createElement('div');
+    dots.className = 'dots';
+    box.appendChild(dots);
+  }
+  dots.innerHTML = '';
+
+  // 새 메시지로 슬라이드 구성
+  msgs.forEach((text, i) => {
+    const s = document.createElement('div');
+    s.className = 'slide';
+    s.textContent = text;
+    if (i !== 0) s.style.display = 'none';
+    box.appendChild(s);
+
+    const dot = document.createElement('span');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => showSlides(i+1));
+    dots.appendChild(dot);
+  });
+
+  // 첫 장 보이기
+  window.slideIndex = 1;
+  if (typeof window.showSlides === 'function') showSlides(1);
+}
+// ▼ 전역에 추가
+let _prevWrapCount = 0;
+
+// MAX data-idx(=마지막 카드)가 "생길 때" 슬라이드 최신 카드로 전환
+function switchSlidesToNewestWrapIfCountIncreased() {
+  const rc = document.getElementById('recommand');
+  if (!rc) return;
+
+  // 인덱스 보정 후 갯수 비교
+  ensureAskFirstIndex();
+  reindexAskWraps();
+
+  const wraps = rc.querySelectorAll('.ask-wrap');
+  const count = wraps.length;
+
+  // "갯수 증가"시에만 반응 (drag-sort 등에는 반응 안 함)
+  if (count > _prevWrapCount) {
+    const newest = rc.querySelector(`.ask-wrap[data-idx="${count - 1}"]`) || wraps[wraps.length - 1];
+    if (newest) {
+      renderSlidesForWrap(newest);     // 새 마지막 카드의 메시지로 슬라이드 재구성
+      if (typeof showSlides === 'function') {
+        window.slideIndex = 1;
+        showSlides(1);                 // 첫 장으로 보여주기
+      }
+    }
+  }
+  _prevWrapCount = count;
 }
 
 </script>
