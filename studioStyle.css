@@ -516,6 +516,7 @@ tr:nth-child(even) td{ background:#fcfdff; }
   margin-top:8px;
 }
 .mini-card{
+  box-shadow: 0 .4rem .9rem rgba(43, 124, 255, .15);
   background-color: lightgray;
   margin: 3px; width: 150px;
   position:relative; height:35px;
@@ -642,7 +643,9 @@ tr:nth-child(even) td{ background:#fcfdff; }
 .card[data-step].active { display: block;    height: 100vh;}
 
   /* kw-chip tooltip */
-.kw-chip[data-tip] { position: relative; outline: none; }
+.kw-chip[data-tip] { 
+  box-shadow: 0 .4rem .9rem rgba(43, 124, 255, .15);
+  position: relative; outline: none; }
 
 /* 말풍선 */
 .kw-chip[data-tip]::after {

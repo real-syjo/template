@@ -802,6 +802,7 @@ tr:nth-child(even) td{ background:#fcfdff; }
 }
 
 #recommand .ask-wrap {
+  box-shadow: 0 .4rem .9rem rgba(43, 124, 255, .15);
   flex: 1 1 calc(50% - 14px);
   /* 최소 폭을 정해 카드 깨짐 방지(선택) */
   min-width: 260px;
