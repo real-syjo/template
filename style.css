@@ -135,44 +135,55 @@ a{
 /* Navbar */
 #navbar {
   position: fixed;
+  top: 0; left: 0; right: 0;
   width: 100%;
   display: flex;
-  justify-content: space-between;
-  background-color: transparent;
   align-items: center;
-  color: var(--color-white);
+  justify-content: center;   /* 중앙 정렬 */
+  background-color: transparent;
   padding: 16px;
-  transition: all var(--animation-duration) ease-in-out;
   z-index: 1;
 }
-.navbar__logo{
+
+.navbar__logo {
+  position: absolute;   /* 로고는 왼쪽 고정 */
+  left: 20px;
   font-size: 30px;
+}
+
+.navbar__menu li {
+  list-style: none;
 }
 
 .navbar__menu {
   display: flex;
-}
-.navbar__menu__item {
- padding: 8px 12px;
- margin: 0px 4px 0px 4px;
- cursor: pointer;
- border: 1px solid transparent;
- border-radius: var(--size-border-radius);
+  justify-content: center;  /* 중앙 정렬 */
+  gap: 54px;                /* 각 a 사이 간격 */
+  padding: 0;
+  margin: 0;
 }
 
-.navbar__menu__item:hover {
-  border: 1px solid var(--color-white);
-  background-color: #FFFF;
-  color: var(--color-dark-grey);       /* 글자색 흰색 */
-  transform: scale(1.1);           /* 살짝 확대 */
-}
 .navbar__toggle-btn {
-  position: absolute;
+  position: absolute;   /* 토글 버튼은 오른쪽 고정 */
   top: 24px;
   right: 32px;
   font-size: 24px;
   color: var(--color-white);
   display: none;
+}
+
+.navbar__menu__item {
+  display: inline-block;
+  padding: 8px 60px;         /* 버튼 안쪽 여백 */
+  font-weight: 600;
+  color: #fff;
+  transition: all 0.3s ease;
+  border-radius: var(--size-border-radius);
+}
+.navbar__menu__item:hover {
+  background: rgba(255,255,255,0.15); /* 살짝 투명 배경 */
+  color: #FFF
+  transform: scale(1.05);
 }
 
 /* Home */
@@ -521,3 +532,54 @@ article:hover{
   background: #2563eb;   /* hover 시 더 진한 파랑 */
 }
 
+/* ===== Mega Menu ===== */
+.mega-menu {
+  position: absolute;
+  top: 64px;          /* navbar 바로 아래 */
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border-top: 1px solid #eee;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+
+  display: flex;
+  justify-content: center;   /* ✅ 중앙 정렬 */
+  gap: 188px;                 /* 컬럼 사이 간격 */
+  padding: 24px;
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity .25s ease, transform .25s ease;
+  z-index: 999;
+}
+
+.mega-col {
+  padding-right: 10px;
+  flex: 0 0 auto;            /* ✅ 컬럼 크기를 내용에 맞게 */
+  text-align: center;        /* ✅ 내부 텍스트도 중앙 정렬 */
+}
+
+.mega-col h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 12px;
+  color: #111;
+}
+
+.mega-col a {
+  display: block;
+  padding: 6px 0;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+}
+.mega-col a:hover { color: #0a66ff; }
+
+
+/* 메뉴에 hover하면 메가메뉴 표시 */
+#navbar:hover .mega-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
