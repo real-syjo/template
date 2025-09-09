@@ -4,15 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ocean AI</title>
+    <title><b>Ocean AI</b></title>
     <meta name="description" content="Portfolio for world-renowned software engineer soyeon">
     <meta name="author" content="soyeon">
 
     <script src="https://kit.fontawesome.com/7ebfe642cb.js" crossorigin="anonymous"></script>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="martStyle.css"/>
-    <script src="home.js" defer></script>
+    <link rel="stylesheet" href="galleryStyle.css"/>
+    <script src="mart.js" defer></script>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@2.4.1/dist/email.min.js"> </script>
     <script src="https://code.jquery.com/jquery-latest.min.js"></script>
@@ -21,10 +21,10 @@
 <body>
      <nav id="navbar">
         <div class="navbar__logo"> 
-            <a href="index.html">Ocean Ai</a>
+            <a href="index.html"><b>Ocean Ai</b></a>
         </div>
             <ul class="navbar__menu">
-                 <a href="studio.html"><li class="navbar__menu__item" data-link="#about">디자인스튜디오</li></a>
+                <a href="studio.html"><li class="navbar__menu__item" data-link="#about">디자인스튜디오</li></a>
                 <a href="mart.html"><li class="navbar__menu__item" data-link="#skills">금융데이터마트</li></a>
                 <a href="gallery.html"><li class="navbar__menu__item" data-link="#work">포트폴리오갤러리</li></a>
                 <a href="admin.html"><li class="navbar__menu__item" data-link="#contact">작업관리자</li></a>
@@ -34,10 +34,38 @@
         <button class="navbar__toggle-btn">
             <i class="fas fa-bars"></i>
         </button>
+        <!-- ✅ 공통 메가 메뉴 -->
+        <div class="mega-menu">
+            <div class="mega-col">
+            <h3>Ocean Ai 서비스</h3>
+            <a href="studio.html">디자인스튜디오</a>
+            <a href="mart.html">금융데이터마트</a>
+            <a href="gallery.html">포트폴리오갤러리</a>
+            <a href="admin.html">작업관리자</a>
+            </div>
+            <div class="mega-col">
+            <h3>고객 지원</h3>
+            <a href="#">공지사항</a>
+            <a href="#">자주 묻는 질문</a>
+            <a href="#">문의하기</a>
+            </div>
+            <div class="mega-col">
+            <h3>회사 소개</h3>
+            <a href="#">비전</a>
+            <a href="#">연혁</a>
+            <a href="#">팀 소개</a>
+            </div>
+            <div class="mega-col">
+            <h3>리소스</h3>
+            <a href="#">문서 자료실</a>
+            <a href="#">API 가이드</a>
+            <a href="#">다운로드</a>
+            </div>
+        </div>
     </nav>
 
     <section id="home">
-          <h1> gallery</h1>
+        <img id="dataTicker" src="imgs/jupiterNoteBook.png" alt="마트이미지">
     </section> 
 
     <section id="about" class="section">

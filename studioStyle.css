@@ -159,13 +159,14 @@ p {
   z-index:1000;
 }
 .navbar__logo a{ font-size:30px; color:var(--accent, #2563eb) !important }
-.navbar__menu{ display:flex; margin-right: 305px;}
+.navbar__menu{ display:flex; margin-right: 18%;}
 .navbar__menu__item{
   padding:8px 85px;
   margin:0 00px;
   border:1px solid transparent;
   border-radius:var(--size-border-radius);
   color:#616161;
+    font-weight: 600;;
 }
 .navbar__menu__item:hover{
   border:1px solid var(--color-white);

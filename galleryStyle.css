@@ -26,7 +26,6 @@ a{
 	position: absolute;
 	width: 100%;
 	display: inline-block;
-	font-family: 'Raleway', sans-serif;
 	font-size: 70pt;
 	text-align: center;
 	user-select: none;
@@ -36,6 +35,7 @@ a{
 
 :root {
     /* Color */
+      --accent:#0a6fb0;
     --color-white: #ffffff;
     --color-light-white: #eeeeee;
     --color-dark-white: #bdbdbd;
@@ -74,8 +74,6 @@ a{
   }
 
   body{
-    font-family: 'Do Hyeon', sans-serif;
-    font-family: 'Poppins', sans-serif;
     margin: 0;
     cursor: default;
   }
@@ -131,49 +129,41 @@ a{
   }
 
 /* Navbar */
-#navbar {
-  position: fixed;
+#navbar{
+  position:fixed;
   width: 100%;
-  display: flex;
-  justify-content: space-between;
-  background-color: transparent;
-  align-items: center;
-  color: var(--color-white);
-  padding: 16px;
-  transition: all var(--animation-duration) ease-in-out;
-  z-index: 1;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:16px;
+  color:var(--color-white);
+  background:transparent;
+  transition:all var(--animation-duration) ease-in-out;
+  z-index:1000;
 }
-.navbar__logo a{
-  font-size: 30px;
-  color: #616161;
+.navbar__logo a{ font-size:30px; color:var(--accent, #2563eb) !important }
+.navbar__menu{ display:flex; margin-right: 17%;}
+.navbar__menu__item{
+  padding:8px 85px;
+  padding:8px 85px;
+  margin:0 00px;
+  border:1px solid transparent;
+  border-radius:var(--size-border-radius);
+  color:#616161;
+    font-weight: 600;;
+}
+.navbar__menu__item:hover{
+  border:1px solid var(--color-white);
+  background:var(--color-light-grey);
+  color:var(--color-white);
+  transform:scale(1.1);
+}
+.navbar__toggle-btn{
+  position:absolute; top:24px; right:32px;
+  font-size:24px; color:var(--color-white);
+  display:none;
 }
 
-.navbar__menu {
-  display: flex;
-}
-.navbar__menu__item {
- padding: 8px 12px;
- margin: 0px 4px 0px 4px;
- cursor: pointer;
- border: 1px solid transparent;
- border-radius: var(--size-border-radius);
- color: #616161;
-}
-
-.navbar__menu__item:hover {
-  border: 1px solid var(--color-white);
-  background-color: var(--color-light-grey);
-  color: var(--color-white);       /* 글자색 흰색 */
-  transform: scale(1.1);           /* 살짝 확대 */
-}
-.navbar__toggle-btn {
-  position: absolute;
-  top: 24px;
-  right: 32px;
-  font-size: 24px;
-  color: var(--color-white);
-  display: none;
-}
 
 /* Home */
 #home {
@@ -367,4 +357,58 @@ article:hover{
   color: var(--color-light-white);
  }
 
+#dataTicker{
+  padding-top: 70px;
 
+}
+
+.mega-menu {
+  position: absolute;
+  top: 70px;          /* navbar 바로 아래 */
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border-top: 1px solid #eee;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+
+  display: flex;
+  justify-content: center;   /* ✅ 중앙 정렬 */
+  gap: 188px;                 /* 컬럼 사이 간격 */
+  padding: 24px;
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity .25s ease, transform .25s ease;
+  z-index: 999;
+}
+
+.mega-col {
+  padding-right: 10px;
+  flex: 0 0 auto;            /* ✅ 컬럼 크기를 내용에 맞게 */
+  text-align: center;        /* ✅ 내부 텍스트도 중앙 정렬 */
+}
+
+.mega-col h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 12px;
+  color: #111;
+}
+
+.mega-col a {
+  display: block;
+  padding: 6px 0;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+}
+.mega-col a:hover { color: #0a66ff; }
+
+
+/* 메뉴에 hover하면 메가메뉴 표시 */
+#navbar:hover .mega-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
