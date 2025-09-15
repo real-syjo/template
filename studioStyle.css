@@ -1087,7 +1087,10 @@ body[data-step="2"] #gauge .gblock[data-index="1"] {
 
 
 /* 메뉴에 hover하면 메가메뉴 표시 */
-#navbar:hover .mega-menu {
+/* ul(.navbar__menu)에 올리거나 키보드 포커스가 있을 때 표시 */
+.navbar__menu:hover ~ .mega-menu,
+.navbar__menu:focus-within ~ .mega-menu,
+.mega-menu:hover {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);

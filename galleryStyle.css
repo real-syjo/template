@@ -370,6 +370,7 @@ article:hover{
   background: #fff;
   border-top: 1px solid #eee;
   box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  
 
   display: flex;
   justify-content: center;   /* ✅ 중앙 정렬 */
@@ -407,7 +408,10 @@ article:hover{
 
 
 /* 메뉴에 hover하면 메가메뉴 표시 */
-#navbar:hover .mega-menu {
+/* ul(.navbar__menu)에 올리거나 키보드 포커스가 있을 때 표시 */
+.navbar__menu:hover ~ .mega-menu,
+.navbar__menu:focus-within ~ .mega-menu,
+.mega-menu:hover {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
