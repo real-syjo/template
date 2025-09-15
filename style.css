@@ -144,7 +144,6 @@ a{
   padding: 16px;
   z-index: 1;
 }
-
 .navbar__logo {
   position: absolute;   /* 로고는 왼쪽 고정 */
   left: 20px;
