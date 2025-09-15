@@ -144,6 +144,7 @@ a{
   padding: 16px;
   z-index: 1;
 }
+
 .navbar__logo {
   position: absolute;   /* 로고는 왼쪽 고정 */
   left: 20px;
@@ -599,7 +600,6 @@ article:hover{
 
 /* 가득 채우고 넘치는 부분은 크롭 */
 .thumb--cover img{ object-fit: cover; }
-
 
 /* 기본 숨김 */
 /* 아주 흐리게: 미세 블러 + 거의 투명한 베일 */
