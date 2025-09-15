@@ -418,3 +418,47 @@ article:hover{
 }
 
 
+/* 기본 숨김 */
+/* 아주 흐리게: 미세 블러 + 거의 투명한 베일 */
+.menu-backdrop{
+  position: fixed;
+  inset: 0;
+  /* 베일 색은 거의 없는 수준으로 ↓ (아예 투명도 OK) */
+  background: rgba(255,255,255, .06);  /* 또는 rgba(0,0,0,.04) */
+  z-index: 900;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .25s ease, visibility .25s ease;
+  pointer-events: none;
+
+  /* ✨ 핵심: 미세 블러 */
+  backdrop-filter: blur(4px) saturate(105%) brightness(1.02);
+  -webkit-backdrop-filter: blur(4px) saturate(105%) brightness(1.02);
+}
+
+/* 열릴 때 보이게 (당신이 쓰던 트리거 규칙 그대로) */
+#navbar:hover + .menu-backdrop,
+#navbar:focus-within + .menu-backdrop{
+  opacity: 1;
+  visibility: visible;
+}
+
+
+/* 메가메뉴 열기 (기존 유지) */
+.navbar__menu:hover ~ .mega-menu,
+.navbar__menu:focus-within ~ .mega-menu,
+.mega-menu:hover,
+.mega-menu:focus-within{
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* 🔶 같은 조건으로 백드롭도 표시(형제이므로 동작) */
+.navbar__menu:hover ~ .menu-backdrop,
+.navbar__menu:focus-within ~ .menu-backdrop,
+.mega-menu:hover ~ .menu-backdrop,
+.mega-menu:focus-within ~ .menu-backdrop{
+  opacity: 1;
+  visibility: visible;
+}
