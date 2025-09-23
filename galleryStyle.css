@@ -190,9 +190,7 @@ a{
 .navbar__logo a{ font-size:30px; color:var(--accent, #2563eb) !important }
 .navbar__menu{ display:flex; margin-right: 17%;}
 .navbar__menu__item{
-  padding:8px 85px;
-  padding:8px 85px;
-  margin:0 00px;
+  padding:8px 109px;
   border:1px solid transparent;
   border-radius:var(--size-border-radius);
   color:#616161;
@@ -200,8 +198,7 @@ a{
 }
 .navbar__menu__item:hover{
   border:1px solid var(--color-white);
-  background:var(--color-light-grey);
-  color:var(--color-white);
+  color:var(--color-light-grey);
   transform:scale(1.1);
 }
 .navbar__toggle-btn{
@@ -506,4 +503,30 @@ article:hover{
 .mega-menu:focus-within ~ .menu-backdrop{
   opacity: 1;
   visibility: visible;
+}
+/* === MEGA MENU – HOVER ONLY / FINAL PATCH (put at the very end) === */
+
+/* 위치: navbar 바로 아래에 밀착 */
+#navbar .mega-menu{
+  position: absolute !important;
+  top: 100% !important;     /* 기존 top:64px/translateY(...) 전부 덮어씀 */
+  left: 0; right: 0;
+  transform: none !important;
+  z-index: 2000 !important; /* backdrop보다 위 */
+}
+
+/* 열림 조건: navbar 위이거나, 메가메뉴 자체 위일 때 */
+#navbar:hover .mega-menu,
+#navbar .mega-menu:hover{
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* (충돌 차단) 어딘가에 남아있는 'mega-menu:hover 시 숨김' 규칙을 완전 무력화 */
+.mega-menu:hover{
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: none !important;
 }

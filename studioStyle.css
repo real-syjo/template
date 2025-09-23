@@ -158,11 +158,56 @@ p {
   transition:all var(--animation-duration) ease-in-out;
   z-index:1000;
 }
+
+#navbar {
+    padding: 16px;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: transparent !important;       /* 흰 배경 강제 차단 */
+  isolation: isolate;                        /* blur 전파 방지 */
+  backdrop-filter: none !important;          /* 혹시 적용돼있다면 끔 */
+  -webkit-backdrop-filter: none !important;
+  /* 네비바 높이를 변수로 관리 (현재 너 CSS 맥락에 맞춰 64~72px 중 선택) */
+  --nav-h: 64px;
+}
+
+/* 화면 전체 오버레이(기본 숨김) */
+.menu-backdrop{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .25s ease, visibility .25s ease;
+  z-index: 900;                                /* navbar(1000)보다 낮게 */
+  backdrop-filter: blur(4px) saturate(105%) brightness(1.02);
+  -webkit-backdrop-filter: blur(4px) saturate(105%) brightness(1.02);
+
+  /* 🔑 네비바 영역을 잘라내서 blur/어둡기에서 제외 */
+  clip-path: polygon(
+    0 var(--nav-h),
+    100% var(--nav-h),
+    100% 100%,
+    0 100%
+  );
+}
+
+/* 열릴 때 표시 (네가 쓰던 트리거 그대로 유지) */
+.navbar__menu:hover ~ .menu-backdrop,
+.navbar__menu:focus-within ~ .menu-backdrop,
+.mega-menu:hover ~ .menu-backdrop,
+.mega-menu:focus-within ~ .menu-backdrop{
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
 .navbar__logo a{ font-size:30px; color:var(--accent, #2563eb) !important }
 .navbar__menu{ display:flex; margin-right: 18%;}
 .navbar__menu__item{
-  padding:8px 85px;
-  margin:0 00px;
+  padding:8px 109px;
   border:1px solid transparent;
   border-radius:var(--size-border-radius);
   color:#616161;
@@ -1141,3 +1186,29 @@ body[data-step="2"] #gauge .gblock[data-index="1"] {
   visibility: visible;
 }
 
+/* === FIX: 메가메뉴에 닿아도 절대 안 사라지게 (최종 우선순위) === */
+
+/* 위치: navbar 바로 아래에 밀착 */
+#navbar .mega-menu{
+  position: absolute !important;
+  top: 100% !important;     /* 기존 top:64px/translateY(...) 전부 덮어씀 */
+  left: 0; right: 0;
+  transform: none !important;
+  z-index: 2000 !important; /* backdrop보다 위 */
+}
+
+/* 열림 조건: navbar 위이거나, 메가메뉴 자체 위일 때 */
+#navbar:hover .mega-menu,
+#navbar .mega-menu:hover{
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* (충돌 차단) 어딘가에 남아있는 'mega-menu:hover 시 숨김' 규칙을 완전 무력화 */
+.mega-menu:hover{
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: none !important;
+}

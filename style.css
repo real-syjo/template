@@ -678,3 +678,311 @@ article:hover{
   opacity: 1;
   visibility: visible;
 }
+/* === MEGA MENU – HOVER ONLY / FINAL PATCH (put at the very end) === */
+
+/* (1) 기본값: 닫힘 + 네비바 바로 아래에 위치 */
+#navbar .mega-menu {
+  top: 100% !important;                 /* navbar 높이에 딱 붙임 (gap 없음) */
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateY(8px) !important;
+  transition: opacity .2s ease, visibility .2s ease, transform .2s ease;
+  z-index: 999 !important;
+}
+
+/* (2) 과거에 남아 있을 수 있는 열림 트리거 '무력화' */
+#navbar:hover .mega-menu,
+#navbar:focus-within .mega-menu,
+#navbar .navbar__menu:focus-within ~ .mega-menu {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateY(8px) !important;
+}
+
+/* (3) '열림' 조건을 :has()로 명확하게: 
+       - 메뉴 UL 위에 커서 있거나
+       - 메가메뉴 위에 커서 있을 때만 연다 */
+#navbar:has(.navbar__menu:hover) .mega-menu,
+#navbar:has(.mega-menu:hover) .mega-menu {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: translateY(0) !important;
+}
+
+/* (4) '닫힘' 조건을 :has()로 강제:
+       - 메뉴 UL도, 메가메뉴도 hover가 아닐 때는 무조건 닫힘 */
+#navbar:not(:has(.navbar__menu:hover)):not(:has(.mega-menu:hover)) .mega-menu {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateY(8px) !important;
+}
+
+/* (5) 백드롭은 보이기만 하고 클릭/호버는 절대 잡지 않게 */
+#navbar .menu-backdrop {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;     /* ← 핵심 */
+  z-index: 900 !important;
+  /* backdrop-filter는 네가 쓰던 값 그대로 둬도 됨 */
+}
+/* 메가메뉴가 열릴 때만 백드롭 표시 */
+#navbar:has(.navbar__menu:hover) .menu-backdrop,
+#navbar:has(.mega-menu:hover) .menu-backdrop {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* (6) 레이어 순서 고정 */
+#navbar { position: fixed; z-index: 1000 !important; }
+
+/* (7) (사소 버그) 세미콜론 누락 보정 – 안 해도 치명적이진 않지만 깔끔하게 */
+.navbar__menu__item:hover {
+  background: rgba(255,255,255,0.15);
+  color: #FFF;                          /* ← 세미콜론 추가 */
+  transform: scale(1.05);
+}
+/* === FINAL FIX: nav에서 내려갈 때 꺼지지 않게 + 메가메뉴는 선명 === */
+
+/* 0) 레이어 고정: navbar > mega > backdrop */
+#navbar { position: fixed; z-index: 3000 !important; isolation: isolate; }
+#navbar .menu-backdrop { z-index: 1000 !important; pointer-events: none !important; }
+
+/* 1) 메가메뉴는 nav 바로 아래에 '밀착' + 기본은 닫힘 */
+#navbar .mega-menu{
+  position: absolute;        /* 이미 absolute지만 확실히 명시 */
+  top: 100% !important;      /* ← gap 제거 핵심 */
+  left: 0; right: 0;
+  transform: none !important;/* 이동값 없애서 틈 생성 방지 */
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  z-index: 2000 !important;  /* 백드롭보다 항상 위 */
+}
+
+/* 2) 열림 조건: nav/UL/메가메뉴 어느 쪽이든 hover면 보이기 */
+#navbar:hover .mega-menu,
+#navbar .navbar__menu:hover ~ .mega-menu,
+#navbar .mega-menu:hover{
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* 3) hover 브릿지: nav 아래에 투명 다리(8~16px)로 hover 끊김 방지 */
+#navbar::after{
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: 100%;
+  height: 12px;              /* 필요 시 8~16px로 조절 */
+  background: transparent;
+  pointer-events: auto;      /* 이 구간 지나갈 때 nav:hover 유지 */
+  z-index: 1990;             /* 메가메뉴(2000)보다 낮게 → 겹치면 클릭은 메가메뉴로 감 */
+}
+
+/* 4) 백드롭도 같은 조건에서만 보이게 (그리고 이벤트는 절대 잡지 않게) */
+#navbar .menu-backdrop{
+  opacity: 0; visibility: hidden;
+}
+#navbar:hover .menu-backdrop,
+#navbar .navbar__menu:hover ~ .menu-backdrop,
+#navbar .mega-menu:hover ~ .menu-backdrop{
+  opacity: 1 !important;
+  visibility: visible !important;
+  /* pointer-events는 계속 none */
+}
+
+/* 5) 포커스로 고정 열림 방지 (탭/클릭 후에도 마우스 떼면 닫히게) */
+#navbar .navbar__menu:focus-within ~ .mega-menu,
+#navbar .mega-menu:focus-within{
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* === MEGA MENU: 끊김 없이 내려가도 안 사라지게 (CSS-only) === */
+
+/* 1) 메가메뉴를 네비바 바로 아래에 '밀착' (gap 제거) */
+#navbar .mega-menu{
+  position: absolute;        /* nav 안에 있으니 absolute 유지 */
+  top: 100% !important;      /* 64px 같은 고정값 X → nav 실제 높이에 붙임 */
+  left: 0; right: 0;
+  margin-top: 0 !important;
+  transform: none !important; /* translateY(...) 애니메이션이 gap을 만듦 → 제거 */
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  z-index: 2000 !important;   /* 백드롭보다 위 */
+  transition: opacity .15s ease, visibility .15s ease;
+}
+
+/* 2) 열림 조건: nav 위거나, UL(.navbar__menu) 위거나, 메가메뉴 위면 열기 유지 */
+#navbar:hover .mega-menu,
+#navbar .navbar__menu:hover ~ .mega-menu,
+#navbar .mega-menu:hover{
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* 3) 네비바 아래에 '보이지 않는 hover 브릿지'로 틈을 메꿈
+      (마우스가 내려갈 때 nav:hover가 끊기지 않도록 유지) */
+#navbar{
+  position: fixed;                 /* 이미 fixed면 그대로 */
+  z-index: 3000 !important;        /* 레이어: navbar > mega > backdrop */
+}
+#navbar::after{
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: 100%;                       /* nav의 바로 아래 */
+  height: 14px;                    /* 8~16px 사이로 조절해보세요 */
+  background: transparent;
+  pointer-events: auto;            /* 이 구간 동안 nav:hover 유지 */
+  z-index: 1999;                   /* 메가메뉴(2000)보다 살짝 낮게 → 클릭은 메가메뉴로 감 */
+}
+
+/* 4) 백드롭은 이벤트를 절대 잡지 않게 (hover 붙잡는 원인 차단) */
+#navbar .menu-backdrop{
+  pointer-events: none !important;
+  z-index: 1000 !important;
+}
+
+/* 5) 포커스로 고정 열림 방지 (클릭 후에도 마우스 떼면 닫히게) */
+#navbar .navbar__menu:focus-within ~ .mega-menu,
+#navbar .mega-menu:focus-within{
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* === FINAL: nav 벗어나도 메가메뉴로 내려가면 유지되게 === */
+
+/* 레이어: navbar > mega > backdrop */
+#navbar { position: fixed; z-index: 3000 !important; isolation: isolate; }
+#navbar .menu-backdrop { z-index: 1000 !important; pointer-events: none !important; }
+
+/* 1) 메가메뉴를 네비바 바로 아래에 '밀착' + 살짝 겹치기(틈 0) */
+#navbar .mega-menu{
+  position: absolute !important;
+  top: calc(100% - 1px) !important;  /* ← nav와 1px 겹치게 해서 gap 제거 */
+  left: 0; right: 0;
+  margin-top: 0 !important;
+  transform: none !important;        /* translateY로 틈 생기지 않게 */
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  z-index: 2000 !important;          /* 백드롭보다 위 */
+  transition: opacity .15s ease, visibility .15s ease;
+  /* (필요시 더 또렷하게) background: #fff; */
+}
+
+/* 2) 열림 조건: nav/UL/메가메뉴 중 어디든 hover면 열림 유지 */
+#navbar:hover .mega-menu,
+#navbar .navbar__menu:hover ~ .mega-menu,
+#navbar .mega-menu:hover{
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* 3) 보이지 않는 '호버 브릿지'로 이동 중 hover 끊김 방지 */
+#navbar::after{
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: 100%;
+  height: 14px;                 /* 10~18px 사이에서 필요 시 조절 */
+  background: transparent;
+  pointer-events: auto;         /* 이 구간도 nav:hover 유지 */
+  z-index: 1999;                /* 메가메뉴(2000)보다 낮게 → 클릭은 메가메뉴로 감 */
+}
+
+/* 4) 포커스로 고정 열림 방지 (클릭 후에도 마우스 떼면 닫히게) */
+#navbar .navbar__menu:focus-within ~ .mega-menu,
+#navbar .mega-menu:focus-within{
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* === MEGA MENU: 네비바 바로 아래 고정, 끊김 없이 유지 (CSS-only) === */
+
+/* 네비바 실제 높이에 맞게 조정(예: 64px, 72px 등) */
+#navbar { --nav-h: 64px; z-index: 3000 !important; isolation: isolate; }
+
+/* 메가메뉴: 화면에 '고정'해서 네비바 바로 아래에 붙임 (nav 높이/패딩 변화의 영향 X) */
+#navbar .mega-menu {
+  position: fixed !important;
+  top: var(--nav-h) !important;   /* ← 네비바 바로 아래 */
+  left: 0 !important;
+  right: 0 !important;
+  margin: 0 !important;
+  transform: none !important;     /* translateY로 gap 생기지 않게 */
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  z-index: 2000 !important;       /* 백드롭보다 위로 */
+  background: #fff;               /* 흐려 보이면 확실한 배경 */
+}
+
+/* 열림 조건: 네비바 위이거나, 메가메뉴 위면 계속 열림 */
+#navbar:hover .mega-menu,
+#navbar .mega-menu:hover {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* 기존의 top:64px / translateY(10px) / UL 기반 열림 규칙은 모두 무력화 */
+.mega-menu { top: var(--nav-h) !important; transform: none !important; }
+.navbar__menu:hover ~ .mega-menu,
+.navbar__menu:focus-within ~ .mega-menu {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: none !important;
+}
+
+/* 백드롭: 보이기만 하고 이벤트는 잡지 않게 (hover 끊김 방지) */
+#navbar .menu-backdrop {
+  z-index: 1000 !important;
+  pointer-events: none !important;
+}
+/* 메가메뉴가 열릴 때만 백드롭 표시 (선택) */
+#navbar:hover .menu-backdrop,
+#navbar .mega-menu:hover ~ .menu-backdrop {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* 혹시 넣어두었던 padding-bottom 확장 트릭을 완전 무효화 */
+#navbar:hover { padding-bottom: 0 !important; }
+/* === FIX: 메가메뉴에 닿아도 절대 안 사라지게 (최종 우선순위) === */
+
+/* 위치: navbar 바로 아래에 밀착 */
+#navbar .mega-menu{
+  position: absolute !important;
+  top: 100% !important;     /* 기존 top:64px/translateY(...) 전부 덮어씀 */
+  left: 0; right: 0;
+  transform: none !important;
+  z-index: 2000 !important; /* backdrop보다 위 */
+}
+
+/* 열림 조건: navbar 위이거나, 메가메뉴 자체 위일 때 */
+#navbar:hover .mega-menu,
+#navbar .mega-menu:hover{
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* (충돌 차단) 어딘가에 남아있는 'mega-menu:hover 시 숨김' 규칙을 완전 무력화 */
+.mega-menu:hover{
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: none !important;
+}
